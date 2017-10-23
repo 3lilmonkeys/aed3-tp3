@@ -43,8 +43,14 @@ string read_str() {
     return msg;
 }
 
-int calcularJugada(vector<vector<int>> tablero, int columnas, bool maximizar){
-    int resultado = validarVictoria(tablero);
+struct type_name{
+    vector<vector<int>> matrizFichas;
+    int n;//columnas
+    int m;//filas
+} tablero
+
+int calcularJugada(tablero& tab, int columnas, bool maximizar){
+    int resultado = validarVictoria(tablero.matrizFichas);
     if(resultado == 1){
         return 1;
     }
@@ -52,18 +58,51 @@ int calcularJugada(vector<vector<int>> tablero, int columnas, bool maximizar){
         return -1;
     }
     else{
-        if(tableroLleno(tablero)){
+        if(tableroLleno(&tablero)){//lo paso por referencia
             return 0;
         }
         else{
             if(maximizar){
-                vector<int> posiblesResultados(columnas);
-                for(int i = 0; i < columnas; i++){
-                    tablero[i].push_back(fichaRoja);
-                    posiblesResultados[i] = calcularJugada(tablero, columnas, !maximizar);
+                vector<tablero *> opcionesTablero[tablero.n];
+                vector<int> posiblesResultados[tablero.n];
+                for(int i = 0; i < tablero.n; i++){
+                    opcionesTablero[i] = new tablero; //creo la cantidad de tableros necesarios
+                    opcionesTablero[i]->matrizFichas[i].push_back(fichaAliada);
+                    int resultado = calcularJugada(*opcionesTablero[i], !maximizar);
+                    posiblesResultados[i].push_back(resultado);
+                    if(resultado == 1){ //parte alfabeta: si la rama que acabo de calcular ya me da 1 lo devuelvo asi no calculo los siguientes
+                        return 1;
+                    }
+
                 }
+                return max(posiblesResultados);//devolver el maximo de cada posibilidad
+            }
+            else{//minimizar
+                vector<tablero *> opcionesTablero[tablero.n];
+                vector<int> posiblesResultados[tablero.n];
+                for(int i = 0; i < tablero.n; i++){
+                    opcionesTablero[i] = new tablero; //creo la cantidad de tableros necesarios
+                    opcionesTablero[i]->matrizFichas[i].push_back(fichaEnemiga);
+                    int resultado = calcularJugada(*opcionesTablero[i], maximizar);
+                    posiblesResultados[i].push_back(resultado);
+                    if(resultado == -1){ //parte alfabeta
+                        return -1;
+                    }
+                }
+                return min(posiblesResultados);//devolver el minimo de cada posibilidad
             }
         }
 
     }
+}
+
+bool tableroLleno(tablero& tab){
+    bool lleno = true;
+    for (int i = 0; i < tab->n; ++i)
+    {
+        if(tab->matrizFichas[i].length == tab->m){
+            return false;
+        }
+    }
+    return lleno;
 }
