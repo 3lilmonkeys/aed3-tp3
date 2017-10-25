@@ -28,9 +28,9 @@ int read_int() {
     std::cin >> msg;
     if (msg == "salir") {
         send("listo");
-        std::exit(0);
+        exit(0);
     }
-    return std::stoi(msg);
+    return stoi(msg);
 }
 
 string read_str() {
@@ -44,7 +44,7 @@ string read_str() {
 }
 
 struct type_name{
-    vector<vector<int>> matrizFichas;
+    vector<vector<int>>* matrizFichas;
     int n;//columnas
     int m;//filas
 } tablero
@@ -58,7 +58,7 @@ int calcularJugada(tablero& tab, int columnas, bool maximizar){
         return -1;
     }
     else{
-        if(tableroLleno(&tablero)){//lo paso por referencia
+        if(tableroLleno(tablero)){
             return 0;
         }
         else{
@@ -66,7 +66,7 @@ int calcularJugada(tablero& tab, int columnas, bool maximizar){
                 vector<tablero *> opcionesTablero[tablero.n];
                 vector<int> posiblesResultados[tablero.n];
                 for(int i = 0; i < tablero.n; i++){
-                    opcionesTablero[i] = new tablero; //creo la cantidad de tableros necesarios
+                    opcionesTablero[i] = tablero; //creo la cantidad de tableros necesarios
                     opcionesTablero[i]->matrizFichas[i].push_back(fichaAliada);
                     int resultado = calcularJugada(*opcionesTablero[i], !maximizar);
                     posiblesResultados[i].push_back(resultado);
@@ -81,7 +81,7 @@ int calcularJugada(tablero& tab, int columnas, bool maximizar){
                 vector<tablero *> opcionesTablero[tablero.n];
                 vector<int> posiblesResultados[tablero.n];
                 for(int i = 0; i < tablero.n; i++){
-                    opcionesTablero[i] = new tablero; //creo la cantidad de tableros necesarios
+                    opcionesTablero[i] = tablero; //creo la cantidad de tableros necesarios
                     opcionesTablero[i]->matrizFichas[i].push_back(fichaEnemiga);
                     int resultado = calcularJugada(*opcionesTablero[i], maximizar);
                     posiblesResultados[i].push_back(resultado);
@@ -105,4 +105,54 @@ bool tableroLleno(tablero& tab){
         }
     }
     return lleno;
+}
+
+
+
+int main() {
+    string msg, color, oponent_color, go_first;
+    int columns, rows, c, p, move;
+
+    while (true) {
+        color = read_str();
+        oponent_color = read_str();
+
+        columns = read_int();
+        rows = read_int();
+        c = read_int();
+        p = read_int();
+
+
+        vector<int> board(columns);
+
+        vector<int> filas(rows, 0);
+
+        tablero tab();
+
+        for(int i=0; i<columns; ++i) board[i] = 0;
+
+        go_first = read_str();
+        if (go_first == "vos") {
+            move = calcularJugada(tablero& tab, int columnas, bool maximizar);
+            board[move]++;
+            send(move);
+        }
+
+        while (true) {
+            msg = read_str();
+            if (msg == "ganaste" || msg == "perdiste" || msg == "empataron") {
+                break;
+            }
+
+            board[std::stoi(msg)]++;
+            do {
+                move = calcularJugada(tablero& tab, int columnas, bool maximizar);
+            } while(board[move] >= rows);
+            
+            board[move]++;
+            send(move);
+        }
+    }
+
+    return 0;
 }
