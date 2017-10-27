@@ -22,13 +22,15 @@ struct tablero{
     int m;//filas
 } tablero1;
 
+
+
 tablero crearTablero(int n, int m){
     tablero tab;
     tab.m = m;
     tab.n = n;
     for(int i = 0; i < n; i++){
-        vector<int> filas(m);
-        tab.matrizFichas[i] = filas;
+        vector<int> filas;
+        tab.matrizFichas.push_back(filas);
     }
     return tab;
 }
@@ -37,8 +39,10 @@ tablero crearTablero(int n, int m){
 void actualizarTablero(tablero& tab, int move, bool moveAliado);
 int minRes(vector<int> resultados);
 int maxRes(vector<int> resultados);
+int posMax(vector<int> resultados);
 int validarVictoria(tablero& tab, int p);
 bool tableroLleno(tablero& tab);
+int evaluarJugada(tablero& tab, int columnas, bool maximizar, int c, int p);
 
 void send(const std::string& msg) {
     cout << msg << std::endl;
@@ -69,7 +73,29 @@ string read_str() {
 }
 
 
-int calcularJugada(tablero& tab, int columnas, bool maximizar, int c, int p){
+int calcularJugada(tablero& tab, int columnas, int c, int p){
+    vector<int> posiblesResultados(tab.n);
+    vector<tablero> opcionesTablero(tab.n);
+    for(int i = 0; i < columnas; i++){
+        opcionesTablero[i] = tab;
+        actualizarTablero(opcionesTablero[i], i, true);
+        if(opcionesTablero[i].matrizFichas[i].size() > tab.m){
+            posiblesResultados[i] = -2;
+            // le asginamos un -2 ya que no quiero tener en cuenta ese movimiento.
+        }
+        else{
+            posiblesResultados[i] = evaluarJugada(opcionesTablero[i], columnas, false, c, p);
+            // esta funcion se encargaria de maximizar, por lo tanto llamo a evaluar jugada con MINIMIZAR.
+            if(posiblesResultados[i] == 1){
+                return i;
+            }
+        }
+
+    }
+    return posMax(posiblesResultados);
+}
+
+int evaluarJugada(tablero& tab, int columnas, bool maximizar, int c, int p){
     int resultado = validarVictoria(tab, c);
     if(resultado == 1){
         return 1;
@@ -86,14 +112,16 @@ int calcularJugada(tablero& tab, int columnas, bool maximizar, int c, int p){
                 vector<tablero> opcionesTablero(tab.n);
                 vector<int> posiblesResultados(tab.n);
                 for(int i = 0; i < tab.n; i++){
-                    opcionesTablero[i] = tab; //creo la cantidad de tableros necesarios
-                    opcionesTablero[i].matrizFichas[i].push_back((fichaAliada));
-                    int resultado = calcularJugada(opcionesTablero[i], columnas, !maximizar, c, p);
-                    posiblesResultados[i] = resultado;
-                    if(resultado == 1){ //parte alfabeta: si la rama que acabo de calcular ya me da 1 lo devuelvo asi no calculo los siguientes
-                        return 1;
-                    }
+                    if(tab.matrizFichas[i].size() < tab.m){
+                        opcionesTablero[i] = tab; //creo la cantidad de tableros necesarios
+                        opcionesTablero[i].matrizFichas[i].push_back((fichaAliada));
 
+                        int resultado = evaluarJugada(opcionesTablero[i], columnas, !maximizar, c, p);
+                        posiblesResultados[i] = resultado;
+                        if(resultado == 1){ //parte alfabeta: si la rama que acabo de calcular ya me da 1 lo devuelvo asi no calculo los siguientes
+                            return 1;
+                        }
+                    }
                 }
                 return maxRes(posiblesResultados);//devolver el maximo de cada posibilidad
             }
@@ -101,18 +129,19 @@ int calcularJugada(tablero& tab, int columnas, bool maximizar, int c, int p){
                 vector<tablero> opcionesTablero(tab.n);
                 vector<int> posiblesResultados(tab.n);
                 for(int i = 0; i < tab.n; i++){
-                    opcionesTablero[i] = tab; //creo la cantidad de tableros necesarios
-                    opcionesTablero[i].matrizFichas[i].push_back((fichaEnemiga));
-                    int resultado = calcularJugada(opcionesTablero[i], columnas, maximizar, c, p);
-                    posiblesResultados[i] = resultado;
-                    if(resultado == -1){ //parte alfabeta
-                        return -1;
+                    if(tab.matrizFichas[i].size() < tab.m){
+                        opcionesTablero[i] = tab; //creo la cantidad de tableros necesarios
+                        opcionesTablero[i].matrizFichas[i].push_back((fichaEnemiga));
+                        int resultado = evaluarJugada(opcionesTablero[i], columnas, !maximizar, c, p);
+                        posiblesResultados[i] = resultado;
+                        if(resultado == -1){ //parte alfabeta
+                            return -1;
+                        }
                     }
                 }
                 return minRes(posiblesResultados);//devolver el minimo de cada posibilidad
             }
         }
-
     }
 }
 
@@ -132,43 +161,69 @@ int main() {
     string msg, color, oponent_color, go_first;
     int columns, rows, c, p, move;
 
-    while (true){
-        color = read_str();
-        oponent_color = read_str();
+    // voy a evaluar la funcion de calcularJugada, manualmente. Osea creando los tableros yo mismo.
+    int columnas = 3;
+    int filas = 3;
+    int cLinea = 3;
+    int fichas = 3;
 
-        columns = read_int();
-        rows = read_int();
-        c = read_int();
-        p = read_int();
+    tablero tab1 = crearTablero(columnas, filas);
 
-        tablero tab = crearTablero(columns, rows);
+    actualizarTablero(tab1, 1, true);
+    actualizarTablero(tab1, 0, false);
+    actualizarTablero(tab1, 1, true);
+    actualizarTablero(tab1, 0, false);
 
-        go_first = read_str();
-        if (go_first == "vos") {
-            move = calcularJugada(tab, columns, true, c, p);
-            actualizarTablero(tab, move, true);
-            send(move);
-        }
+    // Primero movi yo, luego el rival, cada columna tiene una sola ficha.
+    // por lo tanto al evaluar jugada deberia devolverme que mueva a la columna 1 ya que en la 0 esta el rival y en la 1 yo.
 
-        while (true){
-            msg = read_str();
-            if (msg == "ganaste" || msg == "perdiste" || msg == "empataron") {
-                break;
-            }
+//    int movimiento = calcularJugada(tab1, columnas, cLinea, fichas);
 
-            //actualizar tablero con el movimiento del enemigo
-            actualizarTablero(tab, std::stoi(msg), false);
+//    cout << "El movimiento a realizar es en la columna: " << movimiento << endl;
 
-            do {
-                move = calcularJugada(tab, columns, false, c, p);
-            } while(tableroLleno(tab));
-            //porque esta instruccion???
+    actualizarTablero(tab1, 0, true);
 
-            //actualizar tablero con el movimiento, move mio.
-            actualizarTablero(tab, move, true);
-            send(move);
-        }
-    }
+    actualizarTablero(tab1, 2, false);
+
+    int movimiento1 = calcularJugada(tab1, columnas, cLinea, fichas);
+
+    cout << "El movimiento a realizar es en la columna: " << movimiento1 << endl;
+
+
+   // while (true){
+   //     color = read_str();
+   //     oponent_color = read_str();
+   //
+   //     columns = read_int();
+   //     rows = read_int();
+   //     c = read_int();
+   //     p = read_int();
+   //
+   //     tablero tab = crearTablero(columns, rows);
+   //
+   //     go_first = read_str();
+   //     if (go_first == "vos") {
+   //         move = calcularJugada(tab, columns, c, p);
+   //         actualizarTablero(tab, move, true);
+   //         send(move);
+   //     }
+   //
+   //     while (true){
+   //         msg = read_str();
+   //         if (msg == "ganaste" || msg == "perdiste" || msg == "empataron") {
+   //             break;
+   //         }
+   //
+   //         //actualizar tablero con el movimiento del enemigo
+   //         actualizarTablero(tab, std::stoi(msg), false);
+   //
+   //         move = calcularJugada(tab, columns, c, p);
+   //
+   //         //actualizar tablero con el movimiento, move mio.
+   //         actualizarTablero(tab, move, true);
+   //         send(move);
+   //     }
+   // }
 
     return 0;
 }
@@ -178,7 +233,7 @@ int validarVictoria(tablero& tab, int p){
     {
         for (int j = 0; j < tab.m; ++j)         //j recorre filas
         {
-            if(i < tab.n - p){//chequea si hay ganador en la fila de p fichas  empezando de (i,k)
+            if(i <= tab.n - p){//chequea si hay ganador en la fila de p fichas  empezando de (i,k)
                 bool hayGanador = true;
                 for (int k = 1; k < p; ++k)
                 {
@@ -192,7 +247,7 @@ int validarVictoria(tablero& tab, int p){
                     if(tab.matrizFichas[i][j] == fichaAliada) {return gane;} else {return perdi;}
                 }
             }
-            if(j < tab.m - p){//chequea si hay ganador en la columna de p fichas  empezando de (i,k)
+            if(j <= tab.m - p){//chequea si hay ganador en la columna de p fichas  empezando de (i,k)
                 bool hayGanador = true;
                 for (int k = 1; k < p; ++k)
                 {
@@ -206,7 +261,7 @@ int validarVictoria(tablero& tab, int p){
                     if(tab.matrizFichas[i][j] == fichaAliada) {return gane;} else {return perdi;}
                 }
             }
-            if((i < tab.n - p)&&(j < tab.m - p)){//chequea si hay ganador en la diagonal hacia la derecha de p fichas empezando de (i,k)
+            if((i <= tab.n - p)&&(j <= tab.m - p)){//chequea si hay ganador en la diagonal hacia la derecha de p fichas empezando de (i,k)
                 bool hayGanador = true;
                 for (int k = 1; k < p; ++k)
                 {
@@ -220,7 +275,7 @@ int validarVictoria(tablero& tab, int p){
                     if(tab.matrizFichas[i][j] == fichaAliada) {return gane;} else {return perdi;}
                 }
             }
-            if((i > p)&&(j < tab.m - p)){//chequea si hay ganador en la diagonal hacia la izquierda de p fichas empezando de (i,k)
+            if((i >= p)&&(j <= tab.m - p)){//chequea si hay ganador en la diagonal hacia la izquierda de p fichas empezando de (i,k)
                 bool hayGanador = true;
                 for (int k = 1; k < p; ++k)
                 {
@@ -253,11 +308,22 @@ int minRes(vector<int> resultados){
 int maxRes(vector<int> resultados){
     int maxRes = resultados[0];
     for(int i = 0; i < resultados.size(); i++){
-        if(resultados[i] < maxRes){
+        if(resultados[i] > maxRes){
             maxRes = resultados[i];
         }
     }
     return maxRes;
+}
+
+
+int posMax(vector<int> resultados){
+    int maxPos = 0;
+    for(int i = 0; i < resultados.size(); i++){
+        if(resultados[i] > maxPos){
+            maxPos = i;
+        }
+    }
+    return maxPos;
 }
 
 void actualizarTablero(tablero& tab, int move, bool moveAliado){
