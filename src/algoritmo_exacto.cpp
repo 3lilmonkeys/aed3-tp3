@@ -43,6 +43,7 @@ int posMax(vector<int> resultados);
 int validarVictoria(tablero& tab, int p);
 bool tableroLleno(tablero& tab);
 int evaluarJugada(tablero& tab, int columnas, bool maximizar, int c, int p);
+bool hayFicha(tablero& tab, int columna, int fila);
 
 void send(const std::string& msg) {
     std::cout << msg << std::endl;
@@ -147,14 +148,13 @@ int evaluarJugada(tablero& tab, int columnas, bool maximizar, int c, int p){
 }
 
 bool tableroLleno(tablero& tab){
-    bool lleno = true;
     for (int i = 0; i < tab.n; ++i)
     {
-        if(tab.matrizFichas[i].size() == tab.m){
+        if(tab.matrizFichas[i].size() < tab.m){
             return false;
         }
     }
-    return lleno;
+    return true;
 }
 
 
@@ -200,62 +200,75 @@ int main() {
     return 0;
 }
 
-int validarVictoria(tablero& tab, int p){
+int validarVictoria(tablero& tab, int c){
     for (int i = 0; i < tab.n; ++i)             //i recorre columnas
     {
         for (int j = 0; j < tab.m; ++j)         //j recorre filas
         {
-            if(i <= tab.n - p){//chequea si hay ganador en la fila de p fichas  empezando de (i,k)
+            if(i <= tab.n - c){//chequea si hay ganador en la fila de p fichas  empezando de (i,k)
                 bool hayGanador = true;
-                for (int k = 1; k < p; ++k)
+                for (int k = 0; k < c; ++k)
                 {
-                    if (tab.matrizFichas[i][j] != tab.matrizFichas[i+k][j])
-                    {
-                        hayGanador = false;
-                        break;
-                    }
+					if (hayFicha(tab, j, i+k)) {
+						if (tab.matrizFichas[i][j] != tab.matrizFichas[i + k][j])
+						{
+							hayGanador = false;
+							break;
+						}
+					}
+					else { hayGanador = false;  break; }
                 }
                 if (hayGanador){
                     if(tab.matrizFichas[i][j] == fichaAliada) {return 1;} else {return -1;}
                 }
             }
-            if(j <= tab.m - p){//chequea si hay ganador en la columna de p fichas  empezando de (i,k)
+            if(j <= tab.m - c){//chequea si hay ganador en la columna de p fichas  empezando de (i,j)
                 bool hayGanador = true;
-                for (int k = 1; k < p; ++k)
-                {
-                    if (tab.matrizFichas[i][j] != tab.matrizFichas[i][j+k])
-                    {
-                        hayGanador = false;
-                        break;
-                    }
-                }
+				for (int k = 0; k < c; ++k)
+				{
+					if (hayFicha(tab, j + k, i)) {
+						if (tab.matrizFichas[i][j] != tab.matrizFichas[i][j + k])
+						{
+							hayGanador = false;
+							break;
+						}
+					}
+					else { hayGanador = false;  break; }
+				}
+
                 if (hayGanador){
                     if(tab.matrizFichas[i][j] == fichaAliada) {return 1;} else {return -1;}
                 }
             }
-            if((i <= tab.n - p)&&(j <= tab.m - p)){//chequea si hay ganador en la diagonal hacia la derecha de p fichas empezando de (i,k)
+            if((i <= tab.n - c)&&(j <= tab.m - c)){//chequea si hay ganador en la diagonal hacia la derecha de p fichas empezando de (i,k)
                 bool hayGanador = true;
-                for (int k = 1; k < p; ++k)
-                {
-                    if (tab.matrizFichas[i][j] != tab.matrizFichas[i+k][j+k])
-                    {
-                        hayGanador = false;
-                        break;
-                    }
-                }
+				for (int k = 0; k < c; ++k)
+				{
+					if (hayFicha(tab, j + k, i + k)) {
+						if (tab.matrizFichas[i][j] != tab.matrizFichas[i + k][j + k])
+						{
+							hayGanador = false;
+							break;
+						}
+					}
+					else { hayGanador = false;  break; }
+				}
                 if (hayGanador){
                     if(tab.matrizFichas[i][j] == fichaAliada) {return 1;} else {return -1;}
                 }
             }
-            if((i >= p - 1)&&(j <= tab.m - p)){//chequea si hay ganador en la diagonal hacia la izquierda de p fichas empezando de (i,k)
+            if((i >= c - 1)&&(j <= tab.m - c)){//chequea si hay ganador en la diagonal hacia la izquierda de p fichas empezando de (i,k)
                 bool hayGanador = true;
-                for (int k = 1; k < p; ++k)
+                for (int k = 0; k < c; ++k)
                 {
-                    if (tab.matrizFichas[i][j] != tab.matrizFichas[i-k][j+k])
-                    {
-                        hayGanador = false;
-                        break;
-                    }
+					if (hayFicha(tab, j + k, i - k)) {
+						if (tab.matrizFichas[i][j] != tab.matrizFichas[i - k][j + k])
+						{
+							hayGanador = false;
+							break;
+						}
+					}
+					else { hayGanador = false;  break; }
                 }
                 if (hayGanador){
                     if(tab.matrizFichas[i][j] == fichaAliada) {return 1;} else {return -1;}
@@ -305,4 +318,9 @@ void actualizarTablero(tablero& tab, int move, bool moveAliado){
     else{
         tab.matrizFichas[move].push_back(fichaEnemiga);
     }
+}
+
+
+bool hayFicha(tablero& tab, int columna, int fila) {
+	return columna < tab.matrizFichas[fila].size();
 }
