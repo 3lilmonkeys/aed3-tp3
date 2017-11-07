@@ -1,62 +1,46 @@
 #include <random>
+#include "individuo.h"
 
-
-#define CANT_PARAM 10
 #define TAM_POBLACION 100
 #define PROB_MUTACION 0.01
 #define LIMITE_PARAM 20
 
-
-struct individuo {
-	int parametros[CANT_PARAM];
-	float win_rate;
-	float rapidez;
-};
-
-individuo genetico(individuo poblacion0[]);
-individuo seleccionarPonderado(individuo poblacion[]);
-individuo seleccionarRandom(individuo poblacion[]);
-individuo crossover(individuo A, individuo B);
-individuo mutar(individuo A);
-
-
-individuo genetico(individuo poblacion0[]) {
+individuo genetico(vector<individuo> poblacion0) {
 	for (int i = 0; i < TAM_POBLACION; i++)
 	{
-		//poblacion0[i].win_rate = fitness;
-		//poblacion0[i].rapidez = fitness;
+		poblacion0[i].calcular_fitness();		
 	}
-	//merge_win_sort(poblacion0);
-	//merge_rap_sort(poblacion0);
-	individuo poblacionAux[TAM_POBLACION];
+	poblacion_sort(poblacion0);
+	vector<individuo> poblacionAux;
 
 	while (poblacion0[0].win_rate < 0.9) {
 		for (int i = 0; i < (TAM_POBLACION / 2); i++)
 		{
 			individuo indA = seleccionarRandom(poblacion0);
 			individuo indB = seleccionarPonderado(poblacion0);
-			indA = crossover(indA, indB);
-			indB = crossover(indA, indB);
-			indA = mutar(indA);
-			indB = mutar(indB);
-			//indA.win_rate = fitness;
-			//indA.rapidez = fitness;
-			//indB.win_rate = fitness;
-			//indB.rapidez = fitness;
-			poblacionAux[2 * i] = indA;
-			poblacionAux[2 * i + 1] = indB;
+
+			indA.crossover( indB);
+			indB.crossover(indA);
+
+			indA.mutar();
+			indB.mutar();
+
+			indA.calcular_fitness();
+			indB.calcular_fitness();
+
+			poblacionAux.push_back(indA);
+			poblacionAux.push_back(indB);
 		}
 		
 		poblacion0 = poblacionAux;
 
-		//merge_win_sort(poblacion0);
-		//merge_rap_sort(poblacion0);
+		poblacion_sort(poblacion0);
 	}
 
 	return poblacion0[0];
 }
 
-individuo seleccionarPonderado(individuo poblacion[]) {
+individuo seleccionarPonderado(vector<individuo> poblacion) {
 	std::random_device rd;
 	std::mt19937 gen(rd());
 	std::uniform_int_distribution<> dis(1, 100);
@@ -64,15 +48,15 @@ individuo seleccionarPonderado(individuo poblacion[]) {
 	while (true) {
 		for (int i = 0; i < 100; i++)
 		{
-			int capacidad = (int) poblacion[i].win_rate * 100 + poblacion[i].rapidez* 10;
-			if (dis(gen) < capacidad) {
+			int capacidad = (int) poblacion[i].win_rate * 100 + poblacion[i].rapidez * 10;
+			if (dis(gen) < (capacidad / 4)) {
 				return poblacion[i];
 			}
 		}
 	}
 }
 
-individuo seleccionarRandom(individuo poblacion[]) {
+individuo seleccionarRandom(vector<individuo> poblacion) {
 	std::random_device rd;
 	std::mt19937 gen(rd());
 	std::uniform_int_distribution<> dis(1, TAM_POBLACION/5);
@@ -86,40 +70,53 @@ individuo seleccionarRandom(individuo poblacion[]) {
 	}
 }
 
-individuo crossover(individuo A, individuo B) {
+void individuo::crossover(individuo B) {
 	std::random_device rd;
 	std::mt19937 gen(rd());
-	std::uniform_real_distribution<> dis(0, A.win_rate + B.win_rate);
+	std::uniform_real_distribution<> dis(0, win_rate + B.win_rate);
 
-	individuo res; 
-	for (int i = 0; i < CANT_PARAM; i++)
+	for (int i = 0; i < parametros.size(); i++)
 	{
-		if (dis(gen) > A.win_rate) {
-			res.parametros[i] = B.parametros[i];
+		if (dis(gen) > win_rate) {
+			parametros[i] = B.parametros[i];
 		}
-		else {
-			res.parametros[i] = A.parametros[i];
-		}
+
 	}
-	return res;
 }
 
-individuo mutar(individuo A) {
+void individuo::mutar() {
 	std::random_device rd;
 	std::mt19937 gen(rd());
 	std::uniform_real_distribution<> dis(0, 1);
 
 	std::uniform_int_distribution<> param(0, LIMITE_PARAM);
 
-	individuo res;
-	for (int i = 0; i < CANT_PARAM; i++)
+	for (int i = 0; i < parametros.size(); i++)
 	{
 		if (dis(gen) <= PROB_MUTACION) {
-			res.parametros[i] = param(gen);
-		}
-		else {
-			res.parametros[i] = A.parametros[i];
+			parametros[i] = param(gen);
 		}
 	}
-	return res;
+}
+
+
+void individuo::calcular_fitness() {
+	//hacer
+
+}
+
+
+void poblacion_sort(vector<individuo> poblacion) {
+	//hacer
+
+}
+
+
+
+
+int main() {
+	//hacer
+
+
+	return 0;
 }
