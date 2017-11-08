@@ -68,7 +68,6 @@ vector<bool> mejorHorizontal(bool ofensivo, tablero& tab, int p);
 vector<bool> mejorVertical(bool ofensivo, tablero& tab, int p);
 vector<bool> mejorDiagonal(bool ofensivo, tablero& tab, int p);
 vector<bool> juegoAlCentroExacto(tablero& tab);
-//vector<bool> juegoAlCentroAlrededor(tablero& tab); //vale la pena???
 vector<bool> ataqueInmediato(bool ofensivo, tablero& tab, int p);
 vector<bool> lineasDeXFichas(int x1, bool ofensivo, tablero& tab, int p);
 
@@ -80,16 +79,9 @@ bool hayFichaAliada(tablero& tab, int columna, int fila);
 bool hayFichaEnemiga(tablero& tab, int columna, int fila);
 vector<bool> posMaxOIguales(vector<int> resultados);
 void actualizarTablero(tablero& tab, int move, bool moveAliado);
-int minRes(vector<int> resultados);
-int maxRes(vector<int> resultados);
-int posMax(vector<int> resultados);
-int validarVictoria(tablero& tab, int p);
-bool tableroLleno(tablero& tab);
-int evaluarJugada(tablero& tab, int columnas, bool maximizar, int c, int p);
 list<estr> inicializarEstrategias(int estrUnicas, int estrTotales, int columnas);
 bool estrategiaEsValida(vector<bool> jugadas);
-vector<bool> calcularMoves(int estrategia);
-bool sePuedeMoverAhi(tablero &tab, int columna, int fila);
+
 
 //Como este tipo de estrategia va a variar segun el valor de C en linea, de 2 a C-1, voy a asumir que
 // el vector con las estrategias va a tener las ultimas C-3 posiciones con estas estrategias.
@@ -147,7 +139,7 @@ bool sePuedeMoverAhi(tablero &tab, int columna, int fila);
 //=====================================INICIO ALGORITMO CENTRAL 2A=================================================\\
 
 
-int jugadaGolosa(tablero &tab, list<estr> estrs, int estrUnicas, int formarLineas, int bloquearLineas, unsigned int cantEstrTotal, unsigned int columnas, int p){
+int jugadaGolosa(tablero &tab, list<estr> estrs, int estrUnicas, int formarYBloquearLineas, unsigned int cantEstrTotal, unsigned int columnas, int p){
 
     for(auto it = estrs.begin(); it != estrs.end() ; it++) it->peso = it->peso * (-1);
     //ordeno las estrategias por su peso de forma descendente
@@ -177,8 +169,8 @@ int jugadaGolosa(tablero &tab, list<estr> estrs, int estrUnicas, int formarLinea
         // calculo por separado ya que son excluyentes, los formar linea y bloquear linea
         else{
             // formarLinea
-            if(it->estrategia > estrUnicas && it->estrategia <= formarLineas+estrUnicas && !yaTengoFormarLinea){
-                //aca calculo lo de hacer, 2 en linea, 3 en linea ... Solo tomo el primero que me de alguna estr valida
+            if(it->estrategia > estrUnicas && it->estrategia <= formarYBloquearLineas+estrUnicas && (it->estrategia)%2 && !yaTengoFormarLinea){
+                //aca calculo lo de hacer, 2 en linea, 3 en linea ... Solo tomo el primero que me de alguna estr  valida
                 it->susMovs = calcularMoves(it->estrategia, tab,  p);
                 if(estrategiaEsValida(it->susMovs)){
                     estr estr1;
@@ -365,6 +357,9 @@ list<estr> inicializarEstrategias(int estrUnicas, int estrTotales, int columnas)
         estr estr;
         estr.estrategia = i;
         estr.peso = 5;            // asignar peso
+        if(i == 11){
+            estr.peso = 10;
+        }
         vector<bool> movimientosPosibles(columnas);
         estr.susMovs = movimientosPosibles;
         misEstrategias.push_back(estr);
@@ -1506,104 +1501,61 @@ bool sePuedeMoverAhi(tablero &tab, int columna, int fila){
 
 
 
-int main(){
-
-
-    int C = 6;
-    int estrategiasUnicas = 11;
-    int estrTotales = estrategiasUnicas+ (C-2)*2;
-    int columnas = 6;
-    int filas = 6;
-    int fichas = 18;
-
-    list<estr> estrategias = inicializarEstrategias(estrategiasUnicas, estrTotales, columnas);
-    for(auto it = estrategias.begin(); it != estrategias.end(); it++){
-        int estr = it->estrategia;
-        cout << it->estrategia << "\n";
-    }
-    tablero tab1 = crearTablero(columnas, filas);
-
-    // para testear las funciones de forma individual!
-
-    // mejorHorizontal esta testeada medianamente bien...
-    // mejorVertical esta testeada medianamente bien...
-    // jugarAlCentro no necesita mucho testeo...
-    // mejorDiagonal esta testeada muy poco
-    // ataqueInmediato le falta la parte de testeo.
-
-    actualizarTablero(tab1, 0, true);
-    actualizarTablero(tab1, 0, false);
-    actualizarTablero(tab1, 1, true);
-    actualizarTablero(tab1, 1, true);
-    actualizarTablero(tab1, 2, true);
-    actualizarTablero(tab1, 2, false);
-    actualizarTablero(tab1, 3, true);
-    actualizarTablero(tab1, 4, false);
-    actualizarTablero(tab1, 4, true);
-    actualizarTablero(tab1, 4, true);
-    actualizarTablero(tab1, 5, false);
-    actualizarTablero(tab1, 5, true);
-    actualizarTablero(tab1, 5, false);
-    actualizarTablero(tab1, 5, true);
-
-
-//    vector<bool> posibleRes = mejorHorizontal(false, tab1, cLinea);
+//int main(){
 //
-//    cout << "Move a realizar: \n " << posibleRes[0] << ", " << posibleRes[1] << ", "
-//         << posibleRes[2] << ", " << posibleRes[3] << ", " << posibleRes[4] << ", " << posibleRes[5];
-
-
-    int movimiento = jugadaGolosa(tab1, estrategias, estrategiasUnicas, C-2, C-2, estrTotales, columnas, C);
-
-    cout << "El movimiento a realizar es en la columna: " << movimiento << endl;
-
-
-}
+//
+//    int C = 6;
+//    int estrategiasUnicas = 11;
+//    int estrTotales = estrategiasUnicas+ (C-2)*2;
+//    int columnas = 6;
+//    int filas = 6;
+//    int fichas = 18;
+//
+//    list<estr> estrategias = inicializarEstrategias(estrategiasUnicas, estrTotales, columnas);
+//    for(auto it = estrategias.begin(); it != estrategias.end(); it++){
+//        int estr = it->estrategia;
+//        cout << it->estrategia << "\n";
+//    }
+//    tablero tab1 = crearTablero(columnas, filas);
+//
+//    // para testear las funciones de forma individual!
+//
+//    // mejorHorizontal esta testeada medianamente bien...
+//    // mejorVertical esta testeada medianamente bien...
+//    // jugarAlCentro no necesita mucho testeo...
+//    // mejorDiagonal esta testeada muy poco
+//    // ataqueInmediato le falta la parte de testeo.
+//
+//    actualizarTablero(tab1, 0, true);
+//    actualizarTablero(tab1, 0, false);
+//    actualizarTablero(tab1, 1, true);
+//    actualizarTablero(tab1, 1, true);
+//    actualizarTablero(tab1, 2, true);
+//    actualizarTablero(tab1, 2, false);
+//    actualizarTablero(tab1, 3, true);
+//    actualizarTablero(tab1, 4, false);
+//    actualizarTablero(tab1, 4, true);
+//    actualizarTablero(tab1, 4, true);
+//    actualizarTablero(tab1, 5, false);
+//    actualizarTablero(tab1, 5, true);
+//    actualizarTablero(tab1, 5, false);
+//    actualizarTablero(tab1, 5, true);
+//
+//
+////    vector<bool> posibleRes = mejorHorizontal(false, tab1, cLinea);
+////
+////    cout << "Move a realizar: \n " << posibleRes[0] << ", " << posibleRes[1] << ", "
+////         << posibleRes[2] << ", " << posibleRes[3] << ", " << posibleRes[4] << ", " << posibleRes[5];
+//
+//
+//    int movimiento = jugadaGolosa(tab1, estrategias, estrategiasUnicas, (C-2)*2, estrTotales, columnas, C);
+//
+//    cout << "El movimiento a realizar es en la columna: " << movimiento << endl;
+//
+//
+//}
 
 //==========================COSAS DEL EJ1 QUE PUEDEN SERVIR=================================================//
-
-bool tableroLleno(tablero& tab){
-    bool lleno = true;
-    for (int i = 0; i < tab.n; ++i)
-    {
-        if(tab.matrizFichas[i].size() == tab.m){
-            return false;
-        }
-    }
-    return lleno;
-}
-
-
-int minRes(vector<int> resultados){
-    int minRes = resultados[0];
-    for(int i = 0; i < resultados.size(); i++){
-        if(resultados[i] < minRes){
-            minRes = resultados[i];
-        }
-    }
-    return minRes;
-}
-
-int maxRes(vector<int> resultados){
-    int maxRes = resultados[0];
-    for(int i = 0; i < resultados.size(); i++){
-        if(resultados[i] > maxRes){
-            maxRes = resultados[i];
-        }
-    }
-    return maxRes;
-}
-
-
-int posMax(vector<int> resultados){
-    int maxPos = 0;
-    for(int i = 0; i < resultados.size(); i++){
-        if(resultados[i] > maxPos){
-            maxPos = i;
-        }
-    }
-    return maxPos;
-}
 
 vector<bool> posMaxOIguales(vector<int> resultados){
     int maxPos = 0;
