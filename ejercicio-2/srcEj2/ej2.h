@@ -155,6 +155,7 @@ int jugadaGolosa(tablero &tab, list<estr> estrs, int estrUnicas, int formarYBloq
     bool yaTengoBloquearLinea = false;
 
     for(auto it = estrs.begin(); it != estrs.end(); it++){
+        int size = posiblesJugadas.size();
         if(it->estrategia <= estrUnicas){                       // las estr arrancan de 1. Por eso el <=
             it->susMovs = calcularMoves(it->estrategia, tab,  p);    // calcularMoves falta
             if(estrategiaEsValida(it->susMovs)){            // miro que realmente me haya dado al menos una jugada valida.
@@ -163,13 +164,14 @@ int jugadaGolosa(tablero &tab, list<estr> estrs, int estrUnicas, int formarYBloq
                 estr1.estrategia = it->estrategia;
                 estr1.peso = it->peso;
                 posiblesJugadas.push_back(estr1);     // ya  que puede que no exista mov que satisfaga la estr
+                size = posiblesJugadas.size();
                 // por las dudas me creo una copia del IT, puede ser que sea innecesario
             }
         }
         // calculo por separado ya que son excluyentes, los formar linea y bloquear linea
         else{
             // formarLinea
-            if(it->estrategia > estrUnicas && it->estrategia <= formarYBloquearLineas+estrUnicas && (it->estrategia)%2 && !yaTengoFormarLinea){
+            if(it->estrategia > estrUnicas && it->estrategia <= formarYBloquearLineas+estrUnicas && ((it->estrategia)%2==0) && !yaTengoFormarLinea){
                 //aca calculo lo de hacer, 2 en linea, 3 en linea ... Solo tomo el primero que me de alguna estr  valida
                 it->susMovs = calcularMoves(it->estrategia, tab,  p);
                 if(estrategiaEsValida(it->susMovs)){
@@ -202,7 +204,8 @@ int jugadaGolosa(tablero &tab, list<estr> estrs, int estrUnicas, int formarYBloq
             }
         }
     }
-    return buscarMejorJugada(posiblesJugadas);
+    int jugada = buscarMejorJugada(posiblesJugadas);
+    return jugada;
     // una vez que tengo los posibles movimientos debo elegir el mejor de ellos segun algoritmo propuesto mas abajo.
     // basicamente voy a devolver la jugada que mas coincida en las estrs pero siempre dando prioridad maxima a primera
     // estr, luego a la segunda, y asi. (ya esta el pseudoCodigo)
@@ -324,6 +327,14 @@ int buscarMejorJugada(vector<estr> posiblesEstr){
         for(int j = 0; movCumpleEstr && j < posiblesEstr.size(); j++){
             if(posiblesEstr[j].susMovs[i]){
                 rachaActual++;
+                if(j == posiblesEstr.size()-1){
+                    if(mejorJugada < rachaActual){
+                        mejorJugada = rachaActual;
+                        mejorMov = i;
+                    }
+                    rachaActual = 0;
+                }
+
             }
             else{
                 movCumpleEstr = false;
