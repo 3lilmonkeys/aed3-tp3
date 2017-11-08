@@ -21,6 +21,7 @@
 
 using namespace std;
 
+
 struct tablero{
     vector<vector<int>> matrizFichas;
     int n;//columnas
@@ -62,18 +63,21 @@ struct estr{
     }
 };
 
-
+vector<bool> conectarLineas(bool ofensivo, tablero& tab, int p);
 vector<bool> mejorHorizontal(bool ofensivo, tablero& tab, int p);
 vector<bool> mejorVertical(bool ofensivo, tablero& tab, int p);
 vector<bool> mejorDiagonal(bool ofensivo, tablero& tab, int p);
 vector<bool> juegoAlCentroExacto(tablero& tab);
 //vector<bool> juegoAlCentroAlrededor(tablero& tab); //vale la pena???
 vector<bool> ataqueInmediato(bool ofensivo, tablero& tab, int p);
+vector<bool> lineasDeXFichas(int x1, bool ofensivo, tablero& tab, int p);
 
 
 vector<bool> calcularMoves(int estrategia, tablero &tab, int p);
 int buscarMejorJugada(vector<estr> posiblesJugadas);
 bool hayFicha(tablero& tab, int columna, int fila);
+bool hayFichaAliada(tablero& tab, int columna, int fila);
+bool hayFichaEnemiga(tablero& tab, int columna, int fila);
 vector<bool> posMaxOIguales(vector<int> resultados);
 void actualizarTablero(tablero& tab, int move, bool moveAliado);
 int minRes(vector<int> resultados);
@@ -82,7 +86,7 @@ int posMax(vector<int> resultados);
 int validarVictoria(tablero& tab, int p);
 bool tableroLleno(tablero& tab);
 int evaluarJugada(tablero& tab, int columnas, bool maximizar, int c, int p);
-void inicializarEstrategias(vector<int> misEstrategias, int cantEstrategias, int columnas);
+list<estr> inicializarEstrategias(int estrUnicas, int estrTotales, int columnas);
 bool estrategiaEsValida(vector<bool> jugadas);
 vector<bool> calcularMoves(int estrategia);
 bool sePuedeMoverAhi(tablero &tab, int columna, int fila);
@@ -157,12 +161,11 @@ int jugadaGolosa(tablero &tab, list<estr> estrs, int estrUnicas, int formarLinea
 
     bool yaTengoFormarLinea = false;
     bool yaTengoBloquearLinea = false;
-    vector<bool> calcularJugadas(columnas);
 
     for(auto it = estrs.begin(); it != estrs.end(); it++){
         if(it->estrategia <= estrUnicas){                       // las estr arrancan de 1. Por eso el <=
             it->susMovs = calcularMoves(it->estrategia, tab,  p);    // calcularMoves falta
-            if(estrategiaEsValida(calcularJugadas)){            // miro que realmente me haya dado al menos una jugada valida.
+            if(estrategiaEsValida(it->susMovs)){            // miro que realmente me haya dado al menos una jugada valida.
                 estr estr1;
                 estr1.susMovs = it->susMovs;
                 estr1.estrategia = it->estrategia;
@@ -176,8 +179,8 @@ int jugadaGolosa(tablero &tab, list<estr> estrs, int estrUnicas, int formarLinea
             // formarLinea
             if(it->estrategia > estrUnicas && it->estrategia <= formarLineas+estrUnicas && !yaTengoFormarLinea){
                 //aca calculo lo de hacer, 2 en linea, 3 en linea ... Solo tomo el primero que me de alguna estr valida
-                calcularJugadas = calcularMoves(it->estrategia, tab,  p);
-                if(estrategiaEsValida(calcularJugadas)){
+                it->susMovs = calcularMoves(it->estrategia, tab,  p);
+                if(estrategiaEsValida(it->susMovs)){
                     estr estr1;
                     estr1.susMovs = it->susMovs;
                     estr1.estrategia = it->estrategia;
@@ -192,8 +195,8 @@ int jugadaGolosa(tablero &tab, list<estr> estrs, int estrUnicas, int formarLinea
                 // version defensiva de la de arriba, ver si esta bien que se separen en dos grupos o hacer todo exluyentes.
                 if(!yaTengoBloquearLinea){
                     //bloquearLinea
-                    calcularJugadas = calcularMoves(it->estrategia, tab,  p);
-                    if(estrategiaEsValida(calcularJugadas)){
+                    it->susMovs = calcularMoves(it->estrategia, tab,  p);
+                    if(estrategiaEsValida(it->susMovs)){
                         estr estr1;
                         estr1.susMovs = it->susMovs;
                         estr1.estrategia = it->estrategia;
@@ -238,15 +241,13 @@ vector<bool> calcularMoves(int estrategia, tablero &tab, int p){
             movimientos = ataqueInmediato(true, tab, p);
             return movimientos;
 
-//        case 5:
-//            movimientos = conectarLineas(true, tab, p);
-//            //falta funcion
-//            return movimientos;
+        case 5:
+            movimientos = conectarLineas(true, tab, p);
+            return movimientos;
 
-//        case 6:
-//            movimientos = conectarLineas(false, tab, p);
-//            //falta funcion
-//            return movimientos;
+        case 6:
+            movimientos = conectarLineas(false, tab, p);
+            return movimientos;
 
         case 7:
             movimientos = mejorHorizontal(false, tab, p);
@@ -267,14 +268,47 @@ vector<bool> calcularMoves(int estrategia, tablero &tab, int p){
         case 11:
             movimientos = juegoAlCentroExacto(tab);
             return movimientos;
+        case 12:
+            movimientos = lineasDeXFichas(estrategia-10, true, tab, p);
+            return movimientos;
+        case 13:
+            lineasDeXFichas(estrategia-11, false, tab, p);
+            return movimientos;
+        case 14:
+            lineasDeXFichas(estrategia-11, true, tab, p);
+            return movimientos;
+        case 15:
+            lineasDeXFichas(estrategia-12, false, tab, p);
+            return movimientos;
+        case 16:
+            lineasDeXFichas(estrategia-12, true, tab, p);
+            return movimientos;
+        case 17:
+            lineasDeXFichas(estrategia-13, false, tab, p);
+            return movimientos;
+        case 18:
+            lineasDeXFichas(estrategia-13, true, tab, p);
+            return movimientos;
+        case 19:
+            lineasDeXFichas(estrategia-14, false, tab, p);
+            return movimientos;
+        case 20:
+            lineasDeXFichas(estrategia-14, true, tab, p);
+            return movimientos;
+        case 21:
+            lineasDeXFichas(estrategia-15, false, tab, p);
+            return movimientos;
+        case 22:
+            lineasDeXFichas(estrategia-15, true, tab, p);
+            return movimientos;
+        case 23:
+            lineasDeXFichas(estrategia-16, false, tab, p);
+            return movimientos;
 
-            //falataria el resto que son bloquearLineasDeX y hacerLineaDeX
 
-            //Nótese que valor 1 2 y 3 son los valores que puede tomar la opción
-            //la instrucción break es necesaria, para no ejecutar todos los casos.
-        default: exit(0);//Bloque de instrucciones por defecto;
-            //default, es el bloque que se ejecuta en caso de que no se de ningún caso
+        default: cout << "estrategia no soportada";
     }
+
 }
 
 //=====================================FIN ALGORITMO SUBCENTRAL=================================================\\
@@ -288,8 +322,28 @@ vector<bool> calcularMoves(int estrategia, tablero &tab, int p){
 // coincide con uno de los movimientos de la segunda estr mas ponderada, elijo ese movimientos sobre los otros.
 // VER SI CAMBIANDO LA FORMA DE ELEGIR A LA MEJOR JUGADA MEJORA EL JUGADOR(ej, devolver el mov tal que sumando los pesos
 // de todas las estr que tienen ese mov sea mayor que cualquier otro, no importa si la primer estr no tiene ese mov)
-int buscarMejorJugada(vector<estr> posiblesJugadas){
-
+int buscarMejorJugada(vector<estr> posiblesEstr){
+    int rachaActual = 0;
+    int mejorJugada = -1;
+    int mejorMov = -1;
+    bool movCumpleEstr = true;
+    for(int i = 0; i < posiblesEstr[0].susMovs.size(); i++){
+        movCumpleEstr = true;
+        for(int j = 0; movCumpleEstr && j < posiblesEstr.size(); j++){
+            if(posiblesEstr[j].susMovs[i]){
+                rachaActual++;
+            }
+            else{
+                movCumpleEstr = false;
+                if(mejorJugada < rachaActual){
+                    mejorJugada = rachaActual;
+                    mejorMov = i;
+                }
+                rachaActual = 0;
+            }
+        }
+    }
+    return mejorMov;
 }
 
 
@@ -305,8 +359,9 @@ bool estrategiaEsValida(vector<bool> jugadas){
 }
 
 
-void inicializarEstrategias(vector<estr> misEstrategias, int cantEstrategias, int columnas){
-    for(int i = 1; i <= cantEstrategias; i++){
+list<estr> inicializarEstrategias(int estrUnicas, int estrTotales, int columnas){
+    list<estr> misEstrategias;
+    for(int i = 1; i <= estrUnicas; i++){
         estr estr;
         estr.estrategia = i;
         estr.peso = 5;            // asignar peso
@@ -314,383 +369,763 @@ void inicializarEstrategias(vector<estr> misEstrategias, int cantEstrategias, in
         estr.susMovs = movimientosPosibles;
         misEstrategias.push_back(estr);
     }
+    int i = estrUnicas+1;
+    while(i < estrTotales){
+        estr estr;
+        estr.estrategia = i;
+        estr.peso = 5;            // asignar peso
+        vector<bool> movimientosPosibles(columnas);
+        estr.susMovs = movimientosPosibles;
+        misEstrategias.push_back(estr);
+        i++;
+        estr.estrategia = i;
+        estr.peso = 5;            // asignar peso
+        vector<bool> movimientosPosibles1(columnas);
+        estr.susMovs = movimientosPosibles1;
+        misEstrategias.push_back(estr);
+        i++;
+    }
+    return misEstrategias;
 }
 
+vector<bool> lineasDeXFichas(int x, bool ofensivo, tablero& tab, int p){
+    vector<bool> posiblesJugadas(tab.n);
+    vector<tablero> tabPosibles(tab.n);
+    bool aliado = true;
+    bool sigoMirando = true;
+    int lineaActual = 0;
 
-vector<bool> ataqueInmediato(bool ofensivo, tablero& tab, int p){
-    vector<bool> maxHorizontales = mejorHorizontal(ofensivo, tab, p);
-    vector<bool> maxVerticales = mejorVertical(ofensivo, tab, p);
-    vector<bool> maxDiagonales = mejorDiagonal(ofensivo, tab, p);
-    int actual = 0;
-    int mejor = 0;
-    int mejorPos = -1;
-    vector<int> mejoresJugadas(tab.n);
+    bool sigoPorDerecha = true;
+    bool sigoPorIzq = true;
 
     if(ofensivo){
         for(int i = 0; i < tab.n; i++){
-            bool ifCondition = true;
-            int fila = (int) tab.matrizFichas[i].size();
+            sigoMirando = true;
+            tabPosibles[i] = tab;
+            actualizarTablero(tabPosibles[i], i, aliado);
+            //me fijo si al mover la ficha en la columna i, conecte alguna linea.
 
-            if(maxHorizontales[i]){                                     // veo cual es la mejor HORIZONTAL
-                actual = 0;
-                for(int k = 0; k < p && (i + k < tab.m); k++){
-                    if(hayFicha(tab, i + k, fila) && ifCondition){             // la horizontal a la derecha
-                        if (fichaAliada == tab.matrizFichas[i + k][fila])
-                        {
-                            actual++;
-                        }
-                        else{
-                            ifCondition = false;
-                        }
+            // la fila donde jugue la ficha seria el nuevo size-1...
+            int fila = (int) tabPosibles[i].matrizFichas[i].size()-1;
+
+            lineaActual = 0;
+
+            // busco conexion de horizontales
+            for(int k = 1; k < p && sigoMirando; k++){
+                if(sigoPorDerecha || sigoPorIzq){
+                    if(sigoPorDerecha && hayFichaAliada(tabPosibles[i], i+k, fila)) {
+                        lineaActual++;
                     }
                     else{
-                        if (mejor <= actual){
-                            mejor = actual;
-                            if(mejoresJugadas[i] < mejor){
-                                mejoresJugadas[i] = mejor;
-                            }
-                        }
-                        else{
-                            actual = 0;
-                        }
+                        sigoPorDerecha = false;
                     }
-                }
-                actual = 0;
-                ifCondition = true;
-                for(int k = 0; k < p && (i - k >= 0); k++){
-                    if(hayFicha(tab, i - k, fila)  && ifCondition){
-                        if (fichaAliada == tab.matrizFichas[i - k][fila])
-                        {
-                            actual++;
-                        }
-                        else{
-                            ifCondition = false;
-                        }
+                    if(sigoPorIzq && hayFichaAliada(tabPosibles[i], i-k, fila)){
+                        lineaActual++;
                     }
-                    else{
-                        if (mejor <= actual){
-                            mejor = actual;
-                            if(mejoresJugadas[i] < mejor){
-                                mejoresJugadas[i] = mejor;
-                            }
-                        }
-                        else{
-                            actual = 0;
-                        }
-                    }
+                    else sigoPorIzq = false;
                 }
             }
-            if(maxVerticales[i]){
-                actual = 0;
-                ifCondition = true;
-                for(int k = 0; k < p && (i - k >= 0); k++){
-                    if(hayFicha(tab, i, fila - k && ifCondition)){
-                        if (fichaAliada == tab.matrizFichas[i][fila-k])
-                        {
-                            actual++;
-                        }
-                        else{
-                            ifCondition = false;
-                        }
-                    }
-                    else{
-                        if (mejor <= actual){
-                            mejor = actual;
-                            if(mejoresJugadas[i] < mejor){
-                                mejoresJugadas[i] = mejor;
-                            }
-                        }
-                        else{
-                            actual = 0;
-                        }
-                    }
-                }
+            // si ya encontre una linea que justo puedo formar una de x1 > x fichas, listo, paso a la sgt columna
+            if(lineaActual <= x-1) {
+                if(lineaActual == x-1) posiblesJugadas[i] = true;
             }
-            if(maxDiagonales[i]){
-                actual = 0;
-                ifCondition = true;
-                for(int k = 0; k < p && (i + k < tab.m) && (fila + k < tab.n); k++){
-                    if(hayFicha(tab, i + k, fila+k) && ifCondition){             // la horizontal a la derecha
-                        if (fichaAliada == tab.matrizFichas[i + k][fila+k])
-                        {
-                            actual++;
-                        }
-                        else{
-                            ifCondition = false;
-                        }
+            else{
+                posiblesJugadas[i] = false;
+                sigoMirando = false;
+            }
+
+            lineaActual = 0;
+            sigoPorDerecha = true;
+            sigoPorIzq = true;
+            // busco lineas diagonales (/) si todavia no en encontre una linea que contradiga que se puede tener una linea de x
+            for(int k = 1; k < p && sigoMirando; k++){
+                if(sigoPorDerecha || sigoPorIzq){
+                    if(sigoPorDerecha && hayFichaAliada(tabPosibles[i], i+k, fila+k)) {
+                        lineaActual++;
                     }
                     else{
-                        if (mejor <= actual){
-                            mejor = actual;
-                            if(mejoresJugadas[i] < mejor){
-                                mejoresJugadas[i] = mejor;
-                            }
-                        }
-                        else{
-                            actual = 0;
-                        }
+                        sigoPorDerecha = false;
                     }
-                }
-                actual = 0;
-                ifCondition = true;
-                for(int k = 0; k < p && (i - k >= 0) && (fila + k < tab.n); k++){
-                    if(hayFicha(tab, i - k, fila+k)  && ifCondition){
-                        if (fichaAliada == tab.matrizFichas[i - k][fila+k])
-                        {
-                            actual++;
-                        }
-                        else{
-                            ifCondition = false;
-                        }
+                    if(sigoPorIzq && hayFichaAliada(tabPosibles[i], i-k, fila-k)){
+                        lineaActual++;
                     }
-                    else{
-                        if (mejor <= actual){
-                            mejor = actual;
-                            if(mejoresJugadas[i] < mejor){
-                                mejoresJugadas[i] = mejor;
-                            }
-                        }
-                        else{
-                            actual = 0;
-                        }
-                    }
-                }
-                actual = 0;
-                ifCondition = true;
-                for(int k = 0; k < p && (i - k >= 0) && (fila - k >= 0); k++){
-                    if(hayFicha(tab, i - k, fila-k)  && ifCondition){
-                        if (fichaAliada == tab.matrizFichas[i - k][fila-k])
-                        {
-                            actual++;
-                        }
-                        else{
-                            ifCondition = false;
-                        }
-                    }
-                    else{
-                        if (mejor <= actual){
-                            mejor = actual;
-                            if(mejoresJugadas[i] < mejor){
-                                mejoresJugadas[i] = mejor;
-                            }
-                        }
-                        else{
-                            actual = 0;
-                        }
-                    }
-                }
-                actual = 0;
-                ifCondition = true;
-                for(int k = 0; k < p && (i + k < tab.n) && (fila - k >= 0); k++){
-                    if(hayFicha(tab, i + k, fila-k)  && ifCondition){
-                        if (fichaAliada == tab.matrizFichas[i + k][fila-k])
-                        {
-                            actual++;
-                        }
-                        else{
-                            ifCondition = false;
-                        }
-                    }
-                    else{
-                        if (mejor <= actual){
-                            mejor = actual;
-                            if(mejoresJugadas[i] < mejor){
-                                mejoresJugadas[i] = mejor;
-                            }
-                        }
-                        else{
-                            actual = 0;
-                        }
-                    }
+                    else sigoPorIzq = false;
                 }
             }
 
+            if(lineaActual <= x-1) {
+                if(lineaActual == x-1) posiblesJugadas[i] = true;
+            }
+            else{
+                posiblesJugadas[i] = false;
+                sigoMirando = false;
+            }
+
+            sigoPorDerecha = true;
+            sigoPorIzq = true;
+            lineaActual = 0;
+            // busco lineas diagonales (\) si todavia no en encontre una linea que contradiga que se puede tener una linea de x
+            for(int k = 1; k < p && sigoMirando; k++){
+                if(sigoPorDerecha || sigoPorIzq){
+                    if(sigoPorDerecha && hayFichaAliada(tabPosibles[i], i+k, fila-k)) {
+                        lineaActual++;
+                    }
+                    else{
+                        sigoPorDerecha = false;
+                    }
+                    if(sigoPorIzq && hayFichaAliada(tabPosibles[i], i-k, fila+k)){
+                        lineaActual++;
+                    }
+                    else sigoPorIzq = false;
+                }
+            }
+
+            if(lineaActual <= x-1) {
+                if(lineaActual == x-1) posiblesJugadas[i] = true;
+            }
+            else{
+                posiblesJugadas[i] = false;
+                sigoMirando = false;
+            }
+
+            sigoPorDerecha = true;
+            sigoPorIzq = true;
+            lineaActual = 0;
+            // busco lineas exactas de x fichas verticalmente, solo miro para abajo...
+            for(int k = 1; k < p && sigoMirando; k++){
+                if(hayFichaAliada(tabPosibles[i], i, fila-k)){
+                    lineaActual++;
+                }
+                else break;
+            }
+            // si ya encontre una linea que justo puedo formar una de x1 > x fichas, listo, paso a la sgt columna
+            if(lineaActual <= x-1) {
+                if(lineaActual == x-1) posiblesJugadas[i] = true;
+            }
+            else{
+                posiblesJugadas[i] = false;
+                sigoMirando = false;
+            }
         }
     }
     else{
         for(int i = 0; i < tab.n; i++){
-            bool ifCondition = true;
-            int fila = (int) tab.matrizFichas[i].size();
+            sigoMirando = true;
+            tabPosibles[i] = tab;
+            actualizarTablero(tabPosibles[i], i, aliado);
+            //me fijo si al mover la ficha en la columna i, conecte alguna linea.
 
-            if(maxHorizontales[i]){                                     // veo cual es la mejor HORIZONTAL
-                actual = 0;
-                for(int k = 0; k < p && (i + k < tab.m); k++){
-                    if(hayFicha(tab, i + k, fila) && ifCondition){             // la horizontal a la derecha
-                        if (fichaEnemiga == tab.matrizFichas[i + k][fila])
-                        {
-                            actual++;
-                        }
-                        else{
-                            ifCondition = false;
-                        }
+            // la fila donde jugue la ficha seria el nuevo size-1...
+            int fila = (int) tabPosibles[i].matrizFichas[i].size()-1;
+
+            lineaActual = 0;
+            int mejorConexionParcial = 0;
+
+            // busco conexion de horizontales
+            for(int k = 1; k < p && sigoMirando; k++){
+                if(sigoPorDerecha || sigoPorIzq){
+                    if(sigoPorDerecha && hayFichaEnemiga(tabPosibles[i], i+k, fila)) {
+                        lineaActual++;
                     }
                     else{
-                        if (mejor <= actual){
-                            mejor = actual;
-                            if(mejoresJugadas[i] < mejor){
-                                mejoresJugadas[i] = mejor;
-                            }
-                        }
-                        else{
-                            actual = 0;
-                        }
+                        sigoPorDerecha = false;
                     }
-                }
-                actual = 0;
-                ifCondition = true;
-                for(int k = 0; k < p && (i - k >= 0); k++){
-                    if(hayFicha(tab, i - k, fila)  && ifCondition){
-                        if (fichaEnemiga == tab.matrizFichas[i - k][fila])
-                        {
-                            actual++;
-                        }
-                        else{
-                            ifCondition = false;
-                        }
+                    if(sigoPorIzq && hayFichaEnemiga(tabPosibles[i], i-k, fila)){
+                        lineaActual++;
                     }
-                    else{
-                        if (mejor <= actual){
-                            mejor = actual;
-                            if(mejoresJugadas[i] < mejor){
-                                mejoresJugadas[i] = mejor;
-                            }
-                        }
-                        else{
-                            actual = 0;
-                        }
-                    }
+                    else sigoPorIzq = false;
                 }
             }
-            if(maxVerticales[i]){
-                actual = 0;
-                ifCondition = true;
-                for(int k = 0; k < p && (i - k >= 0); k++){
-                    if(hayFicha(tab, i, fila - k && ifCondition)){
-                        if (fichaEnemiga == tab.matrizFichas[i][fila-k])
-                        {
-                            actual++;
-                        }
-                        else{
-                            ifCondition = false;
-                        }
-                    }
-                    else{
-                        if (mejor <= actual){
-                            mejor = actual;
-                            if(mejoresJugadas[i] < mejor){
-                                mejoresJugadas[i] = mejor;
-                            }
-                        }
-                        else{
-                            actual = 0;
-                        }
-                    }
-                }
+            // si ya encontre una linea que justo puedo formar una de x1 > x fichas, listo, paso a la sgt columna
+            if(lineaActual <= x-1) {
+                if(lineaActual == x-1) posiblesJugadas[i] = true;
             }
-            if(maxDiagonales[i]){
-                actual = 0;
-                ifCondition = true;
-                for(int k = 0; k < p && (i + k < tab.m) && (fila + k < tab.n); k++){
-                    if(hayFicha(tab, i + k, fila+k) && ifCondition){             // la horizontal a la derecha
-                        if (fichaEnemiga == tab.matrizFichas[i + k][fila+k])
-                        {
-                            actual++;
-                        }
-                        else{
-                            ifCondition = false;
-                        }
+            else{
+                posiblesJugadas[i] = false;
+                sigoMirando = false;
+            }
+            sigoPorDerecha = true;
+            sigoPorIzq = true;
+            lineaActual = 0;
+            // busco lineas diagonales (/) si todavia no en encontre una linea que contradiga que se puede tener una linea de x
+            for(int k = 1; k < p && sigoMirando; k++){
+                if(sigoPorDerecha || sigoPorIzq){
+                    if(sigoPorDerecha && hayFichaEnemiga(tabPosibles[i], i+k, fila+k)) {
+                        lineaActual++;
                     }
                     else{
-                        if (mejor <= actual){
-                            mejor = actual;
-                            if(mejoresJugadas[i] < mejor){
-                                mejoresJugadas[i] = mejor;
-                            }
-                        }
-                        else{
-                            actual = 0;
-                        }
+                        sigoPorDerecha = false;
                     }
-                }
-                actual = 0;
-                ifCondition = true;
-                for(int k = 0; k < p && (i - k >= 0) && (fila + k < tab.n); k++){
-                    if(hayFicha(tab, i - k, fila+k)  && ifCondition){
-                        if (fichaEnemiga == tab.matrizFichas[i - k][fila+k])
-                        {
-                            actual++;
-                        }
-                        else{
-                            ifCondition = false;
-                        }
+                    if(sigoPorIzq && hayFichaEnemiga(tabPosibles[i], i-k, fila-k)){
+                        lineaActual++;
                     }
-                    else{
-                        if (mejor <= actual){
-                            mejor = actual;
-                            if(mejoresJugadas[i] < mejor){
-                                mejoresJugadas[i] = mejor;
-                            }
-                        }
-                        else{
-                            actual = 0;
-                        }
-                    }
-                }
-                actual = 0;
-                ifCondition = true;
-                for(int k = 0; k < p && (i - k >= 0) && (fila - k >= 0); k++){
-                    if(hayFicha(tab, i - k, fila-k)  && ifCondition){
-                        if (fichaEnemiga == tab.matrizFichas[i - k][fila-k])
-                        {
-                            actual++;
-                        }
-                        else{
-                            ifCondition = false;
-                        }
-                    }
-                    else{
-                        if (mejor <= actual){
-                            mejor = actual;
-                            if(mejoresJugadas[i] < mejor){
-                                mejoresJugadas[i] = mejor;
-                            }
-                        }
-                        else{
-                            actual = 0;
-                        }
-                    }
-                }
-                actual = 0;
-                ifCondition = true;
-                for(int k = 0; k < p && (i + k < tab.n) && (fila - k >= 0); k++){
-                    if(hayFicha(tab, i + k, fila-k)  && ifCondition){
-                        if (fichaEnemiga == tab.matrizFichas[i + k][fila-k])
-                        {
-                            actual++;
-                        }
-                        else{
-                            ifCondition = false;
-                        }
-                    }
-                    else{
-                        if (mejor <= actual){
-                            mejor = actual;
-                            if(mejoresJugadas[i] < mejor){
-                                mejoresJugadas[i] = mejor;
-                            }
-                        }
-                        else{
-                            actual = 0;
-                        }
-                    }
+                    else sigoPorIzq = false;
                 }
             }
 
+            if(lineaActual <= x-1) {
+                if(lineaActual == x-1) posiblesJugadas[i] = true;
+            }
+            else{
+                posiblesJugadas[i] = false;
+                sigoMirando = false;
+            }
+
+            sigoPorDerecha = true;
+            sigoPorIzq = true;
+            lineaActual = 0;
+            // busco lineas diagonales (\) si todavia no en encontre una linea que contradiga que se puede tener una linea de x
+            for(int k = 1; k < p && sigoMirando; k++){
+                if(sigoPorDerecha || sigoPorIzq){
+                    if(sigoPorDerecha && hayFichaEnemiga(tabPosibles[i], i+k, fila-k)) {
+                        lineaActual++;
+                    }
+                    else{
+                        sigoPorDerecha = false;
+                    }
+                    if(sigoPorIzq && hayFichaEnemiga(tabPosibles[i], i-k, fila+k)){
+                        lineaActual++;
+                    }
+                    else sigoPorIzq = false;
+                }
+            }
+
+            if(lineaActual <= x-1) {
+                if(lineaActual == x-1) posiblesJugadas[i] = true;
+            }
+            else{
+                posiblesJugadas[i] = false;
+                sigoMirando = false;
+            }
+
+            sigoPorDerecha = true;
+            sigoPorIzq = true;
+            lineaActual = 0;
+            // busco lineas exactas de x fichas verticalmente, solo miro para abajo...
+            for(int k = 1; k < p && sigoMirando; k++){
+                if(hayFichaEnemiga(tabPosibles[i], i, fila-k)){
+                    lineaActual++;
+                }
+                else break;
+            }
+            // si ya encontre una linea que justo puedo formar una de x1 > x fichas, listo, paso a la sgt columna
+            if(lineaActual <= x-1) {
+                if(lineaActual == x-1) posiblesJugadas[i] = true;
+            }
+            else{
+                posiblesJugadas[i] = false;
+                sigoMirando = false;
+            }
         }
     }
-    vector<bool> posiblesRes = posMaxOIguales(mejoresJugadas);
-    return posiblesRes;
+    return posiblesJugadas;
 }
+
+vector<bool> conectarLineas(bool ofensivo, tablero& tab, int p){
+    vector<int> mejoresConexionesColumna(tab.n);
+    vector<bool> posiblesJugadas(tab.n);
+    vector<tablero> tabPosibles(tab.n);
+    bool aliado = true;
+
+    //considerar que no tiene sentido ver si conecte una vertical...Es imposible
+    //tomo que conectarLinea solo suceda si realmente conecte una linea, y por ej si alargue una linea pero no conecte
+    // nada, eso no vale como conectar (caso de juegar en las columnas tab.n-1 y 0 no los cuento entonces)
+
+    if(ofensivo){
+        for(int i = 1; i < tab.n-1; i++){
+            tabPosibles[i] = tab;
+            actualizarTablero(tabPosibles[i], i, aliado);
+            //me fijo si al mover la ficha en la columna i, conecte alguna linea.
+
+            // la fila donde jugue la ficha seria el nuevo size-1...
+            int fila = (int) tabPosibles[i].matrizFichas[i].size()-1;
+
+            int conexionActual = 0;
+            int mejorConexionParcial = 0;
+            bool expandoSoloPorIzq = false;
+            bool expandoSoloPorDer = false;
+
+            // busco conexion de horizontales
+            for(int k = 1; k < p; k++){
+                if(expandoSoloPorDer){
+                    if(hayFichaAliada(tabPosibles[i], i+k, fila)){
+                        conexionActual++;
+                    }
+                }
+                else if(expandoSoloPorIzq){
+                    if(hayFichaAliada(tabPosibles[i], i-k, fila)){
+                        conexionActual++;
+                    }
+                }
+                else{
+                    if(hayFichaAliada(tabPosibles[i], i+k, fila) && hayFichaAliada(tabPosibles[i], i-k, fila) ){
+                        conexionActual += 2;
+                    }
+                    else{
+                        if(k > 1){
+                            if(hayFichaAliada(tabPosibles[i], i+k, fila)){
+                                conexionActual++;
+                                expandoSoloPorDer = true;
+                            }
+                            if(hayFichaAliada(tabPosibles[i], i-k, fila)){
+                                conexionActual++;
+                                expandoSoloPorIzq = true;
+                            }
+                        }
+                        else{
+                            break;
+                        }
+                    }
+                }
+            }
+            expandoSoloPorIzq = false;
+            expandoSoloPorDer = false;
+            mejorConexionParcial = conexionActual;
+            conexionActual = 0;
+            // busco conexion de DIAGONALES orientadas a la derecha es decir / asi...
+            for(int k = 1; k < p; k++){
+                if(expandoSoloPorDer){
+                    if(hayFichaAliada(tabPosibles[i], i+k, fila+1)){
+                        conexionActual++;
+                    }
+                }
+                else if(expandoSoloPorIzq){
+                    if(hayFichaAliada(tabPosibles[i], i-k, fila-1)){
+                        conexionActual++;
+                    }
+                }
+                else{
+                    if(hayFichaAliada(tabPosibles[i], i+k, fila+k) && hayFichaAliada(tabPosibles[i], i-k, fila-k) ){
+                        conexionActual += 2;
+                    }
+                    else{
+                        if(k > 1){
+                            if(hayFichaAliada(tabPosibles[i], i+k, fila+k)){
+                                conexionActual++;
+                                expandoSoloPorDer = true;
+                            }
+                            if(hayFichaAliada(tabPosibles[i], i-k, fila-k)){
+                                conexionActual++;
+                                expandoSoloPorIzq = true;
+                            }
+                        }
+                        else{
+                            break;
+                        }
+                    }
+                }
+            }
+            expandoSoloPorIzq = false;
+            expandoSoloPorDer = false;
+            if(mejorConexionParcial < conexionActual){
+                mejorConexionParcial = conexionActual;
+            }
+            conexionActual = 0;
+
+            // busco conexion de DIAGONALES orientadas a la izquiera es decir \ asi...
+            for(int k = 1; k < p; k++){
+                if(expandoSoloPorDer){
+                    if(hayFichaAliada(tabPosibles[i], i+k, fila-1)){
+                        conexionActual++;
+                    }
+                }
+                else if(expandoSoloPorIzq){
+                    if(hayFichaAliada(tabPosibles[i], i-k, fila+1)){
+                        conexionActual++;
+                    }
+                }
+                else{
+                    if(hayFichaAliada(tabPosibles[i], i+k, fila-k) && hayFichaAliada(tabPosibles[i], i-k, fila+k) ){
+                        conexionActual += 2;
+                    }
+                    else{
+                        if(k > 1){
+                            if(hayFichaAliada(tabPosibles[i], i+k, fila-k)){
+                                conexionActual++;
+                                expandoSoloPorDer = true;
+                            }
+                            if(hayFichaAliada(tabPosibles[i], i-k, fila+k)){
+                                conexionActual++;
+                                expandoSoloPorIzq = true;
+                            }
+                        }
+                        else{
+                            break;
+                        }
+                    }
+                }
+            }
+            if(mejorConexionParcial < conexionActual){
+                mejorConexionParcial = conexionActual;
+            }
+            conexionActual = 0;
+
+            mejoresConexionesColumna[i] = mejorConexionParcial;
+        }
+        return posiblesJugadas = posMaxOIguales(mejoresConexionesColumna);
+    }
+    else{
+        for(int i = 1; i < tab.n-1; i++){
+            tabPosibles[i] = tab;
+            actualizarTablero(tabPosibles[i], i, aliado);
+            //me fijo si al mover la ficha en la columna i, desconecte alguna posible futura linea.
+
+            // la fila donde jugue la ficha seria el nuevo size-1...
+            int fila = (int) tabPosibles[i].matrizFichas[i].size()-1;
+
+            int conexionActual = 0;
+            int mejorConexionParcial = 0;
+            bool expandoSoloPorIzq = false;
+            bool expandoSoloPorDer = false;
+
+            // busco conexion de horizontales
+            for(int k = 1; k < p; k++){
+                if(expandoSoloPorDer){
+                    if(hayFichaEnemiga(tabPosibles[i], i+k, fila)){
+                        conexionActual++;
+                    }
+                }
+                else if(expandoSoloPorIzq){
+                    if(hayFichaEnemiga(tabPosibles[i], i-k, fila)){
+                        conexionActual++;
+                    }
+                }
+                else{
+                    if(hayFichaEnemiga(tabPosibles[i], i+k, fila) && hayFichaEnemiga(tabPosibles[i], i-k, fila) ){
+                        conexionActual += 2;
+                    }
+                    else{
+                        if(k > 1){
+                            if(hayFichaEnemiga(tabPosibles[i], i+k, fila)){
+                                conexionActual++;
+                                expandoSoloPorDer = true;
+                            }
+                            if(hayFichaEnemiga(tabPosibles[i], i-k, fila)){
+                                conexionActual++;
+                                expandoSoloPorIzq = true;
+                            }
+                        }
+                        else{
+                            break;
+                        }
+                    }
+                }
+            }
+            expandoSoloPorIzq = false;
+            expandoSoloPorDer = false;
+            mejorConexionParcial = conexionActual;
+            conexionActual = 0;
+            // busco conexion de DIAGONALES orientadas a la derecha es decir / asi...
+            for(int k = 1; k < p; k++){
+                if(expandoSoloPorDer){
+                    if(hayFichaEnemiga(tabPosibles[i], i+k, fila+1)){
+                        conexionActual++;
+                    }
+                }
+                else if(expandoSoloPorIzq){
+                    if(hayFichaEnemiga(tabPosibles[i], i-k, fila-1)){
+                        conexionActual++;
+                    }
+                }
+                else{
+                    if(hayFichaEnemiga(tabPosibles[i], i+k, fila+k) && hayFichaEnemiga(tabPosibles[i], i-k, fila-k) ){
+                        conexionActual += 2;
+                    }
+                    else{
+                        if(k > 1){
+                            if(hayFichaEnemiga(tabPosibles[i], i+k, fila+k)){
+                                conexionActual++;
+                                expandoSoloPorDer = true;
+                            }
+                            if(hayFichaEnemiga(tabPosibles[i], i-k, fila-k)){
+                                conexionActual++;
+                                expandoSoloPorIzq = true;
+                            }
+                        }
+                        else{
+                            break;
+                        }
+                    }
+                }
+            }
+            expandoSoloPorIzq = false;
+            expandoSoloPorDer = false;
+            if(mejorConexionParcial < conexionActual){
+                mejorConexionParcial = conexionActual;
+            }
+            conexionActual = 0;
+
+            // busco conexion de DIAGONALES orientadas a la izquiera es decir \ asi...
+            for(int k = 1; k < p; k++){
+                if(expandoSoloPorDer){
+                    if(hayFichaEnemiga(tabPosibles[i], i+k, fila-1)){
+                        conexionActual++;
+                    }
+                }
+                else if(expandoSoloPorIzq){
+                    if(hayFichaEnemiga(tabPosibles[i], i-k, fila+1)){
+                        conexionActual++;
+                    }
+                }
+                else{
+                    if(hayFichaEnemiga(tabPosibles[i], i+k, fila-k) && hayFichaEnemiga(tabPosibles[i], i-k, fila+k) ){
+                        conexionActual += 2;
+                    }
+                    else{
+                        if(k > 1){
+                            if(hayFichaEnemiga(tabPosibles[i], i+k, fila-k)){
+                                conexionActual++;
+                                expandoSoloPorDer = true;
+                            }
+                            if(hayFichaEnemiga(tabPosibles[i], i-k, fila+k)){
+                                conexionActual++;
+                                expandoSoloPorIzq = true;
+                            }
+                        }
+                        else{
+                            break;
+                        }
+                    }
+                }
+            }
+            if(mejorConexionParcial < conexionActual){
+                mejorConexionParcial = conexionActual;
+            }
+            conexionActual = 0;
+
+            mejoresConexionesColumna[i] = mejorConexionParcial;
+        }
+        return posiblesJugadas = posMaxOIguales(mejoresConexionesColumna);
+    }
+
+}
+
+vector<bool> ataqueInmediato(bool ofensivo, tablero& tab, int p){
+    vector<int> mejoresLineas(tab.n);
+    vector<tablero> tabPosibles(tab.n);
+    bool aliado = true;
+    bool sigoMirando = true;
+    int lineaActual = 0;
+
+    bool sigoPorDerecha = true;
+    bool sigoPorIzq = true;
+
+    if(ofensivo){
+        for(int i = 0; i < tab.n; i++){
+            sigoMirando = true;
+            tabPosibles[i] = tab;
+            actualizarTablero(tabPosibles[i], i, aliado);
+            //me fijo si al mover la ficha en la columna i, conecte alguna linea.
+
+            // la fila donde jugue la ficha seria el nuevo size-1...
+            int fila = (int) tabPosibles[i].matrizFichas[i].size()-1;
+
+            lineaActual = 0;
+
+            // busco conexion de horizontales
+            for(int k = 1; k < p && sigoMirando; k++){
+                if(sigoPorDerecha || sigoPorIzq){
+                    if(sigoPorDerecha && hayFichaAliada(tabPosibles[i], i+k, fila)) {
+                        lineaActual++;
+                    }
+                    else{
+                        sigoPorDerecha = false;
+                    }
+                    if(sigoPorIzq && hayFichaAliada(tabPosibles[i], i-k, fila)){
+                        lineaActual++;
+                    }
+                    else sigoPorIzq = false;
+                }
+            }
+            // si ya encontre una linea que justo puedo formar una de x1 > x fichas, listo, paso a la sgt columna
+            if(mejoresLineas[i] < lineaActual) {
+                mejoresLineas[i] = lineaActual;
+                if(lineaActual == p-1){ // si ya obtuve la mejor linea posible, es decir p en linea - 1
+                    sigoMirando = false;
+                }
+            }
+
+            lineaActual = 0;
+            sigoPorDerecha = true;
+            sigoPorIzq = true;
+            // busco lineas diagonales (/) si todavia no en encontre una linea que contradiga que se puede tener una linea de x
+            for(int k = 1; k < p && sigoMirando; k++){
+                if(sigoPorDerecha || sigoPorIzq){
+                    if(sigoPorDerecha && hayFichaAliada(tabPosibles[i], i+k, fila+k)) {
+                        lineaActual++;
+                    }
+                    else{
+                        sigoPorDerecha = false;
+                    }
+                    if(sigoPorIzq && hayFichaAliada(tabPosibles[i], i-k, fila-k)){
+                        lineaActual++;
+                    }
+                    else sigoPorIzq = false;
+                }
+            }
+
+            if(mejoresLineas[i] < lineaActual) {
+                mejoresLineas[i] = lineaActual;
+                if(lineaActual == p-1){ // si ya obtuve la mejor linea posible, es decir p en linea - 1
+                    sigoMirando = false;
+                }
+            }
+
+            sigoPorDerecha = true;
+            sigoPorIzq = true;
+            lineaActual = 0;
+            // busco lineas diagonales (\) si todavia no en encontre una linea que contradiga que se puede tener una linea de x
+            for(int k = 1; k < p && sigoMirando; k++){
+                if(sigoPorDerecha || sigoPorIzq){
+                    if(sigoPorDerecha && hayFichaAliada(tabPosibles[i], i+k, fila-k)) {
+                        lineaActual++;
+                    }
+                    else{
+                        sigoPorDerecha = false;
+                    }
+                    if(sigoPorIzq && hayFichaAliada(tabPosibles[i], i-k, fila+k)){
+                        lineaActual++;
+                    }
+                    else sigoPorIzq = false;
+                }
+            }
+
+            if(mejoresLineas[i] < lineaActual) {
+                mejoresLineas[i] = lineaActual;
+                if(lineaActual == p-1){ // si ya obtuve la mejor linea posible, es decir p en linea - 1
+                    sigoMirando = false;
+                }
+            }
+
+            sigoPorDerecha = true;
+            sigoPorIzq = true;
+            lineaActual = 0;
+            // busco lineas exactas de x fichas verticalmente, solo miro para abajo...
+            for(int k = 1; k < p && sigoMirando; k++){
+                if(hayFichaAliada(tabPosibles[i], i, fila-k)){
+                    lineaActual++;
+                }
+                else break;
+            }
+            // si ya encontre una linea que justo puedo formar una de x1 > x fichas, listo, paso a la sgt columna
+            if(mejoresLineas[i] < lineaActual) {
+                mejoresLineas[i] = lineaActual;
+                if(lineaActual == p-1){ // si ya obtuve la mejor linea posible, es decir p en linea - 1
+                    sigoMirando = false;
+                }
+            }
+        }
+    }
+    else{
+        for(int i = 0; i < tab.n; i++){
+            sigoMirando = true;
+            tabPosibles[i] = tab;
+            actualizarTablero(tabPosibles[i], i, aliado);
+            //me fijo si al mover la ficha en la columna i, conecte alguna linea.
+
+            // la fila donde jugue la ficha seria el nuevo size-1...
+            int fila = (int) tabPosibles[i].matrizFichas[i].size()-1;
+
+            lineaActual = 0;
+            int mejorConexionParcial = 0;
+
+            // busco conexion de horizontales
+            for(int k = 1; k < p && sigoMirando; k++){
+                if(sigoPorDerecha || sigoPorIzq){
+                    if(sigoPorDerecha && hayFichaEnemiga(tabPosibles[i], i+k, fila)) {
+                        lineaActual++;
+                    }
+                    else{
+                        sigoPorDerecha = false;
+                    }
+                    if(sigoPorIzq && hayFichaEnemiga(tabPosibles[i], i-k, fila)){
+                        lineaActual++;
+                    }
+                    else sigoPorIzq = false;
+                }
+            }
+            // si ya encontre una linea que justo puedo formar una de x1 > x fichas, listo, paso a la sgt columna
+            if(mejoresLineas[i] < lineaActual) {
+                mejoresLineas[i] = lineaActual;
+                if(lineaActual == p-1){ // si ya obtuve la mejor linea posible, es decir p en linea - 1
+                    sigoMirando = false;
+                }
+            }
+
+            sigoPorDerecha = true;
+            sigoPorIzq = true;
+            lineaActual = 0;
+            // busco lineas diagonales (/) si todavia no en encontre una linea que contradiga que se puede tener una linea de x
+            for(int k = 1; k < p && sigoMirando; k++){
+                if(sigoPorDerecha || sigoPorIzq){
+                    if(sigoPorDerecha && hayFichaEnemiga(tabPosibles[i], i+k, fila+k)) {
+                        lineaActual++;
+                    }
+                    else{
+                        sigoPorDerecha = false;
+                    }
+                    if(sigoPorIzq && hayFichaEnemiga(tabPosibles[i], i-k, fila-k)){
+                        lineaActual++;
+                    }
+                    else sigoPorIzq = false;
+                }
+            }
+
+            if(mejoresLineas[i] < lineaActual) {
+                mejoresLineas[i] = lineaActual;
+                if(lineaActual == p-1){ // si ya obtuve la mejor linea posible, es decir p en linea - 1
+                    sigoMirando = false;
+                }
+            }
+
+            sigoPorDerecha = true;
+            sigoPorIzq = true;
+            lineaActual = 0;
+            // busco lineas diagonales (\) si todavia no en encontre una linea que contradiga que se puede tener una linea de x
+            for(int k = 1; k < p && sigoMirando; k++){
+                if(sigoPorDerecha || sigoPorIzq){
+                    if(sigoPorDerecha && hayFichaEnemiga(tabPosibles[i], i+k, fila-k)) {
+                        lineaActual++;
+                    }
+                    else{
+                        sigoPorDerecha = false;
+                    }
+                    if(sigoPorIzq && hayFichaEnemiga(tabPosibles[i], i-k, fila+k)){
+                        lineaActual++;
+                    }
+                    else sigoPorIzq = false;
+                }
+            }
+
+            if(mejoresLineas[i] < lineaActual) {
+                mejoresLineas[i] = lineaActual;
+                if(lineaActual == p-1){ // si ya obtuve la mejor linea posible, es decir p en linea - 1
+                    sigoMirando = false;
+                }
+            }
+
+            sigoPorDerecha = true;
+            sigoPorIzq = true;
+            lineaActual = 0;
+            // busco lineas exactas de x fichas verticalmente, solo miro para abajo...
+            for(int k = 1; k < p && sigoMirando; k++){
+                if(hayFichaEnemiga(tabPosibles[i], i, fila-k)){
+                    lineaActual++;
+                }
+                else break;
+            }
+            // si ya encontre una linea que justo puedo formar una de x1 > x fichas, listo, paso a la sgt columna
+            if(mejoresLineas[i] < lineaActual) {
+                mejoresLineas[i] = lineaActual;
+                if(lineaActual == p-1){ // si ya obtuve la mejor linea posible, es decir p en linea - 1
+                    sigoMirando = false;
+                }
+            }
+        }
+    }
+    return posMaxOIguales(mejoresLineas);
+}
+
 
 
 vector<bool> juegoAlCentroExacto(tablero& tab){
@@ -714,255 +1149,350 @@ vector<bool> juegoAlCentroExacto(tablero& tab){
 
 
 vector<bool> mejorHorizontal(bool ofensivo, tablero& tab, int p){
-    int mejorH = 0;
-    vector<bool> mejoresJugadas(tab.n);
-    vector<int> mejoresPorFila(tab.n);
-    int hActual = 0;
+    vector<int> mejoresLineas(tab.n);
+    vector<tablero> tabPosibles(tab.n);
+    bool aliado = true;
+    bool sigoMirando = true;
+    int lineaActual = 0;
+
+    bool sigoPorDerecha = true;
+    bool sigoPorIzq = true;
 
     if(ofensivo){
-        for (int i = 0; i < tab.m; ++i)             //i recorre filas
-        {
-            hActual = 1;
-            for (int j = 0; j < tab.n-1; ++j)         //j recorre columnas
-            {
-                if (hayFicha(tab, j, i) && tab.matrizFichas[j][i] == fichaAliada){ // pregunto por la sgt posicion si la primera es mi ficha
-                    if (hayFicha(tab, j+1, i) && fichaAliada == tab.matrizFichas[j + 1][i]){
-                        hActual++;
-                    }
-                    else{
-                        if(!hayFicha(tab, j+1, i) && sePuedeMoverAhi(tab, j+1, i)){      //solo me interesa si la posicion esta disponible al sgt turno
-                            if (mejorH <= hActual){
-                                mejorH = hActual;
-                                if(mejoresPorFila[j + 1] < mejorH){
-                                    mejoresPorFila[j + 1] = mejorH;
-                                }
-                            }
-                        }
-                    }
+        for(int i = 0; i < tab.n; i++){
+            sigoPorDerecha = true;
+            sigoPorIzq = true;
+            sigoMirando = true;
+            tabPosibles[i] = tab;
+            actualizarTablero(tabPosibles[i], i, aliado);
+            //me fijo si al mover la ficha en la columna i, conecte alguna linea.
+
+            // la fila donde jugue la ficha seria el nuevo size-1...
+            int fila = (int) tabPosibles[i].matrizFichas[i].size()-1;
+
+            lineaActual = 0;
+
+            // busco lineas diagonales (/) si todavia no en encontre una linea que contradiga que se puede tener una linea de x
+            for(int k = 1; k < p && sigoMirando; k++) {
+                if (sigoPorDerecha && hayFichaAliada(tabPosibles[i], i + k, fila)) {
+                    lineaActual++;
+                } else {
+                    sigoPorDerecha = false;
+                }
+            }
+            if(mejoresLineas[i] < lineaActual) {
+                mejoresLineas[i] = lineaActual;
+                if(lineaActual == p-1){ // si ya obtuve la mejor linea posible, es decir p en linea - 1
+                    sigoMirando = false;
+                }
+            }
+
+            lineaActual = 0;
+            for(int k = 1; k < p && sigoMirando; k++) {
+                if (sigoPorIzq && hayFichaAliada(tabPosibles[i], i - k, fila)) {
+                    lineaActual++;
+                } else {
+                    sigoPorIzq = false;
+                }
+            }
+            if(mejoresLineas[i] < lineaActual) {
+                mejoresLineas[i] = lineaActual;
+                if(lineaActual == p-1){ // si ya obtuve la mejor linea posible, es decir p en linea - 1
+                    sigoMirando = false;
                 }
             }
         }
-        vector<bool> posiblesRes = posMaxOIguales(mejoresPorFila);
-        return posiblesRes;
     }
-    else{   // caso de bloquearMejorHorizontal
-        for (int i = 0; i < tab.m; ++i)             //i recorre filas
-        {
-            hActual = 1;
-            for (int j = 0; j < tab.n-1; ++j)         //j recorre columnas
-            {
-                if (hayFicha(tab, j, i) && tab.matrizFichas[j][i] == fichaEnemiga){ // pregunto por la sgt posicion si la primera es mi ficha
-                    if (hayFicha(tab, j+1, i) && fichaEnemiga == tab.matrizFichas[j + 1][i]){
-                        hActual++;
-                    }
-                    else{
-                        if(!hayFicha(tab, j+1, i) && sePuedeMoverAhi(tab, j+1, i)){      //solo me interesa si la posicion esta disponible al sgt turno
-                            if (mejorH <= hActual){
-                                mejorH = hActual;
-                                if(mejoresPorFila[j + 1] < mejorH){
-                                    mejoresPorFila[j + 1] = mejorH;
-                                }
-                            }
-                        }
-                    }
+    else{
+        for(int i = 0; i < tab.n; i++){
+            sigoPorDerecha = true;
+            sigoPorIzq = true;
+            sigoMirando = true;
+            tabPosibles[i] = tab;
+            actualizarTablero(tabPosibles[i], i, aliado);
+            //me fijo si al mover la ficha en la columna i, conecte alguna linea.
+
+            // la fila donde jugue la ficha seria el nuevo size-1...
+            int fila = (int) tabPosibles[i].matrizFichas[i].size()-1;
+
+            lineaActual = 0;
+
+            // busco lineas diagonales (/) si todavia no en encontre una linea que contradiga que se puede tener una linea de x
+            for(int k = 1; k < p && sigoMirando; k++) {
+                if (sigoPorDerecha && hayFichaEnemiga(tabPosibles[i], i + k, fila)) {
+                    lineaActual++;
+                } else {
+                    sigoPorDerecha = false;
+                }
+            }
+            if(mejoresLineas[i] < lineaActual) {
+                mejoresLineas[i] = lineaActual;
+                if(lineaActual == p-1){ // si ya obtuve la mejor linea posible, es decir p en linea - 1
+                    sigoMirando = false;
+                }
+            }
+
+            lineaActual = 0;
+            for(int k = 1; k < p && sigoMirando; k++) {
+                if (sigoPorIzq && hayFichaEnemiga(tabPosibles[i], i - k, fila)) {
+                    lineaActual++;
+                } else {
+                    sigoPorIzq = false;
+                }
+            }
+            if(mejoresLineas[i] < lineaActual) {
+                mejoresLineas[i] = lineaActual;
+                if(lineaActual == p-1){ // si ya obtuve la mejor linea posible, es decir p en linea - 1
+                    sigoMirando = false;
                 }
             }
         }
-        vector<bool> posiblesRes = posMaxOIguales(mejoresPorFila);
-        return posiblesRes;
     }
-
-
+    return posMaxOIguales(mejoresLineas);
 }
 
 
 
 vector<bool> mejorVertical(bool ofensivo, tablero& tab, int p){
-    int mejorV = 0;
-    vector<bool> mejoresJugadas(tab.n);
-    vector<int> mejoresPorColumna(tab.n);
-    int vActual = 0;
+    vector<int> mejoresLineas(tab.n);
+    vector<tablero> tabPosibles(tab.n);
+    bool aliado = true;
+    bool sigoMirando = true;
+    int lineaActual = 0;
+
+    bool sigoPorDerecha = true;
 
     if(ofensivo){
-        for (int i = 0; i < tab.n; ++i)             //i recorre columnas
-        {
-            vActual = 1;
-            for (int j = 0; j < tab.m-1; ++j)         //j recorre filas
-            {
-                if (hayFicha(tab, i, j) && tab.matrizFichas[i][j] == fichaAliada){ // pregunto por la sgt posicion si la primera es mi ficha
-                    if (hayFicha(tab, i, j+1) && fichaAliada == tab.matrizFichas[i][j + 1]){
-                        vActual++;
-                    }
-                    else{
-                        if(!hayFicha(tab, i, j+1) && sePuedeMoverAhi(tab, i, j+1)){      //solo me interesa si la posicion esta disponible al sgt turno
-                            if (mejorV <= vActual){
-                                mejorV = vActual;
-                                if(mejoresPorColumna[i] < mejorV){
-                                    mejoresPorColumna[i] = mejorV;
-                                }
-                            }
-                        }
-                    }
+        for(int i = 0; i < tab.n; i++){
+            sigoPorDerecha = true;
+            sigoMirando = true;
+            tabPosibles[i] = tab;
+            actualizarTablero(tabPosibles[i], i, aliado);
+            //me fijo si al mover la ficha en la columna i, conecte alguna linea.
+
+            // la fila donde jugue la ficha seria el nuevo size-1...
+            int fila = (int) tabPosibles[i].matrizFichas[i].size()-1;
+
+            lineaActual = 0;
+
+            // busco lineas diagonales (/) si todavia no en encontre una linea que contradiga que se puede tener una linea de x
+            for(int k = 1; k < p && sigoMirando; k++) {
+                if (sigoPorDerecha && hayFichaAliada(tabPosibles[i], i, fila-k)) {
+                    lineaActual++;
+                } else {
+                    sigoPorDerecha = false;
+                }
+            }
+            if(mejoresLineas[i] < lineaActual) {
+                mejoresLineas[i] = lineaActual;
+                if(lineaActual == p-1){ // si ya obtuve la mejor linea posible, es decir p en linea - 1
+                    sigoMirando = false;
                 }
             }
         }
-        vector<bool> posiblesRes = posMaxOIguales(mejoresPorColumna);
-        return posiblesRes;
     }
-    else{   // caso de bloquearMejorVertical
-        for (int i = 0; i < tab.n; ++i)             //i recorre columnas
-        {
-            vActual = 1;
-            for (int j = 0; j < tab.m-1; ++j)         //j recorre filas
-            {
-                if (hayFicha(tab, i, j) && tab.matrizFichas[i][j] == fichaEnemiga){ // pregunto por la sgt posicion si la primera es mi ficha
-                    if (hayFicha(tab, i, j+1) && fichaEnemiga == tab.matrizFichas[i][j + 1]){
-                        vActual++;
-                    }
-                    else{
-                        if(!hayFicha(tab, i, j+1) && sePuedeMoverAhi(tab, i, j+1)){      //solo me interesa si la posicion esta disponible al sgt turno
-                            if (mejorV <= vActual){
-                                mejorV = vActual;
-                                if(mejoresPorColumna[i] < mejorV){
-                                    mejoresPorColumna[i] = mejorV;
-                                }
-                            }
-                        }
-                    }
+    else{
+        for(int i = 0; i < tab.n; i++){
+            sigoPorDerecha = true;
+            sigoMirando = true;
+            tabPosibles[i] = tab;
+            actualizarTablero(tabPosibles[i], i, aliado);
+            //me fijo si al mover la ficha en la columna i, conecte alguna linea.
+
+            // la fila donde jugue la ficha seria el nuevo size-1...
+            int fila = (int) tabPosibles[i].matrizFichas[i].size()-1;
+
+            lineaActual = 0;
+
+            // busco lineas diagonales (/) si todavia no en encontre una linea que contradiga que se puede tener una linea de x
+            for(int k = 1; k < p && sigoMirando; k++) {
+                if (sigoPorDerecha && hayFichaEnemiga(tabPosibles[i], i, fila-k)) {
+                    lineaActual++;
+                } else {
+                    sigoPorDerecha = false;
+                }
+            }
+            if(mejoresLineas[i] < lineaActual) {
+                mejoresLineas[i] = lineaActual;
+                if(lineaActual == p-1){ // si ya obtuve la mejor linea posible, es decir p en linea - 1
+                    sigoMirando = false;
                 }
             }
         }
-        vector<bool> posiblesRes = posMaxOIguales(mejoresPorColumna);
-        return posiblesRes;
     }
+    return posMaxOIguales(mejoresLineas);
 }
 
 
-vector<bool> mejorDiagonal(bool ofensivo, tablero& tab, int c){
-    int mejorV = 0;
-    vector<bool> mejoresJugadas(tab.n);
-    vector<int> mejoresPorColumna(tab.n);
-    int vActual = 0;
+vector<bool> mejorDiagonal(bool ofensivo, tablero& tab, int p){
+    vector<int> mejoresLineas(tab.n);
+    vector<tablero> tabPosibles(tab.n);
+    bool aliado = true;
+    bool sigoMirando = true;
+    int lineaActual = 0;
+
+    bool sigoPorDerecha = true;
+    bool sigoPorIzq = true;
 
     if(ofensivo){
-        for(int i = 0; i < tab.n-1; i++){           // recorro columnas
-            for(int j = 0; j < tab.m -1; j++){
+        for(int i = 0; i < tab.n; i++){
+            sigoPorDerecha = true;
+            sigoPorIzq = true;
+            sigoMirando = true;
+            tabPosibles[i] = tab;
+            actualizarTablero(tabPosibles[i], i, aliado);
+            //me fijo si al mover la ficha en la columna i, conecte alguna linea.
 
-                    for (int k = 0; k < c; ++k)
-                    {
-                        if(hayFicha(tab, i + k, j + k)){
-                            if (hayFicha(tab, i ,j) && tab.matrizFichas[i][j] == fichaAliada && fichaAliada == tab.matrizFichas[i + k][j + k])
-                            {
-                                vActual++;
-                            }
-                            else{
-                                vActual = 0;
-                            }
-                        }
-                        else{
-                            if(sePuedeMoverAhi(tab, i+k, j+k)){
-                                if(mejorV <= vActual){
-                                    mejorV = vActual;
-                                    if(mejoresPorColumna[i+k] < mejorV){
-                                        mejoresPorColumna[i+k] = mejorV;
-                                    }
-                                }
-                            }
-                            else{
-                                vActual = 0;
-                            }
-                        }
-                    }
-                    for (int k = 0; k < c; ++k)
-                    {
-                        if(hayFicha(tab, i - k, j + k)){
-                            if (hayFicha(tab, i ,j) && tab.matrizFichas[i][j] == fichaAliada && fichaAliada == tab.matrizFichas[i - k][j + k])
-                            {
-                                vActual++;
-                            }
-                            else{
-                                vActual = 0;
-                            }
-                        }
-                        else{
-                            if(sePuedeMoverAhi(tab, i-k, j+k)){
-                                if(mejorV <= vActual){
-                                    mejorV = vActual;
-                                    if(mejoresPorColumna[i-k] < mejorV){
-                                        mejoresPorColumna[i-k] = mejorV;
-                                    }
-                                }
-                            }
-                            else{
-                                vActual = 0;
-                            }
-                        }
-                    }
+            // la fila donde jugue la ficha seria el nuevo size-1...
+            int fila = (int) tabPosibles[i].matrizFichas[i].size()-1;
+
+            lineaActual = 0;
+
+            // busco lineas diagonales (/) si todavia no en encontre una linea que contradiga que se puede tener una linea de x
+            for(int k = 1; k < p && sigoMirando; k++) {
+                if (sigoPorDerecha && hayFichaAliada(tabPosibles[i], i + k, fila + k)) {
+                    lineaActual++;
+                } else {
+                    sigoPorDerecha = false;
+                }
+            }
+            if(mejoresLineas[i] < lineaActual) {
+                mejoresLineas[i] = lineaActual;
+                if(lineaActual == p-1){ // si ya obtuve la mejor linea posible, es decir p en linea - 1
+                    sigoMirando = false;
+                }
+            }
+
+            lineaActual = 0;
+            for(int k = 1; k < p && sigoMirando; k++) {
+                if (sigoPorIzq && hayFichaAliada(tabPosibles[i], i - k, fila - k)) {
+                    lineaActual++;
+                } else {
+                    sigoPorIzq = false;
+                }
+            }
+            if(mejoresLineas[i] < lineaActual) {
+                mejoresLineas[i] = lineaActual;
+                if(lineaActual == p-1){ // si ya obtuve la mejor linea posible, es decir p en linea - 1
+                    sigoMirando = false;
+                }
+            }
+
+            sigoPorDerecha = true;
+            sigoPorIzq = true;
+            lineaActual = 0;
+
+            // busco lineas diagonales (\) si todavia no en encontre una linea que contradiga que se puede tener una linea de x
+            for(int k = 1; k < p && sigoMirando; k++) {
+                if (sigoPorDerecha && hayFichaAliada(tabPosibles[i], i + k, fila - k)) {
+                    lineaActual++;
+                } else {
+                    sigoPorDerecha = false;
+                }
+            }
+            if(mejoresLineas[i] < lineaActual) {
+                mejoresLineas[i] = lineaActual;
+                if(lineaActual == p-1){ // si ya obtuve la mejor linea posible, es decir p en linea - 1
+                    sigoMirando = false;
+                }
+            }
+
+            lineaActual = 0;
+            for(int k = 1; k < p && sigoMirando; k++) {
+                if (sigoPorIzq && hayFichaAliada(tabPosibles[i], i - k, fila + k)) {
+                    lineaActual++;
+                } else {
+                    sigoPorIzq = false;
+                }
+            }
+            if(mejoresLineas[i] < lineaActual) {
+                mejoresLineas[i] = lineaActual;
+                if(lineaActual == p-1){ // si ya obtuve la mejor linea posible, es decir p en linea - 1
+                    sigoMirando = false;
+                }
             }
         }
-
-        vector<bool> posiblesRes = posMaxOIguales(mejoresPorColumna);
-        return posiblesRes;
     }
-    else{   // caso de bloquearMejorVertical
-        for(int i = 0; i < tab.n-1; i++){           // recorro columnas
-            for(int j = 0; j < tab.m -1; j++){
+    else{
+        for(int i = 0; i < tab.n; i++){
+            sigoPorDerecha = true;
+            sigoPorIzq = true;
+            sigoMirando = true;
+            tabPosibles[i] = tab;
+            actualizarTablero(tabPosibles[i], i, aliado);
+            //me fijo si al mover la ficha en la columna i, conecte alguna linea.
 
-                    for (int k = 0; k < c; ++k)
-                    {
-                        if(hayFicha(tab, i + k, j + k)){
-                            if (hayFicha(tab, i ,j) && tab.matrizFichas[i][j] == fichaEnemiga && fichaEnemiga == tab.matrizFichas[i + k][j + k])
-                            {
-                                vActual++;
-                            }
-                            else{
-                                vActual = 0;
-                            }
-                        }
-                        else{
-                            if(sePuedeMoverAhi(tab, i+k, j+k)){
-                                if(mejorV <= vActual){
-                                    mejorV = vActual;
-                                    if(mejoresPorColumna[i+k] < mejorV){
-                                        mejoresPorColumna[i+k] = mejorV;
-                                    }
-                                }
-                            }
-                            else{
-                                vActual = 0;
-                            }
-                        }
-                    }
-                    for (int k = 0; k < c; ++k)
-                    {
-                        if(hayFicha(tab, i - k, j + k)){
-                            if (hayFicha(tab, i ,j) && tab.matrizFichas[i][j] == fichaEnemiga && fichaEnemiga == tab.matrizFichas[i - k][j + k])
-                            {
-                                vActual++;
-                            }
-                            else{
-                                vActual = 0;
-                            }
-                        }
-                        else{
-                            if(sePuedeMoverAhi(tab, i-k, j+k)){
-                                if(mejorV <= vActual){
-                                    mejorV = vActual;
-                                    if(mejoresPorColumna[i-k] < mejorV){
-                                        mejoresPorColumna[i-k] = mejorV;
-                                    }
-                                }
-                            }
-                            else{
-                                vActual = 0;
-                            }
-                        }
-                    }
+            // la fila donde jugue la ficha seria el nuevo size-1...
+            int fila = (int) tabPosibles[i].matrizFichas[i].size()-1;
+
+            lineaActual = 0;
+
+            // busco lineas diagonales (/) si todavia no en encontre una linea que contradiga que se puede tener una linea de x
+            for(int k = 1; k < p && sigoMirando; k++) {
+                if (sigoPorDerecha && hayFichaEnemiga(tabPosibles[i], i + k, fila + k)) {
+                    lineaActual++;
+                } else {
+                    sigoPorDerecha = false;
+                }
+            }
+            if(mejoresLineas[i] < lineaActual) {
+                mejoresLineas[i] = lineaActual;
+                if(lineaActual == p-1){ // si ya obtuve la mejor linea posible, es decir p en linea - 1
+                    sigoMirando = false;
+                }
+            }
+
+            lineaActual = 0;
+            for(int k = 1; k < p && sigoMirando; k++) {
+                if (sigoPorIzq && hayFichaEnemiga(tabPosibles[i], i - k, fila - k)) {
+                    lineaActual++;
+                } else {
+                    sigoPorIzq = false;
+                }
+            }
+            if(mejoresLineas[i] < lineaActual) {
+                mejoresLineas[i] = lineaActual;
+                if(lineaActual == p-1){ // si ya obtuve la mejor linea posible, es decir p en linea - 1
+                    sigoMirando = false;
+                }
+            }
+
+            sigoPorDerecha = true;
+            sigoPorIzq = true;
+            lineaActual = 0;
+
+            // busco lineas diagonales (\) si todavia no en encontre una linea que contradiga que se puede tener una linea de x
+            for(int k = 1; k < p && sigoMirando; k++) {
+                if (sigoPorDerecha && hayFichaEnemiga(tabPosibles[i], i + k, fila - k)) {
+                    lineaActual++;
+                } else {
+                    sigoPorDerecha = false;
+                }
+            }
+            if(mejoresLineas[i] < lineaActual) {
+                mejoresLineas[i] = lineaActual;
+                if(lineaActual == p-1){ // si ya obtuve la mejor linea posible, es decir p en linea - 1
+                    sigoMirando = false;
+                }
+            }
+
+            lineaActual = 0;
+            for(int k = 1; k < p && sigoMirando; k++) {
+                if (sigoPorIzq && hayFichaEnemiga(tabPosibles[i], i - k, fila + k)) {
+                    lineaActual++;
+                } else {
+                    sigoPorIzq = false;
+                }
+            }
+            if(mejoresLineas[i] < lineaActual) {
+                mejoresLineas[i] = lineaActual;
+                if(lineaActual == p-1){ // si ya obtuve la mejor linea posible, es decir p en linea - 1
+                    sigoMirando = false;
+                }
             }
         }
-        vector<bool> posiblesRes = posMaxOIguales(mejoresPorColumna);
-        return posiblesRes;
     }
+    return posMaxOIguales(mejoresLineas);
 }
 
 
@@ -977,17 +1507,20 @@ bool sePuedeMoverAhi(tablero &tab, int columna, int fila){
 
 
 int main(){
-    int C = 4;
+
+
+    int C = 6;
     int estrategiasUnicas = 11;
-    int cantEstrategias = estrategiasUnicas + C - 2;
-    vector<int> misEstrategias;
-    //inicializarEstrategias(misEstrategias, cantEstrategias);
+    int estrTotales = estrategiasUnicas+ (C-2)*2;
+    int columnas = 6;
+    int filas = 6;
+    int fichas = 18;
 
-    int columnas = 4;
-    int filas = 4;
-    int cLinea = 4;
-    int fichas = 6;
-
+    list<estr> estrategias = inicializarEstrategias(estrategiasUnicas, estrTotales, columnas);
+    for(auto it = estrategias.begin(); it != estrategias.end(); it++){
+        int estr = it->estrategia;
+        cout << it->estrategia << "\n";
+    }
     tablero tab1 = crearTablero(columnas, filas);
 
     // para testear las funciones de forma individual!
@@ -998,23 +1531,31 @@ int main(){
     // mejorDiagonal esta testeada muy poco
     // ataqueInmediato le falta la parte de testeo.
 
-    actualizarTablero(tab1, 1, true);
-    actualizarTablero(tab1, 1, true);
-    actualizarTablero(tab1, 1, false);
     actualizarTablero(tab1, 0, true);
+    actualizarTablero(tab1, 0, false);
+    actualizarTablero(tab1, 1, true);
+    actualizarTablero(tab1, 1, true);
+    actualizarTablero(tab1, 2, true);
+    actualizarTablero(tab1, 2, false);
+    actualizarTablero(tab1, 3, true);
+    actualizarTablero(tab1, 4, false);
+    actualizarTablero(tab1, 4, true);
+    actualizarTablero(tab1, 4, true);
+    actualizarTablero(tab1, 5, false);
+    actualizarTablero(tab1, 5, true);
+    actualizarTablero(tab1, 5, false);
+    actualizarTablero(tab1, 5, true);
 
 
-    vector<bool> posibleRes = mejorDiagonal(true, tab1, cLinea);
+//    vector<bool> posibleRes = mejorHorizontal(false, tab1, cLinea);
+//
+//    cout << "Move a realizar: \n " << posibleRes[0] << ", " << posibleRes[1] << ", "
+//         << posibleRes[2] << ", " << posibleRes[3] << ", " << posibleRes[4] << ", " << posibleRes[5];
 
-    cout << "Move a realizar: \n " << posibleRes[0] << ", " << posibleRes[1] << ", "
-         << posibleRes[2] << ", " << posibleRes[3];
 
-    // Primero movi yo, luego el rival, cada columna tiene una sola ficha.
-    // por lo tanto al evaluar jugada deberia devolverme que mueva a la columna 1 ya que en la 0 esta el rival y en la 1 yo.
+    int movimiento = jugadaGolosa(tab1, estrategias, estrategiasUnicas, C-2, C-2, estrTotales, columnas, C);
 
-//    int movimiento = calcularJugada(tab1, columnas, cLinea, fichas);
-
-//    cout << "El movimiento a realizar es en la columna: " << movimiento << endl;
+    cout << "El movimiento a realizar es en la columna: " << movimiento << endl;
 
 
 }
@@ -1087,11 +1628,14 @@ vector<bool> posMaxOIguales(vector<int> resultados){
 }
 
 void actualizarTablero(tablero& tab, int move, bool moveAliado){
-    if(moveAliado){
+    //verificar que la columna move no esta llena!
+    if(moveAliado && tab.matrizFichas[move].size() < tab.m){
         tab.matrizFichas[move].push_back(fichaAliada);
     }
     else{
-        tab.matrizFichas[move].push_back(fichaEnemiga);
+        if(tab.matrizFichas[move].size() < tab.m){
+            tab.matrizFichas[move].push_back(fichaEnemiga);
+        }
     }
 }
 
@@ -1099,4 +1643,16 @@ bool hayFicha(tablero& tab, int columna, int fila){
     if(columna >= tab.n || fila >= tab.m) return false;
     if(columna < 0 || fila < 0) return false;
     return fila < tab.matrizFichas[columna].size();
+}
+
+bool hayFichaAliada(tablero& tab, int columna, int fila){
+    if(columna >= tab.n || fila >= tab.m) return false;
+    if(columna < 0 || fila < 0) return false;
+    return fila < tab.matrizFichas[columna].size() && tab.matrizFichas[columna][fila] == fichaAliada;
+}
+
+bool hayFichaEnemiga(tablero& tab, int columna, int fila){
+    if(columna >= tab.n || fila >= tab.m) return false;
+    if(columna < 0 || fila < 0) return false;
+    return fila < tab.matrizFichas[columna].size() && tab.matrizFichas[columna][fila] == fichaEnemiga;
 }
