@@ -58,7 +58,7 @@ int validarVictoria(tablero& tab, int c) {
 				bool hayGanador = true;
 				for (int k = 0; k < c; ++k)
 				{
-					if (hayFicha(tab, j, i + k)) {
+					if (hayFicha(tab, i + k, j)) {
 						if (tab.matrizFichas[i][j] != tab.matrizFichas[i + k][j])
 						{
 							hayGanador = false;
@@ -76,7 +76,7 @@ int validarVictoria(tablero& tab, int c) {
 				bool hayGanador = true;
 				for (int k = 0; k < c; ++k)
 				{
-					if (hayFicha(tab, j + k, i)) {
+					if (hayFicha(tab, i, j + k)) {
 						if (tab.matrizFichas[i][j] != tab.matrizFichas[i][j + k])
 						{
 							hayGanador = false;
@@ -95,7 +95,7 @@ int validarVictoria(tablero& tab, int c) {
 				bool hayGanador = true;
 				for (int k = 0; k < c; ++k)
 				{
-					if (hayFicha(tab, j + k, i + k)) {
+					if (hayFicha(tab, i + k, j + k)) {
 						if (tab.matrizFichas[i][j] != tab.matrizFichas[i + k][j + k])
 						{
 							hayGanador = false;
@@ -113,7 +113,7 @@ int validarVictoria(tablero& tab, int c) {
 				bool hayGanador = true;
 				for (int k = 0; k < c; ++k)
 				{
-					if (hayFicha(tab, j + k, i - k)) {
+					if (hayFicha(tab, i - k, j + k)) {
 						if (tab.matrizFichas[i][j] != tab.matrizFichas[i - k][j + k])
 						{
 							hayGanador = false;
@@ -147,5 +147,5 @@ void actualizarTablero(tablero& tab, int move, bool moveAliado) {
 
 
 bool hayFicha(tablero& tab, int columna, int fila) {
-	return columna < tab.matrizFichas[fila].size();
+	return fila < tab.matrizFichas[columna].size();
 }

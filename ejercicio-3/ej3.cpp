@@ -14,19 +14,25 @@ std::mt19937 gen(rd());
 individuo genetico(vector<individuo> poblacion0) {
 	for (int i = 0; i < TAM_POBLACION; i++)
 	{
-		poblacion0[i].calcular_fitness();		
+		cout << "calculando fitness" << i << endl;
+		poblacion0[i].calcular_fitness();	
+
+		for (int i = 0; i < poblacion0[i].parametros.size(); i++)
+		{
+			cout << poblacion0[i].parametros[i] << " ";
+		}
+		cout << "   " << poblacion0[i].win_rate << endl;
 	}
 	poblacion_sort(poblacion0);
 	vector<individuo> poblacionAux;
 
 	while (poblacion0[0].win_rate < 0.9) {
 
-
 		for (int i = 0; i < poblacion0[0].parametros.size(); i++)
 		{
-			cout << poblacion0[0].parametros[i];
+			cout << poblacion0[0].parametros[i] << " ";
 		}
-		cout << " " << poblacion0[0].win_rate << endl;
+		cout << "   " << poblacion0[0].win_rate << endl;
 
 
 
@@ -121,13 +127,15 @@ void individuo::calcular_fitness() {
 	int c = 4;
 
 	list<estr> estrategias(CANT_ESTR);
-	vector<bool> movsVacio(columnas);
 
 	int i = 0;
 	for (auto it = estrategias.begin(); it != estrategias.end(); it++) {
-		it->estrategia = i;
-		it->peso = parametros[i];		
-		it->susMovs = movsVacio;
+		it->estrategia = i+1;
+		it->peso = parametros[i];
+		for (int j = 0; j < columnas; j++)
+		{
+			it->susMovs.push_back(0);
+		}		
 		i++;
 	}
 
@@ -140,15 +148,12 @@ void individuo::calcular_fitness() {
 		while(!tableroLleno(tab) && terminado == 0) {
 			if(empiezo) {
 				actualizarTablero(tab, jugadaGolosa(tab, estrategias, 11, (c-2)*2, CANT_ESTR, columnas, c), true);
-				actualizarTablero(tab, jugadaRandom(tab, columnas), false);
 			}
-			else {
+			actualizarTablero(tab, jugadaRandom(tab, columnas), false);
+			actualizarTablero(tab, jugadaGolosa(tab, estrategias, 11, (c-2)*2, CANT_ESTR, columnas, c), true);
 
-				actualizarTablero(tab, jugadaRandom(tab, columnas), false);
-				actualizarTablero(tab, jugadaGolosa(tab, estrategias, 11, (c-2)*2, CANT_ESTR, columnas, c), true);
-			}
 
-			empiezo = !empiezo;
+			empiezo = false;
 			terminado = validarVictoria(tab, c);
 		}
 
@@ -197,18 +202,19 @@ int main() {
 		individuo ind0;
 		for (int j = 0; j < CANT_ESTR; ++j)
 		{
-			ind0.parametros[j] = rndStrat(gen);
+			ind0.parametros.push_back(rndStrat(gen));
 		}
 
 		poblacion0.push_back(ind0);
+		ind0.parametros.clear();
 	}
 
 	individuo gen = genetico(poblacion0);
 	for (int i = 0; i < gen.parametros.size(); i++)
 	{
-		cout << gen.parametros[i];
+		cout << gen.parametros[i] << " ";
 	}
-	cout << " " << gen.win_rate << endl;
+	cout << "   " << gen.win_rate << endl;
 
 	return 0;
 }
@@ -221,6 +227,5 @@ int jugadaRandom(tablero tab, int col) {
 	do {
     	jugada = do_move(gen);
 	} while(hayFicha(tab, jugada, tab.m));
-
 	return jugada;
 }
