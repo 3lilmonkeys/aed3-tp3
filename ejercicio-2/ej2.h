@@ -13,33 +13,7 @@
 #include <algorithm>
 
 
-#define gane 1;
-#define perdi -1;
-#define empate 0;
-#define fichaAliada 10
-#define fichaEnemiga 20
-
-using namespace std;
-
-
-struct tablero{
-    vector<vector<int>> matrizFichas;
-    int n;//columnas
-    int m;//filas
-};
-
-
-
-tablero crearTablero(int n, int m){
-    tablero tab;
-    tab.m = m;
-    tab.n = n;
-    for(int i = 0; i < n; i++){
-        vector<int> filas;
-        tab.matrizFichas.push_back(filas);
-    }
-    return tab;
-}
+#include "../src/auxiliar.h"
 
 struct estr{
     int estrategia;
@@ -74,11 +48,9 @@ vector<bool> lineasDeXFichas(int x1, bool ofensivo, tablero& tab, int p);
 
 vector<bool> calcularMoves(int estrategia, tablero &tab, int p);
 int buscarMejorJugada(vector<estr> posiblesJugadas);
-bool hayFicha(tablero& tab, int columna, int fila);
 bool hayFichaAliada(tablero& tab, int columna, int fila);
 bool hayFichaEnemiga(tablero& tab, int columna, int fila);
 vector<bool> posMaxOIguales(vector<int> resultados);
-void actualizarTablero(tablero& tab, int move, bool moveAliado);
 list<estr> inicializarEstrategias(int estrUnicas, int estrTotales, int columnas);
 bool estrategiaEsValida(vector<bool> jugadas);
 
@@ -1590,23 +1562,7 @@ vector<bool> posMaxOIguales(vector<int> resultados){
     return posiblesPos;
 }
 
-void actualizarTablero(tablero& tab, int move, bool moveAliado){
-    //verificar que la columna move no esta llena!
-    if(moveAliado && tab.matrizFichas[move].size() < tab.m){
-        tab.matrizFichas[move].push_back(fichaAliada);
-    }
-    else{
-        if(tab.matrizFichas[move].size() < tab.m){
-            tab.matrizFichas[move].push_back(fichaEnemiga);
-        }
-    }
-}
 
-bool hayFicha(tablero& tab, int columna, int fila){
-    if(columna >= tab.n || fila >= tab.m) return false;
-    if(columna < 0 || fila < 0) return false;
-    return fila < tab.matrizFichas[columna].size();
-}
 
 bool hayFichaAliada(tablero& tab, int columna, int fila){
     if(columna >= tab.n || fila >= tab.m) return false;
