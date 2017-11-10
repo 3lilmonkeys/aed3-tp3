@@ -11,6 +11,8 @@
 #include <stdio.h>
 #include <sys/stat.h>
 #include <algorithm>
+#include <random>
+#include <time.h>
 
 
 #define gane 1;
@@ -364,33 +366,30 @@ bool estrategiaEsValida(vector<bool> jugadas){
 
 list<estr> inicializarEstrategias(int estrUnicas, int estrTotales, int columnas){
     list<estr> misEstrategias;
-    for(int i = 1; i <= estrUnicas; i++){
+    for(int i = 1; i <= estrTotales; i++){
         estr estr;
         estr.estrategia = i;
-        estr.peso = 5;            // asignar peso
-        if(i == 11){
-            estr.peso = 10;
-        }
+        estr.peso = rand()%100;            // asignar peso
         vector<bool> movimientosPosibles(columnas);
         estr.susMovs = movimientosPosibles;
         misEstrategias.push_back(estr);
     }
-    int i = estrUnicas+1;
-    while(i < estrTotales){
-        estr estr;
-        estr.estrategia = i;
-        estr.peso = 5;            // asignar peso
-        vector<bool> movimientosPosibles(columnas);
-        estr.susMovs = movimientosPosibles;
-        misEstrategias.push_back(estr);
-        i++;
-        estr.estrategia = i;
-        estr.peso = 5;            // asignar peso
-        vector<bool> movimientosPosibles1(columnas);
-        estr.susMovs = movimientosPosibles1;
-        misEstrategias.push_back(estr);
-        i++;
-    }
+    // int i = estrUnicas+1;
+    // while(i < estrTotales){
+    //     estr estr;
+    //     estr.estrategia = i;
+    //     estr.peso = 5;            // asignar peso
+    //     vector<bool> movimientosPosibles(columnas);
+    //     estr.susMovs = movimientosPosibles;
+    //     misEstrategias.push_back(estr);
+    //     i++;
+    //     estr.estrategia = i;
+    //     estr.peso = 5;            // asignar peso
+    //     vector<bool> movimientosPosibles1(columnas);
+    //     estr.susMovs = movimientosPosibles1;
+    //     misEstrategias.push_back(estr);
+    //     i++;
+    // }
     return misEstrategias;
 }
 

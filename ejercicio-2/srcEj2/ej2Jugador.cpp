@@ -45,6 +45,8 @@ string read_str() {
 
 
 int main(){
+    int tiempo = (time(NULL));
+    srand(tiempo);
 
     string msg, color, oponent_color, go_first;
     int columns, rows, c, p, move;
@@ -56,7 +58,12 @@ int main(){
     unsigned int columnas = (unsigned int) 6;
     int fichas = 18;
 
-    list<estr> estrategias = inicializarEstrategias(estrategiasUnicas, estrTotales, columnas);
+    //deberia ir dentro del while para que cambien las estrategias??
+    // list<estr> estrategias = inicializarEstrategias(estrategiasUnicas, estrTotales, columnas);
+    // for(auto it = estrategias.begin(); it != estrategias.end(); it++){
+    //        int estr = it->peso;
+    //        cout << "Peso Estr " << it->estrategia << ":" << it->peso << "\n";
+    //    }
 
     while (true){
         color = read_str();
@@ -68,10 +75,11 @@ int main(){
         p = read_int();
 
         tablero tab = crearTablero(columns, rows);
+        list<estr> estrategias = inicializarEstrategias(estrategiasUnicas, estrTotales, columns);
 
         go_first = read_str();
         if (go_first == "vos") {
-            move = jugadaGolosa(tab, estrategias, estrategiasUnicas, (C-2)*2, estrTotales, columnas, C);
+            move = jugadaGolosa(tab, estrategias, estrategiasUnicas, (C-2)*2, estrTotales, columns, c);
             actualizarTablero(tab, move, true);
             send(move);
         }
@@ -95,6 +103,3 @@ int main(){
 
     return 0;
 }
-
-
-

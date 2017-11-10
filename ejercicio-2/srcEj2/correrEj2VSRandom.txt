@@ -1,0 +1,7 @@
+Primero hacer:
+
+make
+
+Luego correr con los graficos:
+
+python c_linea.py --blue_player ./ej2 --red_player ./random_player --first azul --ui True --columns 7 --rows 6 --p 21 --c 4
