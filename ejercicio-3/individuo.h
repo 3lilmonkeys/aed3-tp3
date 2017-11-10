@@ -15,7 +15,7 @@ public:
 	float win_rate;
 	float rapidez;
 
-	void calcular_fitness();
+	void calcular_fitness(vector<individuo> oponentes);
 	void crossover(individuo B);
 	void mutar();
 };
@@ -24,7 +24,7 @@ public:
 individuo seleccionarPonderado(vector<individuo> poblacion);
 individuo seleccionarRandom(vector<individuo> poblacion);
 	
-void poblacion_sort(vector<individuo> poblacion);
+void poblacion_sort(vector<individuo>& poblacion);
 
 individuo genetico(vector<individuo> poblacion);
 
