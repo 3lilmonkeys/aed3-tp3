@@ -14,7 +14,7 @@
 #include <random>
 #include <time.h>
 
-#include "../src/auxiliar.h"
+#include "auxiliar.h"
 
 #define gane 1;
 #define perdi -1;
