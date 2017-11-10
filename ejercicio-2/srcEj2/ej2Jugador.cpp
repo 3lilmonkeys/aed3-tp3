@@ -51,19 +51,6 @@ int main(){
     string msg, color, oponent_color, go_first;
     int columns, rows, c, p, move;
 
-    int C = 6;
-    int estrategiasUnicas = 11;
-    unsigned int estrTotales = (unsigned int) estrategiasUnicas+ (C-2)*2;
-    int filas = 6;
-    unsigned int columnas = (unsigned int) 6;
-    int fichas = 18;
-
-    //deberia ir dentro del while para que cambien las estrategias??
-    // list<estr> estrategias = inicializarEstrategias(estrategiasUnicas, estrTotales, columnas);
-    // for(auto it = estrategias.begin(); it != estrategias.end(); it++){
-    //        int estr = it->peso;
-    //        cout << "Peso Estr " << it->estrategia << ":" << it->peso << "\n";
-    //    }
 
     while (true){
         color = read_str();
@@ -74,12 +61,15 @@ int main(){
         c = read_int();
         p = read_int();
 
+        int estrategiasUnicas = 11;
+        unsigned int estrTotales = (unsigned int) estrategiasUnicas+ (c-2)*2;
+
         tablero tab = crearTablero(columns, rows);
         list<estr> estrategias = inicializarEstrategias(estrategiasUnicas, estrTotales, columns);
 
         go_first = read_str();
         if (go_first == "vos") {
-            move = jugadaGolosa(tab, estrategias, estrategiasUnicas, (C-2)*2, estrTotales, columns, c);
+            move = jugadaGolosa(tab, estrategias, estrategiasUnicas, (c-2)*2, estrTotales, columns, c);
             actualizarTablero(tab, move, true);
             send(move);
         }
@@ -93,7 +83,7 @@ int main(){
             //actualizar tablero con el movimiento del enemigo
             actualizarTablero(tab, stoi(msg), false);
 
-            move = jugadaGolosa(tab, estrategias, estrategiasUnicas, (C-2)*2, estrTotales, columnas, C);
+            move = jugadaGolosa(tab, estrategias, estrategiasUnicas, (c-2)*2, estrTotales, columns, c);
 
             //actualizar tablero con el movimiento, move mio.
             actualizarTablero(tab, move, true);
