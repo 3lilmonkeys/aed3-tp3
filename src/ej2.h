@@ -1610,16 +1610,16 @@ int buscarTrue(vector<bool> jugadas){
 int unoParaGanar(tablero &tab, int p){
     resultado res;
     res = mejorHorizontal(true, tab, p);
-    if(res.lineaMax == p) return buscarTrue(res.resultados);
+    if(res.lineaMax == p-1) return buscarTrue(res.resultados);
     res = mejorVertical(true, tab, p);
-    if(res.lineaMax == p) return buscarTrue(res.resultados);
+    if(res.lineaMax == p-1) return buscarTrue(res.resultados);
     res = mejorDiagonal(true, tab, p);
-    if(res.lineaMax == p) return buscarTrue(res.resultados);
+    if(res.lineaMax == p-1) return buscarTrue(res.resultados);
     res = ataqueInmediato(true, tab, p);
-    if(res.lineaMax == p) return buscarTrue(res.resultados);
+    if(res.lineaMax == p-1) return buscarTrue(res.resultados);
     res = conectarLineas(true, tab, p);
-    if(res.lineaMax == p) return buscarTrue(res.resultados);
-	
+    if(res.lineaMax == p-1) return buscarTrue(res.resultados);
+
 	return -1;
 }
 
@@ -1627,15 +1627,15 @@ int unoParaGanar(tablero &tab, int p){
 int unoParaPerder(tablero &tab, int p) {
 	resultado res;
 	res = mejorHorizontal(false, tab, p);
-	if (res.lineaMax == p) return buscarTrue(res.resultados);
+	if (res.lineaMax == p-1) return buscarTrue(res.resultados);
 	res = mejorVertical(false, tab, p);
-	if (res.lineaMax == p) return buscarTrue(res.resultados);
+	if (res.lineaMax == p-1) return buscarTrue(res.resultados);
 	res = mejorDiagonal(false, tab, p);
-	if (res.lineaMax == p) return buscarTrue(res.resultados);
+	if (res.lineaMax == p-1) return buscarTrue(res.resultados);
 	res = ataqueInmediato(false, tab, p);
-	if (res.lineaMax == p) return buscarTrue(res.resultados);
+	if (res.lineaMax == p-1) return buscarTrue(res.resultados);
 	res = conectarLineas(false, tab, p);
-	if (res.lineaMax == p) return buscarTrue(res.resultados);
+	if (res.lineaMax == p-1) return buscarTrue(res.resultados);
 
 	return -1;
 }
