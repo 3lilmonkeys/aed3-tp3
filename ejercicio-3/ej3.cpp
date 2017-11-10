@@ -2,10 +2,10 @@
 #include "individuo.h"
 #include "../ejercicio-2/ej2.h"
 
-#define TAM_POBLACION 10
-#define PROB_MUTACION 0.01
-#define LIMITE_PARAM 100
-#define CANT_PARTIDOS 10
+#define TAM_POBLACION 100
+#define PROB_MUTACION 0.05
+#define LIMITE_PARAM (11 + (4 - 2)*2) 
+#define CANT_PARTIDOS 100
 #define CANT_ESTR (11 + (4 - 2)*2) //11 +(c-2)*2
 
 std::random_device rd;
@@ -26,7 +26,7 @@ individuo genetico(vector<individuo> poblacion0) {
 	poblacion_sort(poblacion0);
 	vector<individuo> poblacionAux;
 
-	while (poblacion0[0].win_rate < 0.9) {
+	while (poblacion0[0].win_rate < 0.95) {
 
 		for (int i = 0; i < poblacion0[0].parametros.size(); i++)
 		{
@@ -70,7 +70,7 @@ individuo seleccionarPonderado(vector<individuo> poblacion) {
 		for (int i = 0; i < TAM_POBLACION; i++)
 		{
 			int capacidad = (int) (poblacion[i].win_rate * 100) + (poblacion[i].rapidez * 10);
-			if (dis(gen) < (capacidad / 4)) {
+			if (dis(gen) < (capacidad / 10)) {
 				return poblacion[i];
 			}
 		}
@@ -79,7 +79,7 @@ individuo seleccionarPonderado(vector<individuo> poblacion) {
 
 individuo seleccionarRandom(vector<individuo> poblacion) {
 	std::mt19937 gen(rd());
-	std::uniform_int_distribution<> dis(1, TAM_POBLACION/5);
+	std::uniform_int_distribution<> dis(1, TAM_POBLACION/2);
 	while (true) {
 		for (int i = 0; i < 100; i++)
 		{
@@ -149,6 +149,10 @@ void individuo::calcular_fitness(vector<individuo> oponentes) {
 
 		list<estr> estrategiasOponente(CANT_ESTR);
 
+		if (i % 2 == 0) {
+			empiezo = true;
+		}
+
 		int k = 0;
 		for (auto it = estrategiasOponente.begin(); it != estrategiasOponente.end(); it++) {
 			it->estrategia = k + 1;
@@ -175,7 +179,7 @@ void individuo::calcular_fitness(vector<individuo> oponentes) {
 		}
 
 		if (terminado == 1) {
-			win_rate += 0.1;
+			win_rate += 0.01;
 		}
 		//else if (terminado == 0) {
 		//	win_rate += 0.005;
