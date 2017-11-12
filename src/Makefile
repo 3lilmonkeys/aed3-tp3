@@ -1,7 +1,8 @@
 CC = g++
 CCFLAGS = -std=c++11
 
-SOURCE_EJERCICIO_1 = ejercicio-1/algoritmo_exacto.cpp
+SOURCE_EJERCICIO_1 = ejercicio-1/main.cpp ejercicio-1/algoritmo_exacto.cpp\
+ejercicio-1/algoritmo_exacto.h
 TARGET_EJERCICIO_1 = ej1
 SOURCE_EJERCICIO_2_GOLOSO = ejercicio-2/ej2Jugador.cpp
 TARGET_EJERCICIO_2_GOLOSO = ej2

@@ -1,77 +1,8 @@
-#include <iostream>
-#include <fstream>
-#include <string>
-#include <cstdlib>
-#include <vector>
-#include <stdio.h>
-#include <sys/stat.h>
-#include <algorithm>
+#include "algoritmo_exacto.h"
 
 
-#define gane 1;
-#define perdi -1;
-#define empate 0;
-#define fichaAliada 10
-#define fichaEnemiga 20
-
-using namespace std;
-
-struct tablero{
-    vector<vector<int>> matrizFichas;
-    int n;//columnas
-    int m;//filas
-} tablero1;
-
-
-
-tablero crearTablero(int n, int m){
-    tablero tab;
-    tab.m = m;
-    tab.n = n;
-    for(int i = 0; i < n; i++){
-        vector<int> filas;
-        tab.matrizFichas.push_back(filas);
-    }
-    return tab;
-}
-
-
-void actualizarTablero(tablero& tab, int move, bool moveAliado);
-int minRes(vector<int> resultados);
-int maxRes(vector<int> resultados);
-int posMax(vector<int> resultados);
-int validarVictoria(tablero& tab, int p);
-bool tableroLleno(tablero& tab);
-int evaluarJugada(tablero& tab, int columnas, bool maximizar, int c, int p);
-bool hayFicha(tablero& tab, int columna, int fila);
-
-void send(const std::string& msg) {
-    std::cout << msg << std::endl;
-}
-
-void send(int msg) {
-    std::cout << msg << std::endl;
-}
-
-int read_int() {
-    std::string msg;
-    std::cin >> msg;
-    if (msg == "salir") {
-        send("listo");
-        exit(0);
-    }
-    return stoi(msg);
-}
-
-string read_str() {
-    string msg;
-    cin >> msg;
-    if (msg == "salir") {
-        send("listo");
-        exit(0);
-    }
-    return msg;
-}
+#ifndef header_algoritmo_exacto
+#define header_algoritmo_exacto
 
 
 int calcularJugada(tablero& tab, int columnas, int c, int p){
@@ -145,59 +76,6 @@ int evaluarJugada(tablero& tab, int columnas, bool maximizar, int c, int p){
             }
         }
     }
-}
-
-bool tableroLleno(tablero& tab){
-    for (int i = 0; i < tab.n; ++i)
-    {
-        if(tab.matrizFichas[i].size() < tab.m){
-            return false;
-        }
-    }
-    return true;
-}
-
-
-int main() {
-    string msg, color, oponent_color, go_first;
-    int columns, rows, c, p, move;
-
-    while (true){
-        color = read_str();
-        oponent_color = read_str();
-   
-        columns = read_int();
-        rows = read_int();
-        c = read_int();
-        p = read_int();
-   
-        tablero tab = crearTablero(columns, rows);
-   
-        go_first = read_str();
-        if (go_first == "vos") {
-            move = calcularJugada(tab, columns, c, p);
-            actualizarTablero(tab, move, true);
-            send(move);
-        }
-   
-        while (true){
-            msg = read_str();
-            if (msg == "ganaste" || msg == "perdiste" || msg == "empataron") {
-                break;
-            }
-   
-            //actualizar tablero con el movimiento del enemigo
-            actualizarTablero(tab, stoi(msg), false);
-   
-            move = calcularJugada(tab, columns, c, p);
-   
-            //actualizar tablero con el movimiento, move mio.
-            actualizarTablero(tab, move, true);
-            send(move);
-        }
-    }
-
-    return 0;
 }
 
 int validarVictoria(tablero& tab, int c){
@@ -277,9 +155,37 @@ int validarVictoria(tablero& tab, int c){
         }
     }
     return 0;
-
 }
 
+
+/*                          Auxiliares                    */
+
+/* Creo un nuevo tablero. Este es un vector de vectores conde el tablero ser lo
+representa vector[i] es una columna y las jugadas se agregan haciendo push_back
+en las columnas para que esta se ubique arriba de la columna. */
+tablero crearTablero(int n, int m){
+    tablero tab;
+    tab.m = m;
+    tab.n = n;
+    for(int i = 0; i < n; i++){
+        vector<int> columnas;
+        tab.matrizFichas.push_back(columnas);
+    }
+    return tab;
+}
+
+/* Consulto si queda lugar en el tablero. */
+bool tableroLleno(tablero& tab){
+    for (int i = 0; i < tab.n; ++i)
+    {
+        if(tab.matrizFichas[i].size() < tab.m){
+            return false;
+        }
+    }
+    return true;
+}
+
+/* Saco el mínimo sobre las jugadas en un nivel. */
 int minRes(vector<int> resultados){
     int minRes = resultados[0];
     for(int i = 0; i < resultados.size(); i++){
@@ -290,6 +196,7 @@ int minRes(vector<int> resultados){
     return minRes;
 }
 
+/* Saco el máximo sobre las jugadas en un nivel. */
 int maxRes(vector<int> resultados){
     int maxRes = resultados[0];
     for(int i = 0; i < resultados.size(); i++){
@@ -300,7 +207,7 @@ int maxRes(vector<int> resultados){
     return maxRes;
 }
 
-
+/* Obtengo el índice del máximo en el vector. */
 int posMax(vector<int> resultados){
     int maxPos = 0;
     for(int i = 0; i < resultados.size(); i++){
@@ -311,6 +218,7 @@ int posMax(vector<int> resultados){
     return maxPos;
 }
 
+/* Actualizo el tablero con la ultima jugada realizada. */
 void actualizarTablero(tablero& tab, int move, bool moveAliado){
     if(moveAliado){
         tab.matrizFichas[move].push_back(fichaAliada);
@@ -320,7 +228,39 @@ void actualizarTablero(tablero& tab, int move, bool moveAliado){
     }
 }
 
-
+/* Consulto si hay una ficha en la fila y columna o superior. */
 bool hayFicha(tablero& tab, int columna, int fila) {
 	return fila < tab.matrizFichas[columna].size();
 }
+
+
+void send(const string& msg) {
+    cout << msg << endl;
+}
+
+void send(int msg) {
+    cout << msg << endl;
+}
+
+int read_int() {
+    string msg;
+    cin >> msg;
+    if (msg == "salir") {
+        send("listo");
+        exit(0);
+    }
+    return stoi(msg);
+}
+
+string read_str() {
+    string msg;
+    cin >> msg;
+    if (msg == "salir") {
+        send("listo");
+        exit(0);
+    }
+    return msg;
+}
+
+
+#endif
