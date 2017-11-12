@@ -14,7 +14,7 @@
 #include <random>
 #include <time.h>
 
-#include "../src/auxiliar.h"
+#include "auxiliar.h"
 
 #define gane 1;
 #define perdi -1;
@@ -393,22 +393,40 @@ list<estr> inicializarEstrategias(int estrUnicas, int estrTotales, int columnas)
         estr.susMovs.resultados = movimientosPosibles;
         misEstrategias.push_back(estr);
     }
-    // int i = estrUnicas+1;
-    // while(i < estrTotales){
-    //     estr estr;
-    //     estr.estrategia = i;
-    //     estr.peso = 5;            // asignar peso
-    //     vector<bool> movimientosPosibles(columnas);
-    //     estr.susMovs = movimientosPosibles;
-    //     misEstrategias.push_back(estr);
-    //     i++;
-    //     estr.estrategia = i;
-    //     estr.peso = 5;            // asignar peso
-    //     vector<bool> movimientosPosibles1(columnas);
-    //     estr.susMovs = movimientosPosibles1;
-    //     misEstrategias.push_back(estr);
-    //     i++;
-    // }
+
+    auto it = misEstrategias.begin();
+    it->peso = 3;
+    it++;
+    it->peso = 9;
+    it++;
+    it->peso = 10;
+    it++;
+    it->peso = 5;
+    it++;
+    it->peso = 8;
+    it++;
+    it->peso = 5;
+    it++;
+    it->peso = 5;
+    it++;
+    it->peso = 12;
+    it++;
+    it->peso = 11;
+    it++;
+    it->peso = 11;
+    it++;
+    it->peso = 13;
+    it++;
+    it->peso = 15;
+    it++;
+    it->peso = 8;
+    it++;
+    it->peso = 13;
+    it++;
+    it->peso = 4;
+    it++;
+
+
     return misEstrategias;
 }
 
@@ -1592,16 +1610,16 @@ int buscarTrue(vector<bool> jugadas){
 int unoParaGanar(tablero &tab, int p){
     resultado res;
     res = mejorHorizontal(true, tab, p);
-    if(res.lineaMax == p) return buscarTrue(res.resultados);
+    if(res.lineaMax == p-1) return buscarTrue(res.resultados);
     res = mejorVertical(true, tab, p);
-    if(res.lineaMax == p) return buscarTrue(res.resultados);
+    if(res.lineaMax == p-1) return buscarTrue(res.resultados);
     res = mejorDiagonal(true, tab, p);
-    if(res.lineaMax == p) return buscarTrue(res.resultados);
+    if(res.lineaMax == p-1) return buscarTrue(res.resultados);
     res = ataqueInmediato(true, tab, p);
-    if(res.lineaMax == p) return buscarTrue(res.resultados);
+    if(res.lineaMax == p-1) return buscarTrue(res.resultados);
     res = conectarLineas(true, tab, p);
-    if(res.lineaMax == p) return buscarTrue(res.resultados);
-	
+    if(res.lineaMax == p-1) return buscarTrue(res.resultados);
+
 	return -1;
 }
 
@@ -1609,15 +1627,15 @@ int unoParaGanar(tablero &tab, int p){
 int unoParaPerder(tablero &tab, int p) {
 	resultado res;
 	res = mejorHorizontal(false, tab, p);
-	if (res.lineaMax == p) return buscarTrue(res.resultados);
+	if (res.lineaMax == p-1) return buscarTrue(res.resultados);
 	res = mejorVertical(false, tab, p);
-	if (res.lineaMax == p) return buscarTrue(res.resultados);
+	if (res.lineaMax == p-1) return buscarTrue(res.resultados);
 	res = mejorDiagonal(false, tab, p);
-	if (res.lineaMax == p) return buscarTrue(res.resultados);
+	if (res.lineaMax == p-1) return buscarTrue(res.resultados);
 	res = ataqueInmediato(false, tab, p);
-	if (res.lineaMax == p) return buscarTrue(res.resultados);
+	if (res.lineaMax == p-1) return buscarTrue(res.resultados);
 	res = conectarLineas(false, tab, p);
-	if (res.lineaMax == p) return buscarTrue(res.resultados);
+	if (res.lineaMax == p-1) return buscarTrue(res.resultados);
 
 	return -1;
 }

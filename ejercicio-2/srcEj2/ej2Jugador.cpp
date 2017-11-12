@@ -52,6 +52,14 @@ int main(){
     int columns, rows, c, p, move;
 
 
+
+    //deberia ir dentro del while para que cambien las estrategias??
+    // list<estr> estrategias = inicializarEstrategias(estrategiasUnicas, estrTotales, columnas);
+    // for(auto it = estrategias.begin(); it != estrategias.end(); it++){
+    //        int estr = it->peso;
+    //        cout << "Peso Estr " << it->estrategia << ":" << it->peso << "\n";
+    //    }
+
     while (true){
         color = read_str();
         oponent_color = read_str();
@@ -63,6 +71,7 @@ int main(){
 
         int estrategiasUnicas = 11;
         unsigned int estrTotales = (unsigned int) estrategiasUnicas+ (c-2)*2;
+        int filas = 6;
 
         tablero tab = crearTablero(columns, rows);
         list<estr> estrategias = inicializarEstrategias(estrategiasUnicas, estrTotales, columns);

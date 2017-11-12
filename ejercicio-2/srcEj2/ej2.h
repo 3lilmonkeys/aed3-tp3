@@ -14,6 +14,7 @@
 #include <random>
 #include <time.h>
 
+#include "auxiliar.h"
 
 #define gane 1;
 #define perdi -1;
@@ -28,7 +29,7 @@ struct resultado{
     int lineaMax;
     vector<bool> resultados;
 };
-
+/*
 struct tablero{
     vector<vector<int>> matrizFichas;
     int n;//columnas
@@ -47,7 +48,7 @@ tablero crearTablero(int n, int m){
     }
     return tab;
 }
-
+*/
 struct estr{
     int estrategia;
     int peso;
@@ -78,15 +79,16 @@ resultado juegoAlCentroExacto(tablero& tab);
 resultado ataqueInmediato(bool ofensivo, tablero& tab, int p);
 resultado lineasDeXFichas(int x1, bool ofensivo, tablero& tab, int p);
 
+int unoParaPerder(tablero &tab, int p);
 int unoParaGanar(tablero &tab, int p);
 bool columnaLlena(tablero &tab, int columna);
 resultado calcularMoves(int estrategia, tablero &tab, int p);
 int buscarMejorJugada(vector<estr> posiblesJugadas);
-bool hayFicha(tablero& tab, int columna, int fila);
+//bool hayFicha(tablero& tab, int columna, int fila);
 bool hayFichaAliada(tablero& tab, int columna, int fila);
 bool hayFichaEnemiga(tablero& tab, int columna, int fila);
 resultado posMaxOIguales(vector<int> resultados);
-void actualizarTablero(tablero& tab, int move, bool moveAliado);
+//void actualizarTablero(tablero& tab, int move, bool moveAliado);
 list<estr> inicializarEstrategias(int estrUnicas, int estrTotales, int columnas);
 bool estrategiaEsValida(vector<bool> jugadas);
 
@@ -153,6 +155,11 @@ int jugadaGolosa(tablero &tab, list<estr> estrs, int estrUnicas, int formarYBloq
     if(moveParaGanar >= 0){
         return moveParaGanar;
     }
+
+	int moveParaPerder = unoParaPerder(tab, p);
+	if (moveParaPerder >= 0) {
+		return moveParaPerder;
+	}
 
     for(auto it = estrs.begin(); it != estrs.end() ; it++) it->peso = it->peso * (-1);
     //ordeno las estrategias por su peso de forma descendente
@@ -386,22 +393,40 @@ list<estr> inicializarEstrategias(int estrUnicas, int estrTotales, int columnas)
         estr.susMovs.resultados = movimientosPosibles;
         misEstrategias.push_back(estr);
     }
-    // int i = estrUnicas+1;
-    // while(i < estrTotales){
-    //     estr estr;
-    //     estr.estrategia = i;
-    //     estr.peso = 5;            // asignar peso
-    //     vector<bool> movimientosPosibles(columnas);
-    //     estr.susMovs = movimientosPosibles;
-    //     misEstrategias.push_back(estr);
-    //     i++;
-    //     estr.estrategia = i;
-    //     estr.peso = 5;            // asignar peso
-    //     vector<bool> movimientosPosibles1(columnas);
-    //     estr.susMovs = movimientosPosibles1;
-    //     misEstrategias.push_back(estr);
-    //     i++;
-    // }
+
+    auto it = misEstrategias.begin();
+    it->peso = 3;
+    it++;
+    it->peso = 9;
+    it++;
+    it->peso = 10;
+    it++;
+    it->peso = 5;
+    it++;
+    it->peso = 8;
+    it++;
+    it->peso = 5;
+    it++;
+    it->peso = 5;
+    it++;
+    it->peso = 12;
+    it++;
+    it->peso = 11;
+    it++;
+    it->peso = 11;
+    it++;
+    it->peso = 13;
+    it++;
+    it->peso = 15;
+    it++;
+    it->peso = 8;
+    it++;
+    it->peso = 13;
+    it++;
+    it->peso = 4;
+    it++;
+
+
     return misEstrategias;
 }
 
@@ -1577,7 +1602,7 @@ int buscarTrue(vector<bool> jugadas){
     for(int i = 0; i < jugadas.size(); i++){
         if(jugadas[i]) return i;
     }
-    return -1;
+    return 0;
 }
 
 
@@ -1586,34 +1611,47 @@ int unoParaGanar(tablero &tab, int p){
     resultado res;
     res = mejorHorizontal(true, tab, p);
     if(res.lineaMax == p-1) return buscarTrue(res.resultados);
-
     res = mejorVertical(true, tab, p);
     if(res.lineaMax == p-1) return buscarTrue(res.resultados);
-
     res = mejorDiagonal(true, tab, p);
     if(res.lineaMax == p-1) return buscarTrue(res.resultados);
-
     res = ataqueInmediato(true, tab, p);
     if(res.lineaMax == p-1) return buscarTrue(res.resultados);
-
     res = conectarLineas(true, tab, p);
     if(res.lineaMax == p-1) return buscarTrue(res.resultados);
 
-    return -1;
+	return -1;
 }
 
 
-//
+int unoParaPerder(tablero &tab, int p) {
+	resultado res;
+	res = mejorHorizontal(false, tab, p);
+	if (res.lineaMax == p-1) return buscarTrue(res.resultados);
+	res = mejorVertical(false, tab, p);
+	if (res.lineaMax == p-1) return buscarTrue(res.resultados);
+	res = mejorDiagonal(false, tab, p);
+	if (res.lineaMax == p-1) return buscarTrue(res.resultados);
+	res = ataqueInmediato(false, tab, p);
+	if (res.lineaMax == p-1) return buscarTrue(res.resultados);
+	res = conectarLineas(false, tab, p);
+	if (res.lineaMax == p-1) return buscarTrue(res.resultados);
+
+	return -1;
+}
+
+
+
 //int main() {
 //    vector<int> myVec = {111,2,1,111,111,122};
 //    resultado res;
 //    res = posMaxOIguales(myVec);
 //    cout << res.resultados[0] << "," << res.resultados[1] << "," << res.resultados[2] << "," << res.resultados[3] << "," <<  res.resultados[4]<< "," <<  res.resultados[5];
 //
-//    int C = 4;
+//    int C = 64
 //    int estrategiasUnicas = 11;
 //    int estrTotales = estrategiasUnicas+ (C-2)*2;
-//    int columnas = 7;
+//    int columnas = 6;
 //    int filas = 6;
 //    int fichas = 18;
 //
@@ -1632,20 +1670,20 @@ int unoParaGanar(tablero &tab, int p){
 //    // mejorDiagonal esta testeada muy poco
 //    // ataqueInmediato le falta la parte de testeo.
 //
-//    actualizarTablero(tab1, 3, true);
+//    actualizarTablero(tab1, 0, true);
+//    actualizarTablero(tab1, 0, false);
+//    actualizarTablero(tab1, 1, true);
+//    actualizarTablero(tab1, 1, true);
+//    actualizarTablero(tab1, 2, true);
 //    actualizarTablero(tab1, 2, false);
-//    actualizarTablero(tab1, 4, false);
-//    actualizarTablero(tab1, 5, false);
 //    actualizarTablero(tab1, 3, true);
-//    actualizarTablero(tab1, 4, true);
-//    actualizarTablero(tab1, 5, true);
-//    actualizarTablero(tab1, 5, false);
 //    actualizarTablero(tab1, 4, false);
 //    actualizarTablero(tab1, 4, true);
+//    actualizarTablero(tab1, 4, true);
+//    actualizarTablero(tab1, 5, false);
 //    actualizarTablero(tab1, 5, true);
 //    actualizarTablero(tab1, 5, false);
-//
-//
+//    actualizarTablero(tab1, 5, true);
 //
 //
 ////    vector<bool> posibleRes = mejorHorizontal(false, tab1, cLinea);
@@ -1686,7 +1724,7 @@ resultado posMaxOIguales(vector<int> resultados){
     res.resultados = posiblesPos;
     return res;
 }
-
+/*
 void actualizarTablero(tablero& tab, int move, bool moveAliado){
     //verificar que la columna move no esta llena!
     if(moveAliado && tab.matrizFichas[move].size() < tab.m){
@@ -1703,7 +1741,7 @@ bool hayFicha(tablero& tab, int columna, int fila){
     if(columna >= tab.n || fila >= tab.m) return false;
     if(columna < 0 || fila < 0) return false;
     return fila < tab.matrizFichas[columna].size();
-}
+}*/
 
 bool hayFichaAliada(tablero& tab, int columna, int fila){
     if(columna >= tab.n || fila >= tab.m) return false;
