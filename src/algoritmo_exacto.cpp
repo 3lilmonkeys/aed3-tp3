@@ -81,19 +81,18 @@ int calcularJugada(tablero& tab, int columnas, int c, int p){
         opcionesTablero[i] = tab;
         actualizarTablero(opcionesTablero[i], i, true);
         if(opcionesTablero[i].matrizFichas[i].size() > tab.m){
-            posiblesResultados[i] = -2;
-            // le asginamos un -2 ya que no quiero tener en cuenta ese movimiento.
+            posiblesResultados[i] = -10;
+            // le asginamos un -10 ya que no quiero tener en cuenta ese movimiento.
         }
         else{
             posiblesResultados[i] = evaluarJugada(opcionesTablero[i], columnas, false, c, p - 1);
             // esta funcion se encargaria de maximizar, por lo tanto llamo a evaluar jugada con MINIMIZAR.
             if(posiblesResultados[i] == 1){
-                //return i;
+                return i;
             }
         }
 
     }
-    cout << posiblesResultados[0]<< posiblesResultados[1] << posiblesResultados[2] << " " << posMax(posiblesResultados) << endl;
     return posMax(posiblesResultados);
 }
 
@@ -105,7 +104,7 @@ int evaluarJugada(tablero& tab, int columnas, bool maximizar, int c, int p){
     else if(resultado == -1){
         return -1;
     }
-    else {
+    else{
         if(tableroLleno(tab)){
             return 0;
         }
@@ -122,7 +121,7 @@ int evaluarJugada(tablero& tab, int columnas, bool maximizar, int c, int p){
                         int resultado = evaluarJugada(opcionesTablero[i], columnas, !maximizar, c, p - 1);
                         posiblesResultados[i] = resultado;
                         if(resultado == 1){ //parte alfabeta: si la rama que acabo de calcular ya me da 1 lo devuelvo asi no calculo los siguientes
-                           //return 1;
+                            return 1;
                         }
                     }
                 }
@@ -138,7 +137,7 @@ int evaluarJugada(tablero& tab, int columnas, bool maximizar, int c, int p){
                         int resultado = evaluarJugada(opcionesTablero[i], columnas, !maximizar, c, p);
                         posiblesResultados[i] = resultado;
                         if(resultado == -1){ //parte alfabeta
-                           //return -1;
+                            return -1;
                         }
                     }
                 }
@@ -162,28 +161,6 @@ bool tableroLleno(tablero& tab){
 int main() {
     string msg, color, oponent_color, go_first;
     int columns, rows, c, p, move;
-
-    columns = 3;
-    rows = 5;
-    c = 3;
-    p = 8;
-
-    tablero tab = crearTablero(columns, rows);
-
-    while(true){ 
-        calcularJugada(tab, columns, c, p);  
-        int jugada;
-        cin >> jugada;
-        actualizarTablero(tab, jugada, true);
-        //cout << evaluarJugada(tab, columns, 0, 3 , 8) << endl;
-        //cout << validarVictoria(tab, 3) << endl;
-        cin >> jugada;
-    
-        actualizarTablero(tab, jugada, false);
-        //cout << validarVictoria(tab, 3) << endl;
-        //cout << evaluarJugada(tab, columns, 1, 3 , 8) << endl;
-
-    }/*
 
     while (true){
         color = read_str();
@@ -218,7 +195,7 @@ int main() {
             actualizarTablero(tab, move, true);
             send(move);
         }
-    }*/
+    }
 
     return 0;
 }
@@ -228,11 +205,11 @@ int validarVictoria(tablero& tab, int c){
     {
         for (int j = 0; j < tab.m; ++j)         //j recorre filas
         {
-            if(i <= tab.n - c){//chequea si hay ganador en la fila de c fichas  empezando de (i,k)
+            if(i <= tab.n - c){//chequea si hay ganador en la fila de p fichas  empezando de (i,k)
                 bool hayGanador = true;
                 for (int k = 0; k < c; ++k)
                 {
-					if (hayFicha(tab, j, i+k)) {
+					if (hayFicha(tab, i + k, j)) {
 						if (tab.matrizFichas[i][j] != tab.matrizFichas[i + k][j])
 						{
 							hayGanador = false;
@@ -245,12 +222,11 @@ int validarVictoria(tablero& tab, int c){
                     if(tab.matrizFichas[i][j] == fichaAliada) {return 1;} else {return -1;}
                 }
             }
-
-            if(j <= tab.m - c){//chequea si hay ganador en la columna de c fichas  empezando de (i,j)
+            if(j <= tab.m - c){//chequea si hay ganador en la columna de p fichas  empezando de (i,j)
                 bool hayGanador = true;
 				for (int k = 0; k < c; ++k)
 				{
-					if (hayFicha(tab, j + k, i)) {
+					if (hayFicha(tab, i, j + k)) {
 						if (tab.matrizFichas[i][j] != tab.matrizFichas[i][j + k])
 						{
 							hayGanador = false;
@@ -264,11 +240,11 @@ int validarVictoria(tablero& tab, int c){
                     if(tab.matrizFichas[i][j] == fichaAliada) {return 1;} else {return -1;}
                 }
             }
-            if((i <= tab.n - c)&&(j <= tab.m - c)){//chequea si hay ganador en la diagonal hacia la derecha de c fichas empezando de (i,k)
+            if((i <= tab.n - c)&&(j <= tab.m - c)){//chequea si hay ganador en la diagonal hacia la derecha de p fichas empezando de (i,k)
                 bool hayGanador = true;
 				for (int k = 0; k < c; ++k)
 				{
-					if (hayFicha(tab, j + k, i + k)) {
+					if (hayFicha(tab, i + k, j + k)) {
 						if (tab.matrizFichas[i][j] != tab.matrizFichas[i + k][j + k])
 						{
 							hayGanador = false;
@@ -281,11 +257,11 @@ int validarVictoria(tablero& tab, int c){
                     if(tab.matrizFichas[i][j] == fichaAliada) {return 1;} else {return -1;}
                 }
             }
-            if((i >= c - 1)&&(j <= tab.m - c)){//chequea si hay ganador en la diagonal hacia la izquierda de c fichas empezando de (i,k)
+            if((i >= c - 1)&&(j <= tab.m - c)){//chequea si hay ganador en la diagonal hacia la izquierda de p fichas empezando de (i,k)
                 bool hayGanador = true;
                 for (int k = 0; k < c; ++k)
                 {
-					if (hayFicha(tab, j + k, i - k)) {
+					if (hayFicha(tab, i - k, j + k)) {
 						if (tab.matrizFichas[i][j] != tab.matrizFichas[i - k][j + k])
 						{
 							hayGanador = false;
@@ -346,5 +322,5 @@ void actualizarTablero(tablero& tab, int move, bool moveAliado){
 
 
 bool hayFicha(tablero& tab, int columna, int fila) {
-	return columna < tab.matrizFichas[fila].size();
+	return fila < tab.matrizFichas[columna].size();
 }

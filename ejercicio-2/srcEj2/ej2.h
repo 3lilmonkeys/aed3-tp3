@@ -393,7 +393,7 @@ list<estr> inicializarEstrategias(int estrUnicas, int estrTotales, int columnas)
         estr.susMovs.resultados = movimientosPosibles;
         misEstrategias.push_back(estr);
     }
-
+/*
     auto it = misEstrategias.begin();
     it->peso = 3;
     it++;
@@ -425,8 +425,38 @@ list<estr> inicializarEstrategias(int estrUnicas, int estrTotales, int columnas)
     it++;
     it->peso = 4;
     it++;
-
-
+*/
+    auto it = misEstrategias.begin();
+    it->peso = 10;
+    it++;
+    it->peso = 2;
+    it++;
+    it->peso = 7;
+    it++;
+    it->peso = 13;
+    it++;
+    it->peso = 6;
+    it++;
+    it->peso = 14;
+    it++;
+    it->peso = 11;
+    it++;
+    it->peso = 9;
+    it++;
+    it->peso = 6;
+    it++;
+    it->peso = 14;
+    it++;
+    it->peso = 12;
+    it++;
+    it->peso = 2;
+    it++;
+    it->peso = 8;
+    it++;
+    it->peso = 0;
+    it++;
+    it->peso = 9;
+    it++;
     return misEstrategias;
 }
 

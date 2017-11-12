@@ -1,6 +1,6 @@
 #include <random>
 #include "individuo.h"
-#include "../ejercicio-2/ej2.h"
+#include "../ejercicio-2/srcEj2/ej2.h"
 
 #define TAM_POBLACION 100
 #define PROB_MUTACION 0.05
@@ -12,28 +12,31 @@ std::random_device rd;
 std::mt19937 gen(rd());
 
 individuo genetico(vector<individuo> poblacion0) {
+
 	for (int i = 0; i < TAM_POBLACION; i++)
 	{
-		cout << "calculando fitness " << i << endl;
+		//cout << "calculando fitness " << i << endl;
 		poblacion0[i].calcular_fitness(poblacion0);	
-
+/*
 		for (int j = 0; j < poblacion0[i].parametros.size(); j++)
 		{
 			cout << poblacion0[i].parametros[j] << " ";
 		}
 		cout << "   " << poblacion0[i].win_rate << endl;
+*/
 	}
+
 	poblacion_sort(poblacion0);
 	vector<individuo> poblacionAux;
 
 	while (poblacion0[0].win_rate < 0.95) {
-
+/*
 		for (int i = 0; i < poblacion0[0].parametros.size(); i++)
 		{
 			cout << poblacion0[0].parametros[i] << " ";
 		}
 		cout << "   " << poblacion0[0].win_rate << endl;
-
+*/
 
 
 		for (int i = 0; i < (TAM_POBLACION / 2); i++)
