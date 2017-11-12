@@ -15,6 +15,9 @@ all: ejercicio1 ejercicio2 random ejercicio3
 ejemplo:
 	/usr/bin/python c_linea.py --first azul --ui True --columns 7 --rows 6 --p 21 --c 4
 
+ejemplo_jugador:
+	/usr/bin/python c_linea.py --blue_player ./ej1 --first rojo --ui True --columns 5 --rows 5 --p 7 --c 3
+
 ejercicio1:
 	$(CC) $(CCFLAGS) -o $(TARGET_EJERCICIO_1) $(SOURCE_EJERCICIO_1)
 
@@ -30,4 +33,5 @@ ejercicio3:
 clean:
 	$(RM) $(TARGET_EJERCICIO_1) $(TARGET_EJERCICIO_2_GOLOSO) \
 	$(TARGET_RANDOM) $(TARGET_EJERCICIO_3) constants.pyc GraphicalBoard.pyc \
-	LogicalBoard.pyc PlayerCommunicator.pyc Referee.pyc HumanPlayer.pyc
+	LogicalBoard.pyc PlayerCommunicator.pyc Referee.pyc HumanPlayer.pyc \
+	log/player_communicator_azul.log log/player_communicator_rojo.log
