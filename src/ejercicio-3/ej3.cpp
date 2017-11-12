@@ -1,10 +1,10 @@
 #include <random>
 #include "individuo.h"
-#include "../ejercicio-2/srcEj2/ej2.h"
+#include "../ejercicio-2/ej2.h"
 
 #define TAM_POBLACION 100
 #define PROB_MUTACION 0.05
-#define LIMITE_PARAM (11 + (4 - 2)*2) 
+#define LIMITE_PARAM (11 + (4 - 2)*2)
 #define CANT_PARTIDOS 100
 #define CANT_ESTR (11 + (4 - 2)*2) //11 +(c-2)*2
 
@@ -16,7 +16,7 @@ individuo genetico(vector<individuo> poblacion0) {
 	for (int i = 0; i < TAM_POBLACION; i++)
 	{
 		//cout << "calculando fitness " << i << endl;
-		poblacion0[i].calcular_fitness(poblacion0);	
+		poblacion0[i].calcular_fitness(poblacion0);
 /*
 		for (int j = 0; j < poblacion0[i].parametros.size(); j++)
 		{
@@ -40,7 +40,7 @@ individuo genetico(vector<individuo> poblacion0) {
 
 
 		for (int i = 0; i < (TAM_POBLACION / 2); i++)
-		{	
+		{
 			individuo indA = seleccionarRandom(poblacion0);
 			individuo indB = seleccionarPonderado(poblacion0);
 
@@ -56,7 +56,7 @@ individuo genetico(vector<individuo> poblacion0) {
 			poblacionAux.push_back(indA);
 			poblacionAux.push_back(indB);
 		}
-		
+
 		poblacion0 = poblacionAux;
 
 		poblacion_sort(poblacion0);
@@ -143,7 +143,7 @@ void individuo::calcular_fitness(vector<individuo> oponentes) {
 		it->susMovs.lineaMax = 0;
 		i++;
 	}
-	
+
 
 	for (int i = 0; i < CANT_PARTIDOS; i++) {
 		tablero tab = crearTablero(columnas, filas);
@@ -202,7 +202,7 @@ void poblacion_sort(vector<individuo>& poblacion) {
 	{
 		ind = poblacion[i];
 		j = i - 1;
-	
+
 		while (j >= 0 && poblacion[j].win_rate < ind.win_rate)
 		{
 			poblacion[j + 1] = poblacion[j];
@@ -216,7 +216,7 @@ void poblacion_sort(vector<individuo>& poblacion) {
 
 
 int main() {
-	
+
 	vector<individuo> poblacion0;
 
 	uniform_int_distribution<int> rndStrat(0, LIMITE_PARAM);

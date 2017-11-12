@@ -1,20 +1,16 @@
 CC = g++
 CCFLAGS = -std=c++11
 
-SOURCE_EJERCICIO_1 = ejercicio-1/algoritmo_exacto.cpp
+SOURCE_EJERCICIO_1 = src/ejercicio-1/algoritmo_exacto.cpp
 TARGET_EJERCICIO_1 = ej1
-SOURCE_EJERCICIO_2_GOLOSO = ejercicio-2/srcEj2/ej2Jugador.cpp
-SOURCE_EJERCICIO_2_RANDOM = ejercicio-2/srcEj2/random_player.cpp
+SOURCE_EJERCICIO_2_GOLOSO = src/ejercicio-2/ej2Jugador.cpp
 TARGET_EJERCICIO_2_GOLOSO = ej2
-TARGET_EJERCICIO_2_RANDOM = random
-SOURCE_EJERCICIO_3 = ejercicio-3/ej3.cpp
+SOURCE_EJERCICIO_3 = src/ejercicio-3/ej3.cpp
 TARGET_EJERCICIO_3 = ej3
-SOURCE_CARPETA_SRC_EXACTO = src/algoritmo_exacto.cpp
-SOURCE_CARPETA_SRC_GOLOSO = src/ej2Jugador.cpp
-TARGET_CARPETA_SRC_EXACTO = src_exacto
-TARGET_CARPETA_SRC_GOLOSO = src_goloso
+SOURCE_RANDOM = src/random_player.cpp
+TARGET_RANDOM = random
 
-all: ejercicio1 ejercicio2_goloso ejercicio2_random ejercicio3
+all: ejercicio1 ejercicio2_goloso random ejercicio3
 
 ejercicio1:
 	$(CC) $(CCFLAGS) -o $(TARGET_EJERCICIO_1) $(SOURCE_EJERCICIO_1)
@@ -22,20 +18,12 @@ ejercicio1:
 ejercicio2_goloso:
 	$(CC) $(CCFLAGS) -o $(TARGET_EJERCICIO_2_GOLOSO) $(SOURCE_EJERCICIO_2_GOLOSO)
 
-ejercicio2_random:
-	$(CC) $(CCFLAGS) -o $(TARGET_EJERCICIO_2_RANDOM) $(SOURCE_EJERCICIO_2_RANDOM)
+random:
+	$(CC) $(CCFLAGS) -o $(TARGET_RANDOM) $(SOURCE_RANDOM)
 
 ejercicio3:
 	$(CC) $(CCFLAGS) -o $(TARGET_EJERCICIO_3) $(SOURCE_EJERCICIO_3)
 
-scr_exacto:
-	$(CC) $(CCFLAGS) -o $(TARGET_CARPETA_SRC_EXACTO) $(SOURCE_CARPETA_SRC_EXACTO)
-
-scr_goloso:
-	$(CC) $(CCFLAGS) -o $(TARGET_CARPETA_SRC_GOLOSO) $(SOURCE_CARPETA_SRC_GOLOSO)
-
-
 clean:
 	$(RM) $(TARGET_EJERCICIO_1) $(TARGET_EJERCICIO_2_GOLOSO) \
-	$(TARGET_EJERCICIO_2_RANDOM) $(TARGET_EJERCICIO_3) $(TARGET_CARPETA_SRC_EXACTO) \
-	$(TARGET_CARPETA_SRC_GOLOSO)
+	$(TARGET_RANDOM) $(TARGET_EJERCICIO_3)

@@ -1,5 +1,5 @@
 #include <vector>
-#include "../src/auxiliar.h"
+#include "../ejercicio-2/auxiliar.h"
 
 #define gane 1;
 #define perdi -1;
@@ -9,7 +9,7 @@
 
 using namespace std;
 
-class individuo {	
+class individuo {
 public:
 	vector<int> parametros;
 	float win_rate;
@@ -23,7 +23,7 @@ public:
 
 individuo seleccionarPonderado(vector<individuo> poblacion);
 individuo seleccionarRandom(vector<individuo> poblacion);
-	
+
 void poblacion_sort(vector<individuo>& poblacion);
 
 individuo genetico(vector<individuo> poblacion);
