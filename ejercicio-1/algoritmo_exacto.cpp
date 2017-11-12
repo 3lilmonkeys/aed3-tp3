@@ -304,7 +304,7 @@ int maxRes(vector<int> resultados){
 int posMax(vector<int> resultados){
     int maxPos = 0;
     for(int i = 0; i < resultados.size(); i++){
-        if(resultados[i] > maxPos){
+        if(resultados[i] > resultados[maxPos]){
             maxPos = i;
         }
     }
