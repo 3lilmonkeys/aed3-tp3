@@ -1,21 +1,24 @@
 CC = g++
 CCFLAGS = -std=c++11
 
-SOURCE_EJERCICIO_1 = src/ejercicio-1/algoritmo_exacto.cpp
+SOURCE_EJERCICIO_1 = ejercicio-1/algoritmo_exacto.cpp
 TARGET_EJERCICIO_1 = ej1
-SOURCE_EJERCICIO_2_GOLOSO = src/ejercicio-2/ej2Jugador.cpp
+SOURCE_EJERCICIO_2_GOLOSO = ejercicio-2/ej2Jugador.cpp
 TARGET_EJERCICIO_2_GOLOSO = ej2
-SOURCE_EJERCICIO_3 = src/ejercicio-3/ej3.cpp
+SOURCE_EJERCICIO_3 = ejercicio-3/ej3.cpp
 TARGET_EJERCICIO_3 = ej3
-SOURCE_RANDOM = src/random_player.cpp
+SOURCE_RANDOM = random_player.cpp
 TARGET_RANDOM = random
 
-all: ejercicio1 ejercicio2_goloso random ejercicio3
+all: ejercicio1 ejercicio2 random ejercicio3
+
+ejemplo:
+	/usr/bin/python c_linea.py --first azul --ui True --columns 7 --rows 6 --p 21 --c 4
 
 ejercicio1:
 	$(CC) $(CCFLAGS) -o $(TARGET_EJERCICIO_1) $(SOURCE_EJERCICIO_1)
 
-ejercicio2_goloso:
+ejercicio2:
 	$(CC) $(CCFLAGS) -o $(TARGET_EJERCICIO_2_GOLOSO) $(SOURCE_EJERCICIO_2_GOLOSO)
 
 random:
@@ -26,4 +29,5 @@ ejercicio3:
 
 clean:
 	$(RM) $(TARGET_EJERCICIO_1) $(TARGET_EJERCICIO_2_GOLOSO) \
-	$(TARGET_RANDOM) $(TARGET_EJERCICIO_3)
+	$(TARGET_RANDOM) $(TARGET_EJERCICIO_3) constants.pyc GraphicalBoard.pyc \
+	LogicalBoard.pyc PlayerCommunicator.pyc Referee.pyc HumanPlayer.pyc
