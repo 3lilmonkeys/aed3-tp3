@@ -13,6 +13,8 @@
 #define empate 0;
 #define fichaAliada 10
 #define fichaEnemiga 20
+#define MAXIMIZAR true
+#define MINIMIZAR false
 
 using namespace std;
 
@@ -22,6 +24,14 @@ struct tablero{
     int m;//filas
 };
 
+int auxiliar1(int i, int j, tablero& tab, int c_linea);
+int auxiliar2(int i, int j, tablero& tab, int c_linea);
+int auxiliar3(int i, int j, tablero& tab, int c_linea);
+int auxiliar4(int i, int j, tablero& tab, int c_linea);
+
+int maximinar(tablero& tab, int columnas, int c_linea, int cant_fichas);
+int minimizar(tablero& tab, int columnas, int c_linea, int cant_fichas);
+bool columna_llena(tablero&, int);
 tablero crearTablero(int n, int m);
 int calcularJugada(tablero& tab, int columnas, int c, int p);
 void actualizarTablero(tablero& tab, int move, bool moveAliado);
