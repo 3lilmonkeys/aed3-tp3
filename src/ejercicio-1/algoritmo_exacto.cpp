@@ -196,8 +196,8 @@ bool complete_diagonal_45(tablero& tablero, int c_linea, int ultimo_movimiento)
   /* Sumo a derecha */
   indice_x = ultimo_movimiento +1;
   indice_y = cant_fichas_col-1;
-  while( (indice_x < tablero.n) and (indice_y >= 0) and
-  (indice_y <= tablero.matrizFichas.at(indice_x).size()) and
+  while( (indice_x < tablero.n) and (0 <= indice_y) and
+  (indice_y < tablero.matrizFichas.at(indice_x).size()) and
   (jugador_actual == tablero.matrizFichas.at(indice_x).at(indice_y)) )
   {
     cant_fichas++;
@@ -228,7 +228,7 @@ bool complete_diagonal_135(tablero& tablero, int c_linea, int ultimo_movimiento)
   indice_x = ultimo_movimiento -1;
   indice_y = cant_fichas_col-1;
   while( (indice_x >= 0) and (indice_y >= 0) and
-  (indice_y <= tablero.matrizFichas.at(indice_x).size()) and
+  (indice_y < tablero.matrizFichas.at(indice_x).size()) and
   (jugador_actual == tablero.matrizFichas.at(indice_x).at(indice_y)) )
   {
     cant_fichas++;
@@ -243,9 +243,11 @@ int fichas_en_columna(tablero& tablero, int ultimo_movimiento)
   return tablero.matrizFichas.at(ultimo_movimiento).size()-1;
 }
 
+
 int ultimo_jugador(tablero& tablero, int ultimo_movimiento)
 {
   int cant_fichas_col = fichas_en_columna(tablero, ultimo_movimiento);
+  if(cant_fichas_col<0) cant_fichas_col = 0;
   int jugador_actual = tablero.matrizFichas.at(ultimo_movimiento).at(cant_fichas_col);
   return jugador_actual;
 }

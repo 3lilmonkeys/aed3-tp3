@@ -22,10 +22,10 @@ ejemplo:
 	/usr/bin/python c_linea.py --first azul --ui True --columns 7 --rows 6 --p 21 --c 4
 
 ejemplo_jugador:
-	/usr/bin/python c_linea.py --blue_player ./ej1 --first rojo --ui True --columns 5 --rows 5 --p 7 --c 3
+	/usr/bin/python c_linea.py --blue_player ./ej1 --first azul --ui True --columns 5 --rows 5 --p 7 --c 3
 
 ejercicio1:
-	$(CC) $(CCFLAGS) -o $(TARGET_EJERCICIO_1) $(SOURCE_EJERCICIO_1)
+	$(CC) $(CCFLAGS) -g -o $(TARGET_EJERCICIO_1) $(SOURCE_EJERCICIO_1)
 
 test_ej1_tablero:
 	$(CC) $(CCFLAGS) -g -o $(TARGET_TEST_EJ1) $(SOURCE_TEST_EJ1)
