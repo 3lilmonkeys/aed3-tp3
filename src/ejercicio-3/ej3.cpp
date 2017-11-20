@@ -43,9 +43,13 @@ individuo genetico(vector<individuo> poblacion0) {
 		{
 			individuo indA = seleccionarRandom(poblacion0);
 			individuo indB = seleccionarPonderado(poblacion0);
+			
+			individuo indAux = indA;
 
-			indA.crossover( indB);
+			indAux.crossover(indB);
 			indB.crossover(indA);
+			
+			indA  = indAux;
 
 			indA.mutar();
 			indB.mutar();
@@ -95,11 +99,11 @@ individuo seleccionarRandom(vector<individuo> poblacion) {
 
 void individuo::crossover(individuo B) {
 	std::mt19937 gen(rd());
-	std::uniform_real_distribution<> dis(0, win_rate + B.win_rate);
+	std::uniform_real_distribution<> dis(0, 100);
 
 	for (int i = 0; i < parametros.size(); i++)
 	{
-		if (dis(gen) > win_rate) {
+		if (dis(gen) > 50) {
 			parametros[i] = B.parametros[i];
 		}
 
