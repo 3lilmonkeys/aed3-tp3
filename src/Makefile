@@ -10,6 +10,11 @@ SOURCE_EJERCICIO_3 = ejercicio-3/ej3.cpp
 TARGET_EJERCICIO_3 = ej3
 SOURCE_RANDOM = random_player.cpp
 TARGET_RANDOM = random
+SOURCE_TEST_EJ1 = ejercicio-1/algoritmo_exacto.h ejercicio-1/test/testVerificarTablero.cpp \
+ejercicio-1/algoritmo_exacto.cpp
+
+
+TARGET_TEST_EJ1 = test_validar
 
 all: ejercicio1 ejercicio2 random ejercicio3
 
@@ -21,6 +26,9 @@ ejemplo_jugador:
 
 ejercicio1:
 	$(CC) $(CCFLAGS) -o $(TARGET_EJERCICIO_1) $(SOURCE_EJERCICIO_1)
+
+test_ej1_tablero:
+	$(CC) $(CCFLAGS) -g -o $(TARGET_TEST_EJ1) $(SOURCE_TEST_EJ1)
 
 ejercicio2:
 	$(CC) $(CCFLAGS) -o $(TARGET_EJERCICIO_2_GOLOSO) $(SOURCE_EJERCICIO_2_GOLOSO)
