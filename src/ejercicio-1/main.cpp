@@ -17,7 +17,7 @@ int main() {
 
         go_first = read_str();
         if (go_first == "vos") {
-            move = calcularJugada(tab, columns, c, p);
+            move = calcularJugada(tab, c, p);
             actualizarTablero(tab, move, true);
             send(move);
         }
@@ -31,7 +31,7 @@ int main() {
             //actualizar tablero con el movimiento del enemigo
             actualizarTablero(tab, stoi(msg), false);
 
-            move = calcularJugada(tab, columns, c, p);
+            move = calcularJugada(tab, c, p);
 
             //actualizar tablero con el movimiento, move mio.
             actualizarTablero(tab, move, true);
