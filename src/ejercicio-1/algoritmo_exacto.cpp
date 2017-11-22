@@ -10,7 +10,7 @@ int calcularJugada(tablero& tab, int c_linea, int cant_fichas){
   columna. Me guardo un tablero para cada rama. La raiz toma el maximo, por lo
   que el de imediatamente abajo toma minimo. */
   for(int i = 0; i < tab.n; i++){
-    posibles_jugadas[i] = 0;
+    posibles_jugadas[i] = -2;
     // Si la columna no está llena.
     if(tab.matrizFichas.at(i).size() < tab.m){
       posibles_tableros[i] = tab;
@@ -33,9 +33,11 @@ int maximizar(tablero& tab, int c_linea, int cant_fichas, int ultimo_movimiento)
   vector<int> posiblesResultados(tab.n);
 
   for(int i = 0; i < tab.n; i++){
-    posiblesResultados[i] = 0;
+    if(tab.matrizFichas[i].size() >= tab.m){
+      posiblesResultados[i] = -2;
+    }else{
     // Si la columna no está llena.
-    if(tab.matrizFichas[i].size() < tab.m){
+    
       opcionesTablero[i] = tab;
       actualizarTablero(opcionesTablero[i], i, MAXIMIZAR);
       bool jugada_ganadora = validar_jugada(opcionesTablero[i], c_linea, i);
@@ -44,7 +46,7 @@ int maximizar(tablero& tab, int c_linea, int cant_fichas, int ultimo_movimiento)
 
       posiblesResultados[i] = minimizar(opcionesTablero[i],c_linea,cant_fichas-1,i);
       if(posiblesResultados[i] == 1) return 1;
-    }
+      }
   }
   // Devolver el maximo de cada posibilidad.
   return maxRes(posiblesResultados);
@@ -52,20 +54,20 @@ int maximizar(tablero& tab, int c_linea, int cant_fichas, int ultimo_movimiento)
 
 int minimizar(tablero& tab, int c_linea, int cant_fichas, int ultimo_movimiento)
 {
-  if(cant_fichas == 0) return 0;
+//if(cant_fichas == 0) return 0;
   vector<tablero> opcionesTablero(tab.n);
   vector<int> posiblesResultados(tab.n);
   for(int i = 0; i < tab.n; i++){
-    posiblesResultados[i] = 0;
+    posiblesResultados[i] = -2;
     // Si la columna no está llena.
     if(tab.matrizFichas[i].size() < tab.m){
       opcionesTablero[i] = tab;
       actualizarTablero(opcionesTablero[i], i, MINIMIZAR);
       bool jugada_ganadora = validar_jugada(opcionesTablero[i], c_linea, i);
-      if(jugada_ganadora) return 1;
+      if(jugada_ganadora) return -1;
       if( tableroLleno(opcionesTablero[i]) ) return 0;
 
-      posiblesResultados[i] = maximizar(opcionesTablero[i],c_linea,cant_fichas-1,i);
+      posiblesResultados[i] = maximizar(opcionesTablero[i],c_linea,cant_fichas,i);
       if(posiblesResultados[i] == -1) return -1;
     }
   }
