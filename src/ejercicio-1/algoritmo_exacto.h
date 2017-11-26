@@ -35,8 +35,8 @@ bool complete_diagonal_45(tablero& tablero, int c_linea, int ultima_ficha);
 bool complete_diagonal_135(tablero& tablero, int c_linea, int ultima_ficha);
 
 int ultimo_jugador(tablero& tablero, int ultimo_movimiento);
-int maximizar(tablero& tab, int c_linea, int cant_fichas, int ultimo_movimiento);
-int minimizar(tablero& tab, int c_linea, int cant_fichas, int ultimo_movimiento);
+int jugar_recursivo(tablero& tab, int c_linea, int cant_fichas, int ultimo_movimiento,
+    bool maximizo_o_minimizo);
 bool columna_llena(tablero&, int);
 tablero crearTablero(int n, int m);
 int calcularJugada(tablero& tab, int c, int p);
