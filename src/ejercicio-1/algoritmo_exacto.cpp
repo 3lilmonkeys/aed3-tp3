@@ -13,11 +13,11 @@ int calcularJugada(tablero& tab, int c_linea, int cant_fichas){
     posibles_tableros[i] = tab;
     actualizarTablero(posibles_tableros[i], i, MAXIMIZAR);
     if(posibles_tableros[i].matrizFichas[i].size() > tab.m){
-    	posibles_jugadas[i] = -10;
+      posibles_jugadas[i] = -10;
     }
     else
     {
-    	posibles_jugadas[i] = jugar_recursivo(posibles_tableros[i],c_linea,
+      posibles_jugadas[i] = jugar_recursivo(posibles_tableros[i],c_linea,
         (cant_fichas - 1), i, MINIMIZAR);
     }
   }
@@ -229,7 +229,7 @@ bool tableroLleno(tablero& tab){
 
 /* Saco el mínimo sobre las jugadas en un nivel. */
 int minRes(vector<int> resultados){
-    int minRes = resultados[0];
+    int minRes = 2;
     for( int i = 0; i < resultados.size(); i++){
         if(resultados[i] != -2 && resultados[i] < minRes){
             minRes = resultados[i];
@@ -242,7 +242,7 @@ int minRes(vector<int> resultados){
 int maxRes(vector<int> resultados){
     int maxRes = resultados[0];
     for(int i = 0; i < resultados.size(); i++){
-        if(resultados[i] != -2 && resultados[i] > maxRes){
+        if(resultados[i] > maxRes){
             maxRes = resultados[i];
         }
     }
@@ -261,7 +261,7 @@ void actualizarTablero(tablero& tab, int move, bool moveAliado){
 
 /* Consulto si hay una ficha en la fila y columna o superior. */
 bool hayFicha(tablero& tab, int columna, int fila) {
-	return fila < tab.matrizFichas[columna].size();
+  return fila < tab.matrizFichas[columna].size();
 }
 
 void send(const string& msg) {
