@@ -12,8 +12,14 @@ int calcularJugada(tablero& tab, int c_linea, int cant_fichas){
   for(int i = 0; i < tab.n; i++){
     posibles_tableros[i] = tab;
     actualizarTablero(posibles_tableros[i], i, MAXIMIZAR);
-    posibles_jugadas[i] = jugar_recursivo(posibles_tableros[i],c_linea,
-      (cant_fichas - 1), i, MINIMIZAR);
+    if(posibles_tableros[i].matrizFichas[i].size() > tab.m){
+    	posibles_jugadas[i] = -10;
+    }
+    else
+    {
+    	posibles_jugadas[i] = jugar_recursivo(posibles_tableros[i],c_linea,
+        (cant_fichas - 1), i, MINIMIZAR);
+    }
   }
   // Devuelvo la columna donde quiero jugar.
   return mejor_jugada(posibles_jugadas);
@@ -224,8 +230,8 @@ bool tableroLleno(tablero& tab){
 /* Saco el mínimo sobre las jugadas en un nivel. */
 int minRes(vector<int> resultados){
     int minRes = resultados[0];
-    for(int i = 0; i < resultados.size(); i++){
-        if(resultados[i] < minRes){
+    for( int i = 0; i < resultados.size(); i++){
+        if(resultados[i] != -2 && resultados[i] < minRes){
             minRes = resultados[i];
         }
     }
@@ -236,7 +242,7 @@ int minRes(vector<int> resultados){
 int maxRes(vector<int> resultados){
     int maxRes = resultados[0];
     for(int i = 0; i < resultados.size(); i++){
-        if(resultados[i] > maxRes){
+        if(resultados[i] != -2 && resultados[i] > maxRes){
             maxRes = resultados[i];
         }
     }
