@@ -15,7 +15,7 @@ individuo genetico(vector<individuo> poblacion0) {
 
 	for (int i = 0; i < TAM_POBLACION; i++)
 	{
-		//cout << "calculando fitness " << i << endl;
+		cout << "calculando fitness " << i << endl;
 		poblacion0[i].calcular_fitness(poblacion0);
 /*
 		for (int j = 0; j < poblacion0[i].parametros.size(); j++)
@@ -106,7 +106,6 @@ void individuo::crossover(individuo B) {
 		if (dis(gen) > 50) {
 			parametros[i] = B.parametros[i];
 		}
-
 	}
 }
 

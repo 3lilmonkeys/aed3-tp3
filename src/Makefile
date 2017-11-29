@@ -1,5 +1,5 @@
 CC = g++
-CCFLAGS = -std=c++11
+CCFLAGS = -std=c++11 -O3
 
 SOURCE_EJERCICIO_1 = ejercicio-1/main.cpp ejercicio-1/algoritmo_exacto.cpp\
 ejercicio-1/algoritmo_exacto.h
