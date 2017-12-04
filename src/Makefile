@@ -1,3 +1,6 @@
+# Para jugarle al de la catedra
+#python c_linea.py --blue_player ./ej2 --red_player python PlayerController.py --first azul --ui True --columns 6 --rows 7 --p 35 --c 4
+
 CC = g++
 CCFLAGS = -std=c++11 -O3
 
