@@ -23,9 +23,10 @@ public:
 
 individuo seleccionarPonderado(vector<individuo> poblacion);
 individuo seleccionarRandom(vector<individuo> poblacion);
+vector<individuo> inicializarOponentes();
 
 void poblacion_sort(vector<individuo>& poblacion);
 
-individuo genetico(vector<individuo> poblacion);
+individuo genetico(vector<individuo> poblacion, vector<individuo> oponentes);
 
 int jugadaRandom(tablero tab, int col);

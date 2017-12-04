@@ -393,72 +393,55 @@ list<estr> inicializarEstrategias(int estrUnicas, int estrTotales, int columnas)
         estr.susMovs.resultados = movimientosPosibles;
         misEstrategias.push_back(estr);
     }
-/*
+//2 0 0 15 15 10 3 8 3 11 11 11 13 14 5 
     auto it = misEstrategias.begin();
-    it->peso = 3;
-    it++;
-    it->peso = 9;
-    it++;
-    it->peso = 10;
-    it++;
-    it->peso = 5;
-    it++;
-    it->peso = 8;
-    it++;
-    it->peso = 5;
-    it++;
-    it->peso = 5;
-    it++;
-    it->peso = 12;
-    it++;
-    it->peso = 11;
-    it++;
-    it->peso = 11;
-    it++;
-    it->peso = 13;
-    it++;
-    it->peso = 15;
-    it++;
-    it->peso = 8;
-    it++;
-    it->peso = 13;
-    it++;
-    it->peso = 4;
-    it++;
-*/
-    auto it = misEstrategias.begin();
-    it->peso = 10;
-    it++;
     it->peso = 2;
-    it++;
-    it->peso = 7;
-    it++;
-    it->peso = 13;
-    it++;
-    it->peso = 6;
-    it++;
-    it->peso = 14;
-    it++;
-    it->peso = 11;
-    it++;
-    it->peso = 9;
-    it++;
-    it->peso = 6;
-    it++;
-    it->peso = 14;
-    it++;
-    it->peso = 12;
-    it++;
-    it->peso = 2;
-    it++;
-    it->peso = 8;
     it++;
     it->peso = 0;
     it++;
-    it->peso = 9;
+    it->peso = 0;
+    it++;
+    it->peso = 15;
+    it++;
+    it->peso = 15;
+    it++;
+    it->peso = 10;
+    it++;
+    it->peso = 3;
+    it++;
+    it->peso = 8;
+    it++;
+    it->peso = 3;
+    it++;
+    it->peso = 11;
+    it++;
+    it->peso = 11;
+    it++;
+    it->peso = 11;
+    it++;
+    it->peso = 13;
+    it++;
+    it->peso = 14;
+    it++;
+    it->peso = 5;
     it++;
     return misEstrategias;
 }
+
+vector<int> inicializarEstrategiaUnica(int estrUnicas, int estrTotales, int columnas, int miEstr){
+    vector<int> misEstrategias(23);
+    for(int i = 1; i <= estrTotales; i++){
+        if(i == miEstr){
+            misEstrategias[i] = 15;    
+        }
+        else{
+            misEstrategias[i] = 0;    
+        }
+        
+    }
+    return misEstrategias;
+}
+
 
 resultado lineasDeXFichas(int x, bool ofensivo, tablero& tab, int p){
     vector<bool> posiblesJugadas(tab.n);

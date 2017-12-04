@@ -14,6 +14,29 @@
 std::random_device rd;
 std::mt19937 gen(rd());
 
+
+
+
+void inicializarOponentes(vector<individuo> inds){
+    int columns = 7;
+    individuo estrHorizontal;
+    individuo estrDiagonales;
+    individuo estrDefensivo;
+    individuo estrAtaqueInm;
+    individuo estrVertical;
+    estrHorizontal.parametros = inicializarEstrategiaUnica(11, 23, columns, 1);
+    inds.push_back(estrHorizontal);
+    estrDiagonales.parametros = inicializarEstrategiaUnica(11, 23, columns, 3);
+    inds.push_back(estrDiagonales);
+    estrDefensivo.parametros = inicializarEstrategiaUnica(11, 23, columns, 10);
+    inds.push_back(estrDefensivo);
+    estrAtaqueInm.parametros = inicializarEstrategiaUnica(11, 23, columns, 4);
+    inds.push_back(estrAtaqueInm);
+    estrVertical.parametros = inicializarEstrategiaUnica(11, 23, columns, 2);
+    inds.push_back(estrVertical);
+    
+}
+
 void inicializarJugadorConParametrosRandom(individuo &jugador)
 {
 	vector<int> vectorParametros(cantParams);
@@ -23,8 +46,9 @@ void inicializarJugadorConParametrosRandom(individuo &jugador)
 		jugador.parametros[indice] = rand() % LIMITE_PARAM;
 }
 
-individuo gridSearch()
+individuo gridSearch(vector<individuo> oponentes)
 {
+	int columns = 7;
 	int fitnessAnterior = 0;
 	vector<int> paramsAnterior(cantParams);
 	
@@ -32,7 +56,6 @@ individuo gridSearch()
 	inicializarJugadorConParametrosRandom(jugador);
 	int no_cambio;
 
-	vector<individuo> parametro_vacio;
 
 	while (jugador.win_rate < 0.8)
 	{
@@ -46,7 +69,7 @@ individuo gridSearch()
 				for(int j = i; j < max(i + 6, cantParams); j++)
 					jugador.parametros[j] = rand() % LIMITE_PARAM;
 
-				jugador.calcular_fitness(parametro_vacio);
+				jugador.calcular_fitness(oponentes);
 
 				// Pregunto si mejoré en las ultimas iteraciones.
 				if (fitnessAnterior < jugador.win_rate)
@@ -67,33 +90,37 @@ individuo gridSearch()
 }
 
 
-individuo genetico(vector<individuo> poblacion0) {
+individuo genetico(vector<individuo> poblacion0, vector<individuo> oponentesFijos) {
 
+	int generacion = 0;
 	for (int i = 0; i < TAM_POBLACION; i++)
 	{
 		cout << "calculando fitness " << i << endl;
-		poblacion0[i].calcular_fitness(poblacion0);
-/*
+		poblacion0[i].calcular_fitness(oponentesFijos);
+
 		for (int j = 0; j < poblacion0[i].parametros.size(); j++)
 		{
 			cout << poblacion0[i].parametros[j] << " ";
 		}
 		cout << "   " << poblacion0[i].win_rate << endl;
-*/
-	}
 
+	}
+	generacion++;
 	poblacion_sort(poblacion0);
 	vector<individuo> poblacionAux;
 
-	while (poblacion0[0].win_rate < 0.95) {
-/*
+	while (poblacion0[0].win_rate < 0.99 || generacion < 50) {
+
 		for (int i = 0; i < poblacion0[0].parametros.size(); i++)
 		{
 			cout << poblacion0[0].parametros[i] << " ";
 		}
 		cout << "   " << poblacion0[0].win_rate << endl;
-*/
+		cout << "Esta es la generacion " << generacion << endl;
 
+
+
+		poblacionAux.clear(); //Para cuando los hacemos jugar con sus anteriores generaciones...??
 
 		for (int i = 0; i < (TAM_POBLACION / 2); i++)
 		{
@@ -110,16 +137,18 @@ individuo genetico(vector<individuo> poblacion0) {
 			indA.mutar();
 			indB.mutar();
 
-			indA.calcular_fitness(poblacion0);
-			indB.calcular_fitness(poblacion0);
+			indA.calcular_fitness(oponentesFijos);
+			indB.calcular_fitness(oponentesFijos);
 
 			poblacionAux.push_back(indA);
 			poblacionAux.push_back(indB);
 		}
 
-		poblacion0 = poblacionAux;
+		generacion++;
+				
+		poblacion_sort(poblacionAux);
 
-		poblacion_sort(poblacion0);
+		poblacion0 = poblacionAux;
 	}
 
 	return poblacion0[0];
@@ -243,9 +272,9 @@ void individuo::calcular_fitness(vector<individuo> oponentes) {
 		if (terminado == 1) {
 			win_rate += 0.01;
 		}
-		//else if (terminado == 0) {
-		//	win_rate += 0.005;
-		//}
+		else{   //???
+			win_rate -= 0.01;
+		}
 	}
 
 	rapidez = 0;
@@ -278,21 +307,29 @@ int main() {
 
 	vector<individuo> poblacion0;
 
-	uniform_int_distribution<int> rndStrat(0, LIMITE_PARAM);
+	vector<individuo> oponentes;
 
+	uniform_int_distribution<int> rndStrat(0, LIMITE_PARAM);
+	int k = 1;
 	for (int i = 0; i < TAM_POBLACION; ++i)
 	{
 		individuo ind0;
+		individuo ind1;
 		for (int j = 0; j < CANT_ESTR; ++j)
 		{
+			if(j == k) ind1.parametros.push_back(15);
+			else ind1.parametros.push_back(0);
+		
 			ind0.parametros.push_back(rndStrat(gen));
 		}
-
+		k = (k+1)%11;
+		oponentes.push_back(ind1);
 		poblacion0.push_back(ind0);
 		ind0.parametros.clear();
+		ind1.parametros.clear();
 	}
 
-	individuo gen = genetico(poblacion0);
+	individuo gen = genetico(poblacion0, oponentes);
 	for (int i = 0; i < gen.parametros.size(); i++)
 	{
 		cout << gen.parametros[i] << " ";
