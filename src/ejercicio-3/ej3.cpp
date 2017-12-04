@@ -67,7 +67,6 @@ individuo gridSearch()
 }
 
 
-
 individuo genetico(vector<individuo> poblacion0) {
 
 	for (int i = 0; i < TAM_POBLACION; i++)
