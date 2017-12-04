@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <iostream>
+#include <random>
 
 #define gane 1;
 #define perdi -1;
@@ -10,6 +11,11 @@
 #define fichaEnemiga 20
 
 using namespace std;
+
+
+std::random_device rd;
+std::mt19937 generator(rd());
+
 
 struct tablero {
 	vector< vector<int> > matrizFichas;
@@ -28,7 +34,6 @@ tablero crearTablero(int n, int m) {
 	}
 	return tab;
 }
-
 
 void actualizarTablero(tablero& tab, int move, bool moveAliado);
 int validarVictoria(tablero& tab, int p);
@@ -149,3 +154,5 @@ void actualizarTablero(tablero& tab, int move, bool moveAliado) {
 bool hayFicha(tablero& tab, int columna, int fila) {
 	return fila < tab.matrizFichas[columna].size();
 }
+
+

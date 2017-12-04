@@ -29,26 +29,8 @@ struct resultado{
     int lineaMax;
     vector<bool> resultados;
 };
-/*
-struct tablero{
-    vector<vector<int>> matrizFichas;
-    int n;//columnas
-    int m;//filas
-};
 
 
-
-tablero crearTablero(int n, int m){
-    tablero tab;
-    tab.m = m;
-    tab.n = n;
-    for(int i = 0; i < n; i++){
-        vector<int> filas;
-        tab.matrizFichas.push_back(filas);
-    }
-    return tab;
-}
-*/
 struct estr{
     int estrategia;
     int peso;
@@ -91,7 +73,7 @@ resultado posMaxOIguales(vector<int> resultados);
 //void actualizarTablero(tablero& tab, int move, bool moveAliado);
 list<estr> inicializarEstrategias(int estrUnicas, int estrTotales, int columnas);
 bool estrategiaEsValida(vector<bool> jugadas);
-
+int jugadaCasiRandom(tablero& tab, int c);
 
 //Como este tipo de estrategia va a variar segun el valor de C en linea, de 2 a C-1, voy a asumir que
 // el vector con las estrategias va a tener las ultimas C-3 posiciones con estas estrategias.
@@ -1769,4 +1751,24 @@ bool hayFichaEnemiga(tablero& tab, int columna, int fila){
     if(columna >= tab.n || fila >= tab.m) return false;
     if(columna < 0 || fila < 0) return false;
     return fila < tab.matrizFichas[columna].size() && tab.matrizFichas[columna][fila] == fichaEnemiga;
+}
+
+
+int jugadaCasiRandom(tablero& tab, int c) {
+    int moveParaGanar = unoParaGanar(tab, c);
+    if(moveParaGanar >= 0){
+        return moveParaGanar;
+    }
+
+    int moveParaPerder = unoParaPerder(tab, c);
+    if (moveParaPerder >= 0) {
+        return moveParaPerder;
+    }
+    uniform_int_distribution<int> do_move(0, tab.n - 1);
+
+    do {
+        move = do_move(generator);
+    } while(columnaLlena(tab, tab.n));
+            
+    return move;
 }
