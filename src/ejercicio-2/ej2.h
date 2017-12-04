@@ -394,36 +394,39 @@ list<estr> inicializarEstrategias(int estrUnicas, int estrTotales, int columnas)
         misEstrategias.push_back(estr);
     }
 //2 0 0 15 15 10 3 8 3 11 11 11 13 14 5 
+//1 0 11 15 15 4 9 11 4 14 7 15 3 5 4       (50 generaciones vs oponentes)
+//0 9 9 12 15 11 11 0 9 1 5 9 4 8 14        (100 generaciones vs poblacion 0.93 WR)
+//8 9 2 14 13 13 4 6 14 15 7 0 12 14 0      (50 generaciones vs poblacion 0.98 WR 0.55 Rapidez)
     auto it = misEstrategias.begin();
-    it->peso = 2;
-    it++;
-    it->peso = 0;
-    it++;
-    it->peso = 0;
-    it++;
-    it->peso = 15;
-    it++;
-    it->peso = 15;
-    it++;
-    it->peso = 10;
-    it++;
-    it->peso = 3;
-    it++;
     it->peso = 8;
     it++;
-    it->peso = 3;
+    it->peso = 9;
     it++;
-    it->peso = 11;
-    it++;
-    it->peso = 11;
-    it++;
-    it->peso = 11;
-    it++;
-    it->peso = 13;
+    it->peso = 2;
     it++;
     it->peso = 14;
     it++;
-    it->peso = 5;
+    it->peso = 13;
+    it++;
+    it->peso = 13;
+    it++;
+    it->peso = 4;
+    it++;
+    it->peso = 6;
+    it++;
+    it->peso = 14;
+    it++;
+    it->peso = 15;
+    it++;
+    it->peso = 7;
+    it++;
+    it->peso = 0;
+    it++;
+    it->peso = 12;
+    it++;
+    it->peso = 14;
+    it++;
+    it->peso = 0;
     it++;
     return misEstrategias;
 }

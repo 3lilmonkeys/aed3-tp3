@@ -102,7 +102,7 @@ individuo genetico(vector<individuo> poblacion0, vector<individuo> oponentesFijo
 		{
 			cout << poblacion0[i].parametros[j] << " ";
 		}
-		cout << "   " << poblacion0[i].win_rate << endl;
+		cout << "   " << poblacion0[i].win_rate << " " << poblacion0[i].rapidez << endl;
 
 	}
 	generacion++;
@@ -111,14 +111,12 @@ individuo genetico(vector<individuo> poblacion0, vector<individuo> oponentesFijo
 
 	while (poblacion0[0].win_rate < 0.99 || generacion < 50) {
 
+		cout << "Esta es la generacion " << generacion << endl;
 		for (int i = 0; i < poblacion0[0].parametros.size(); i++)
 		{
 			cout << poblacion0[0].parametros[i] << " ";
 		}
-		cout << "   " << poblacion0[0].win_rate << endl;
-		cout << "Esta es la generacion " << generacion << endl;
-
-
+		cout << "   " << poblacion0[0].win_rate << " " << poblacion0[0].rapidez << endl;
 
 		poblacionAux.clear(); //Para cuando los hacemos jugar con sus anteriores generaciones...??
 
@@ -137,8 +135,8 @@ individuo genetico(vector<individuo> poblacion0, vector<individuo> oponentesFijo
 			indA.mutar();
 			indB.mutar();
 
-			indA.calcular_fitness(oponentesFijos);
-			indB.calcular_fitness(oponentesFijos);
+			indA.calcular_fitness(poblacion0);
+			indB.calcular_fitness(poblacion0);
 
 			poblacionAux.push_back(indA);
 			poblacionAux.push_back(indB);
@@ -217,6 +215,7 @@ void individuo::calcular_fitness(vector<individuo> oponentes) {
 	int c = 4;
 
 	win_rate = 0;
+	rapidez = 1;
 
 	list<estr> estrategias(CANT_ESTR);
 
@@ -256,28 +255,27 @@ void individuo::calcular_fitness(vector<individuo> oponentes) {
 			k++;
 		}
 
+		int jugadas = 0;
+
 		while(!tableroLleno(tab) && terminado == 0) {
 			if(empiezo) {
 				actualizarTablero(tab, jugadaGolosa(tab, estrategias, 11, (c-2)*2, CANT_ESTR, columnas, c), true);
+				jugadas++;
 			}
 			//actualizarTablero(tab, jugadaRandom(tab, columnas), false);
 			actualizarTablero(tab, jugadaGolosa(tab, estrategiasOponente, 11, (c - 2) * 2, CANT_ESTR, columnas, c), false);
 			actualizarTablero(tab, jugadaGolosa(tab, estrategias, 11, (c-2)*2, CANT_ESTR, columnas, c), true);
 
-
+			jugadas++;
 			empiezo = false;
 			terminado = validarVictoria(tab, c);
 		}
 
 		if (terminado == 1) {
 			win_rate += 0.01;
-		}
-		else{   //???
-			win_rate -= 0.01;
+			rapidez -= ((float) jugadas)/(21*CANT_PARTIDOS);			//21 es el nuero de jugadas que puede hacer el jugador en un partido.
 		}
 	}
-
-	rapidez = 0;
 }
 
 
@@ -298,8 +296,6 @@ void poblacion_sort(vector<individuo>& poblacion) {
 		}
 		poblacion[j + 1] = ind;
 	}
-
-	//falta sortear por rapidez
 }
 
 
