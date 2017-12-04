@@ -43,4 +43,5 @@ clean:
 	$(RM) $(TARGET_EJERCICIO_1) $(TARGET_EJERCICIO_2_GOLOSO) \
 	$(TARGET_RANDOM) $(TARGET_EJERCICIO_3) constants.pyc GraphicalBoard.pyc \
 	LogicalBoard.pyc PlayerCommunicator.pyc Referee.pyc HumanPlayer.pyc \
-	log/player_communicator_azul.log log/player_communicator_rojo.log
+	log/player_communicator_azul.log log/player_communicator_rojo.log \
+	RandomPlayer_test.pyc

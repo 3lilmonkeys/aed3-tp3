@@ -8,8 +8,65 @@
 #define CANT_PARTIDOS 100
 #define CANT_ESTR (11 + (4 - 2)*2) //11 +(c-2)*2
 
+#define cantParams 23
+#define tamGrupos 6
+#include <algorithm>
 std::random_device rd;
 std::mt19937 gen(rd());
+
+void inicializarJugadorConParametrosRandom(individuo &jugador)
+{
+	vector<int> vectorParametros(cantParams);
+	jugador.parametros = vectorParametros;
+	jugador.win_rate = 0;
+	for (int indice = 0; indice < jugador.parametros.size(); indice++)
+		jugador.parametros[indice] = rand() % LIMITE_PARAM;
+}
+
+individuo gridSearch()
+{
+	int fitnessAnterior = 0;
+	vector<int> paramsAnterior(cantParams);
+	
+	individuo jugador;
+	inicializarJugadorConParametrosRandom(jugador);
+	int no_cambio;
+
+	vector<individuo> parametro_vacio;
+
+	while (jugador.win_rate < 0.8)
+	{
+		//Selecciono grupos
+		for (int i = 0; i <= tamGrupos; i++)
+		{
+			no_cambio = 0;
+			while (no_cambio < 2)
+			{
+				// Seteo todos los parametros del grupo.
+				for(int j = i; j < max(i + 6, cantParams); j++)
+					jugador.parametros[j] = rand() % LIMITE_PARAM;
+
+				jugador.calcular_fitness(parametro_vacio);
+
+				// Pregunto si mejoré en las ultimas iteraciones.
+				if (fitnessAnterior < jugador.win_rate)
+				{
+					no_cambio = 0;
+					fitnessAnterior = jugador.win_rate;
+					paramsAnterior = jugador.parametros;
+				}
+				else
+				{
+					no_cambio++;
+					jugador.parametros = paramsAnterior;
+				}
+			}
+		}
+	}
+	return jugador;
+}
+
+
 
 individuo genetico(vector<individuo> poblacion0) {
 
