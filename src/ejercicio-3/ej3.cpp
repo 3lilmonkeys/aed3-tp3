@@ -15,28 +15,6 @@
 std::mt19937 gen(rd());
 
 
-
-
-void inicializarOponentes(vector<individuo> inds){
-    int columns = 6;
-    individuo estrHorizontal;
-    individuo estrDiagonales;
-    individuo estrDefensivo;
-    individuo estrAtaqueInm;
-    individuo estrVertical;
-    estrHorizontal.parametros = inicializarEstrategiaUnica(11, 23, columns, 1);
-    inds.push_back(estrHorizontal);
-    estrDiagonales.parametros = inicializarEstrategiaUnica(11, 23, columns, 3);
-    inds.push_back(estrDiagonales);
-    estrDefensivo.parametros = inicializarEstrategiaUnica(11, 23, columns, 10);
-    inds.push_back(estrDefensivo);
-    estrAtaqueInm.parametros = inicializarEstrategiaUnica(11, 23, columns, 4);
-    inds.push_back(estrAtaqueInm);
-    estrVertical.parametros = inicializarEstrategiaUnica(11, 23, columns, 2);
-    inds.push_back(estrVertical);
-    
-}
-
 void inicializarJugadorConParametrosRandom(individuo &jugador)
 {
 	vector<int> vectorParametros(cantParams);
@@ -109,7 +87,7 @@ individuo genetico(vector<individuo> poblacion0, vector<individuo> oponentesFijo
 	poblacion_sort(poblacion0);
 	vector<individuo> poblacionAux;
 
-	while (poblacion0[0].win_rate < 0.99 || generacion < 50) {
+	while (poblacion0[0].win_rate < 0.99 && generacion <= 75) {  
 
 		cout << "Esta es la generacion " << generacion << endl;
 		for (int i = 0; i < poblacion0[0].parametros.size(); i++)
