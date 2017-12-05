@@ -11,14 +11,14 @@
 #define cantParams 23
 #define tamGrupos 6
 #include <algorithm>
-std::random_device rd;
+//std::random_device rd;
 std::mt19937 gen(rd());
 
 
 
 
 void inicializarOponentes(vector<individuo> inds){
-    int columns = 7;
+    int columns = 6;
     individuo estrHorizontal;
     individuo estrDiagonales;
     individuo estrDefensivo;
@@ -48,7 +48,7 @@ void inicializarJugadorConParametrosRandom(individuo &jugador)
 
 individuo gridSearch(vector<individuo> oponentes)
 {
-	int columns = 7;
+	int columns = 6;
 	int fitnessAnterior = 0;
 	vector<int> paramsAnterior(cantParams);
 	
@@ -210,8 +210,8 @@ void individuo::mutar() {
 
 void individuo::calcular_fitness(vector<individuo> oponentes) {
 
-	int filas = 6;
-	int columnas = 7;
+	int filas = 7;
+	int columnas = 6;
 	int c = 4;
 
 	win_rate = 0;
@@ -262,7 +262,7 @@ void individuo::calcular_fitness(vector<individuo> oponentes) {
 				actualizarTablero(tab, jugadaGolosa(tab, estrategias, 11, (c-2)*2, CANT_ESTR, columnas, c), true);
 				jugadas++;
 			}
-			//actualizarTablero(tab, jugadaRandom(tab, columnas), false);
+			// 	actualizarTablero(tab, jugadaCasiRandom(tab, 4), false);
 			actualizarTablero(tab, jugadaGolosa(tab, estrategiasOponente, 11, (c - 2) * 2, CANT_ESTR, columnas, c), false);
 			actualizarTablero(tab, jugadaGolosa(tab, estrategias, 11, (c-2)*2, CANT_ESTR, columnas, c), true);
 
@@ -277,6 +277,64 @@ void individuo::calcular_fitness(vector<individuo> oponentes) {
 		}
 	}
 }
+
+
+void individuo::calcular_fitness_catedra() {
+
+	int filas = 7;
+	int columnas = 6;
+	int c = 4;
+
+	win_rate = 0;
+	rapidez = 1;
+
+	list<estr> estrategias(CANT_ESTR);
+
+	int i = 0;
+	for (auto it = estrategias.begin(); it != estrategias.end(); it++) {
+		it->estrategia = i+1;
+		it->peso = parametros[i];
+		for (int j = 0; j < columnas; j++)
+		{
+			it->susMovs.resultados.push_back(0);
+		}
+		it->susMovs.lineaMax = 0;
+		i++;
+	}
+
+
+	for (int i = 0; i < 1000; i++) {
+		tablero tab = crearTablero(columnas, filas);
+		int terminado = 0;
+		bool empiezo = false;
+
+		if (i % 2 == 0) {
+			empiezo = true;
+		}
+
+		int jugadas = 0;
+
+		while(!tableroLleno(tab) && terminado == 0) {
+			if(empiezo) {
+				actualizarTablero(tab, jugadaGolosa(tab, estrategias, 11, (c-2)*2, CANT_ESTR, columnas, c), true);
+				jugadas++;
+			}
+			actualizarTablero(tab, jugadaCasiRandom(tab, 6), false);
+			//actualizarTablero(tab, jugadaGolosa(tab, estrategiasOponente, 11, (c - 2) * 2, CANT_ESTR, columnas, c), false);
+			actualizarTablero(tab, jugadaGolosa(tab, estrategias, 11, (c-2)*2, CANT_ESTR, columnas, c), true);
+
+			jugadas++;
+			empiezo = false;
+			terminado = validarVictoria(tab, c);
+		}
+
+		if (terminado == 1) {
+			win_rate += 0.001;
+			rapidez -= ((float) jugadas)/(21*CANT_PARTIDOS);			//21 es el nuero de jugadas que puede hacer el jugador en un partido.
+		}
+	}
+}
+
 
 
 void poblacion_sort(vector<individuo>& poblacion) {
@@ -301,43 +359,75 @@ void poblacion_sort(vector<individuo>& poblacion) {
 
 int main() {
 
-	vector<individuo> poblacion0;
+	int columns = 6;
+	int rows = 7;
+	tablero tab = crearTablero(columns, rows);
+    list<estr> estrategias = inicializarEstrategias(11, 15, columns);
 
-	vector<individuo> oponentes;
+    vector<int> misEstrs(16);
+    int k = 0;
+    for (auto it = estrategias.begin(); it != estrategias.end(); it++)
+    {
+    	misEstrs[k] = it->peso;
+    	k++;
+    }
 
-	uniform_int_distribution<int> rndStrat(0, LIMITE_PARAM);
-	int k = 1;
-	for (int i = 0; i < TAM_POBLACION; ++i)
-	{
-		individuo ind0;
-		individuo ind1;
-		for (int j = 0; j < CANT_ESTR; ++j)
-		{
-			if(j == k) ind1.parametros.push_back(15);
-			else ind1.parametros.push_back(0);
+    individuo individuo_a_testear;
+    individuo_a_testear.parametros = misEstrs;
+    individuo_a_testear.win_rate = 0;
+    individuo_a_testear.rapidez = 0;
+
+    individuo_a_testear.calcular_fitness_catedra();
+
+    cout << "El win_rate es: " << individuo_a_testear.win_rate << endl;
+
+	// vector<individuo> poblacion0;
+
+	// vector<individuo> oponentes;
+
+	// uniform_int_distribution<int> rndStrat(0, LIMITE_PARAM);
+	// int k = 1;
+	// for (int i = 0; i < TAM_POBLACION; ++i)
+	// {
+	// 	individuo ind0;
+	// 	individuo ind1;
+	// 	for (int j = 0; j < CANT_ESTR; ++j)
+	// 	{
+	// 		if(j == k) ind1.parametros.push_back(15);
+	// 		else ind1.parametros.push_back(0);
 		
-			ind0.parametros.push_back(rndStrat(gen));
-		}
-		k = (k+1)%11;
-		oponentes.push_back(ind1);
-		poblacion0.push_back(ind0);
-		ind0.parametros.clear();
-		ind1.parametros.clear();
-	}
+	// 		ind0.parametros.push_back(rndStrat(gen));
+	// 	}
+	// 	k = (k+1)%11;
+	// 	oponentes.push_back(ind1);
+	// 	poblacion0.push_back(ind0);
+	// 	ind0.parametros.clear();
+	// 	ind1.parametros.clear();
+	// }
 
-	individuo gen = genetico(poblacion0, oponentes);
-	for (int i = 0; i < gen.parametros.size(); i++)
-	{
-		cout << gen.parametros[i] << " ";
-	}
-	cout << "   " << gen.win_rate << endl;
+	// individuo gen = genetico(poblacion0, oponentes);
+	// for (int i = 0; i < gen.parametros.size(); i++)
+	// {
+	// 	cout << gen.parametros[i] << " ";
+	// }
+	// cout << "   " << gen.win_rate << endl;
 
 	return 0;
 }
 
 
 
-int jugadaRandom(tablero tab, int col) {
+int jugadaCasiRandom(tablero tab, int col) {
+	int moveParaGanar = unoParaGanar(tab, 4);
+    if(moveParaGanar >= 0){
+        return moveParaGanar;
+    }
+
+    int moveParaPerder = unoParaPerder(tab, 4);
+    if (moveParaPerder >= 0) {
+        return moveParaPerder;
+    }
+
 	int jugada;
 	uniform_int_distribution<int> do_move(0, col - 1);
 	do {

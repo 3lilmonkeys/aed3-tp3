@@ -73,7 +73,7 @@ resultado posMaxOIguales(vector<int> resultados);
 //void actualizarTablero(tablero& tab, int move, bool moveAliado);
 list<estr> inicializarEstrategias(int estrUnicas, int estrTotales, int columnas);
 bool estrategiaEsValida(vector<bool> jugadas);
-int jugadaCasiRandom(tablero& tab, int c);
+//int jugadaCasiRandom(tablero& tab, int c);
 
 //Como este tipo de estrategia va a variar segun el valor de C en linea, de 2 a C-1, voy a asumir que
 // el vector con las estrategias va a tener las ultimas C-3 posiciones con estas estrategias.
@@ -376,39 +376,42 @@ list<estr> inicializarEstrategias(int estrUnicas, int estrTotales, int columnas)
         misEstrategias.push_back(estr);
     }
 //2 0 0 15 15 10 3 8 3 11 11 11 13 14 5 
-//1 0 11 15 15 4 9 11 4 14 7 15 3 5 4       (50 generaciones vs oponentes)
+//1 0 11 15 15 4 9 11 4 14 7 15 3 5 4       (50 generaciones vs oponentes... 8/15)
 //0 9 9 12 15 11 11 0 9 1 5 9 4 8 14        (100 generaciones vs poblacion 0.93 WR)
-//8 9 2 14 13 13 4 6 14 15 7 0 12 14 0      (50 generaciones vs poblacion 0.98 WR 0.55 Rapidez)
-    auto it = misEstrategias.begin();
-    it->peso = 8;
+//8 9 2 14 13 13 4 6 14 15 7 0 12 14 0      (50 generaciones vs poblacion 0.98 WR 0.55 Rapidez   ... gano 10/15)
+//9 10 12 13 3 3 3 8 13 14 1 7 1 10 13     (generacion 65 con WR 0.99999... GANO 7 de 15)   
+//10 11 11 13 1 11 13 12 4 13 15 10 6 1 10  (pos cambiar columnas por 6y filas 7, WR 0.9999... gano 10/15)
+
+        auto it = misEstrategias.begin();
+    it->peso = 10;
     it++;
-    it->peso = 9;
+    it->peso = 11;
     it++;
-    it->peso = 2;
-    it++;
-    it->peso = 14;
+    it->peso = 11;
     it++;
     it->peso = 13;
     it++;
+    it->peso = 1;
+    it++;
+    it->peso = 11;
+    it++;
     it->peso = 13;
-    it++;
-    it->peso = 4;
-    it++;
-    it->peso = 6;
-    it++;
-    it->peso = 14;
-    it++;
-    it->peso = 15;
-    it++;
-    it->peso = 7;
-    it++;
-    it->peso = 0;
     it++;
     it->peso = 12;
     it++;
-    it->peso = 14;
+    it->peso = 4;
     it++;
-    it->peso = 0;
+    it->peso = 13;
+    it++;
+    it->peso = 15;
+    it++;
+    it->peso = 10;
+    it++;
+    it->peso = 6;
+    it++;
+    it->peso = 1;
+    it++;
+    it->peso = 10;
     it++;
     return misEstrategias;
 }
@@ -1753,22 +1756,24 @@ bool hayFichaEnemiga(tablero& tab, int columna, int fila){
     return fila < tab.matrizFichas[columna].size() && tab.matrizFichas[columna][fila] == fichaEnemiga;
 }
 
+// std::mt19937 gen(rd());
 
-int jugadaCasiRandom(tablero& tab, int c) {
-    int moveParaGanar = unoParaGanar(tab, c);
-    if(moveParaGanar >= 0){
-        return moveParaGanar;
-    }
+// int jugadaCasiRandom(tablero& tab, int c) {
+//     int moveParaGanar = unoParaGanar(tab, c);
+//     if(moveParaGanar >= 0){
+//         return moveParaGanar;
+//     }
 
-    int moveParaPerder = unoParaPerder(tab, c);
-    if (moveParaPerder >= 0) {
-        return moveParaPerder;
-    }
-    uniform_int_distribution<int> do_move(0, tab.n - 1);
+//     int moveParaPerder = unoParaPerder(tab, c);
+//     int move;
+//     if (moveParaPerder >= 0) {
+//         return moveParaPerder;
+//     }
+//     //uniform_int_distribution<int> do_move(0, tab.n - 1);
 
-    do {
-        move = do_move(generator);
-    } while(columnaLlena(tab, tab.n));
+//     do {
+//         move = rand()%6;
+//     } while(columnaLlena(tab, tab.n));
             
-    return move;
-}
+//     return move;
+// }

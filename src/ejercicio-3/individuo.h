@@ -18,6 +18,7 @@ public:
 	void calcular_fitness(vector<individuo> oponentes);
 	void crossover(individuo B);
 	void mutar();
+	void calcular_fitness_catedra();
 };
 
 
@@ -29,4 +30,4 @@ void poblacion_sort(vector<individuo>& poblacion);
 
 individuo genetico(vector<individuo> poblacion, vector<individuo> oponentes);
 
-int jugadaRandom(tablero tab, int col);
+int jugadaCasiRandom(tablero tab, int col);

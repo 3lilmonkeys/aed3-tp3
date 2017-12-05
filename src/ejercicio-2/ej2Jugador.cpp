@@ -71,7 +71,7 @@ int main(){
 
         int estrategiasUnicas = 11;
         unsigned int estrTotales = (unsigned int) estrategiasUnicas+ (c-2)*2;
-        int filas = 6;
+      
 
         tablero tab = crearTablero(columns, rows);
         list<estr> estrategias = inicializarEstrategias(estrategiasUnicas, estrTotales, columns);
