@@ -138,10 +138,10 @@ int jugadaGolosa(tablero &tab, list<estr> estrs, int estrUnicas, int formarYBloq
         return moveParaGanar;
     }
 
-	int moveParaPerder = unoParaPerder(tab, p);
-	if (moveParaPerder >= 0) {
-		return moveParaPerder;
-	}
+    int moveParaPerder = unoParaPerder(tab, p);
+    if (moveParaPerder >= 0) {
+        return moveParaPerder;
+    }
 
     for(auto it = estrs.begin(); it != estrs.end() ; it++) it->peso = it->peso * (-1);
     //ordeno las estrategias por su peso de forma descendente
@@ -383,35 +383,35 @@ list<estr> inicializarEstrategias(int estrUnicas, int estrTotales, int columnas)
 //10 11 11 13 1 11 13 12 4 13 15 10 6 1 10  (pos cambiar columnas por 6y filas 7, WR 0.9999... gano 10/15)
 
         auto it = misEstrategias.begin();
+    it->peso = 9;
+    it++;
     it->peso = 10;
-    it++;
-    it->peso = 11;
-    it++;
-    it->peso = 11;
-    it++;
-    it->peso = 13;
-    it++;
-    it->peso = 1;
-    it++;
-    it->peso = 11;
-    it++;
-    it->peso = 13;
     it++;
     it->peso = 12;
     it++;
-    it->peso = 4;
+    it->peso = 13;
+    it++;
+    it->peso = 3;
+    it++;
+    it->peso = 3;
+    it++;
+    it->peso = 3;
+    it++;
+    it->peso = 8;
     it++;
     it->peso = 13;
     it++;
-    it->peso = 15;
+    it->peso = 14;
     it++;
-    it->peso = 10;
+    it->peso = 1;
     it++;
-    it->peso = 6;
+    it->peso = 7;
     it++;
     it->peso = 1;
     it++;
     it->peso = 10;
+    it++;
+    it->peso = 13;
     it++;
     return misEstrategias;
 }
@@ -1621,24 +1621,24 @@ int unoParaGanar(tablero &tab, int p){
     res = conectarLineas(true, tab, p);
     if(res.lineaMax == p-1) return buscarTrue(res.resultados);
 
-	return -1;
+    return -1;
 }
 
 
 int unoParaPerder(tablero &tab, int p) {
-	resultado res;
-	res = mejorHorizontal(false, tab, p);
-	if (res.lineaMax == p-1) return buscarTrue(res.resultados);
-	res = mejorVertical(false, tab, p);
-	if (res.lineaMax == p-1) return buscarTrue(res.resultados);
-	res = mejorDiagonal(false, tab, p);
-	if (res.lineaMax == p-1) return buscarTrue(res.resultados);
-	res = ataqueInmediato(false, tab, p);
-	if (res.lineaMax == p-1) return buscarTrue(res.resultados);
-	res = conectarLineas(false, tab, p);
-	if (res.lineaMax == p-1) return buscarTrue(res.resultados);
+    resultado res;
+    res = mejorHorizontal(false, tab, p);
+    if (res.lineaMax == p-1) return buscarTrue(res.resultados);
+    res = mejorVertical(false, tab, p);
+    if (res.lineaMax == p-1) return buscarTrue(res.resultados);
+    res = mejorDiagonal(false, tab, p);
+    if (res.lineaMax == p-1) return buscarTrue(res.resultados);
+    res = ataqueInmediato(false, tab, p);
+    if (res.lineaMax == p-1) return buscarTrue(res.resultados);
+    res = conectarLineas(false, tab, p);
+    if (res.lineaMax == p-1) return buscarTrue(res.resultados);
 
-	return -1;
+    return -1;
 }
 
 
@@ -1725,24 +1725,6 @@ resultado posMaxOIguales(vector<int> resultados){
     res.resultados = posiblesPos;
     return res;
 }
-/*
-void actualizarTablero(tablero& tab, int move, bool moveAliado){
-    //verificar que la columna move no esta llena!
-    if(moveAliado && tab.matrizFichas[move].size() < tab.m){
-        tab.matrizFichas[move].push_back(fichaAliada);
-    }
-    else{
-        if(tab.matrizFichas[move].size() < tab.m){
-            tab.matrizFichas[move].push_back(fichaEnemiga);
-        }
-    }
-}
-
-bool hayFicha(tablero& tab, int columna, int fila){
-    if(columna >= tab.n || fila >= tab.m) return false;
-    if(columna < 0 || fila < 0) return false;
-    return fila < tab.matrizFichas[columna].size();
-}*/
 
 bool hayFichaAliada(tablero& tab, int columna, int fila){
     if(columna >= tab.n || fila >= tab.m) return false;
@@ -1755,25 +1737,3 @@ bool hayFichaEnemiga(tablero& tab, int columna, int fila){
     if(columna < 0 || fila < 0) return false;
     return fila < tab.matrizFichas[columna].size() && tab.matrizFichas[columna][fila] == fichaEnemiga;
 }
-
-// std::mt19937 gen(rd());
-
-// int jugadaCasiRandom(tablero& tab, int c) {
-//     int moveParaGanar = unoParaGanar(tab, c);
-//     if(moveParaGanar >= 0){
-//         return moveParaGanar;
-//     }
-
-//     int moveParaPerder = unoParaPerder(tab, c);
-//     int move;
-//     if (moveParaPerder >= 0) {
-//         return moveParaPerder;
-//     }
-//     //uniform_int_distribution<int> do_move(0, tab.n - 1);
-
-//     do {
-//         move = rand()%6;
-//     } while(columnaLlena(tab, tab.n));
-            
-//     return move;
-// }

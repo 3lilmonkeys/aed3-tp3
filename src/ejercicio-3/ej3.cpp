@@ -188,8 +188,8 @@ void individuo::mutar() {
 
 void individuo::calcular_fitness(vector<individuo> oponentes) {
 
-	int filas = 7;
-	int columnas = 6;
+	int filas = 6;
+	int columnas = 7;
 	int c = 4;
 
 	win_rate = 0;
@@ -259,8 +259,8 @@ void individuo::calcular_fitness(vector<individuo> oponentes) {
 
 void individuo::calcular_fitness_catedra() {
 
-	int filas = 7;
-	int columnas = 6;
+	int filas = 6;
+	int columnas = 7;
 	int c = 4;
 
 	win_rate = 0;
@@ -297,7 +297,7 @@ void individuo::calcular_fitness_catedra() {
 				actualizarTablero(tab, jugadaGolosa(tab, estrategias, 11, (c-2)*2, CANT_ESTR, columnas, c), true);
 				jugadas++;
 			}
-			actualizarTablero(tab, jugadaCasiRandom(tab, 6), false);
+			actualizarTablero(tab, jugadaCasiRandom(tab, 7), false);
 			//actualizarTablero(tab, jugadaGolosa(tab, estrategiasOponente, 11, (c - 2) * 2, CANT_ESTR, columnas, c), false);
 			actualizarTablero(tab, jugadaGolosa(tab, estrategias, 11, (c-2)*2, CANT_ESTR, columnas, c), true);
 
@@ -337,8 +337,8 @@ void poblacion_sort(vector<individuo>& poblacion) {
 
 int main() {
 
-	int columns = 6;
-	int rows = 7;
+	int columns = 7;
+	int rows = 6;
 	tablero tab = crearTablero(columns, rows);
     list<estr> estrategias = inicializarEstrategias(11, 15, columns);
 
