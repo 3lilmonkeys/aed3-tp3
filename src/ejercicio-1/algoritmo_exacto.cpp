@@ -316,4 +316,5 @@ int ultimo_jugador(tablero& tablero, int ultimo_movimiento)
   return jugador_actual;
 }
 int prueba;
+int prueba2;
 #endif
