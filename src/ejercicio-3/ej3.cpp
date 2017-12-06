@@ -13,6 +13,9 @@
 #include <algorithm>
 //std::random_device rd;
 std::mt19937 gen(rd());
+#include <set>
+/* Esto no se cual es el valor correcto */
+#define ultimoParametroCoherente 20
 
 
 void inicializarJugadorConParametrosRandom(individuo &jugador)
@@ -27,46 +30,82 @@ void inicializarJugadorConParametrosRandom(individuo &jugador)
 individuo gridSearch(vector<individuo> oponentes)
 {
 	int columns = 6;
-	int fitnessAnterior = 0;
+	float fitnessAnterior = 0;
 	vector<int> paramsAnterior(cantParams);
 	
 	individuo jugador;
 	inicializarJugadorConParametrosRandom(jugador);
-	int no_cambio;
+	int cambio;
 
 
-	while (jugador.win_rate < 0.8)
+	while (fitnessAnterior < 0.99)
 	{
 		//Selecciono grupos
-		for (int i = 0; i <= tamGrupos; i++)
-		{
-			no_cambio = 0;
-			while (no_cambio < 2)
+		for (int i = 0; i <= tamGrupos; i= i+6)
+		{	
+			cambio = 0;
+			while (cambio < 2)
 			{
+				// cout << "Nueva iteración" << endl;
 				// Seteo todos los parametros del grupo.
 				for(int j = i; j < max(i + 6, cantParams); j++)
 					jugador.parametros[j] = rand() % LIMITE_PARAM;
 
 				jugador.calcular_fitness(oponentes);
-
+				cout << "fitness actual : " << jugador.win_rate << endl;
 				// Pregunto si mejoré en las ultimas iteraciones.
 				if (fitnessAnterior < jugador.win_rate)
 				{
-					no_cambio = 0;
+					// cout << "if"<<endl;
+					cambio = 0;
 					fitnessAnterior = jugador.win_rate;
 					paramsAnterior = jugador.parametros;
-				}
-				else
-				{
-					no_cambio++;
+				}else{
+					// cout << "else" << endl;
+					cambio++;
 					jugador.parametros = paramsAnterior;
 				}
 			}
+			// cout << "Otra iteración" << endl;
 		}
+		cout << "winrate actual : " << jugador.win_rate << endl;
 	}
+	jugador.win_rate = fitnessAnterior;
+	jugador.parametros = paramsAnterior;
 	return jugador;
 }
 
+// void calcularParametrosRecursivo(int indiceEnParametros, vector<int>& parametros,
+// 	set<vector<int> >& conjuntoParametros)
+// {
+// 	if( indiceEnParametros == parametros.size() )
+// 		return;
+	
+// 	for(int indice = 0; indice < ultimoParametroCoherente; indice++)
+// 	{
+// 		parametros.at(indiceEnParametros) = indice;
+// 		if(indiceEnParametros == parametros.size() - 1)
+// 			conjuntoParametros.insert(parametros);
+// 		calcularParametrosRecursivo(indiceEnParametros+1, parametros, conjuntoParametros);
+// 	}
+// 	return;
+// }
+
+// individuo gridSearch_v2(vector<individuo> oponentes)
+// {
+// 	int columns = 6;
+// 	float fitnessAnterior = 0;
+// 	vector<int> mejoresParametros(cantParams);
+
+// 	individuo jugador;
+// 	inicializarJugadorConParametrosRandom(jugador);
+	
+// 	/* COMPLETAR */
+	
+
+	
+// 	return jugador;
+// }
 
 individuo genetico(vector<individuo> poblacion0, vector<individuo> oponentesFijos) {
 
@@ -342,46 +381,46 @@ int main() {
 	tablero tab = crearTablero(columns, rows);
     list<estr> estrategias = inicializarEstrategias(11, 15, columns);
 
-    vector<int> misEstrs(16);
-    int k = 0;
-    for (auto it = estrategias.begin(); it != estrategias.end(); it++)
-    {
-    	misEstrs[k] = it->peso;
-    	k++;
-    }
+    // vector<int> misEstrs(16);
+    // int k = 0;
+    // for (auto it = estrategias.begin(); it != estrategias.end(); it++)
+    // {
+    // 	misEstrs[k] = it->peso;
+    // 	k++;
+    // }
 
-    individuo individuo_a_testear;
-    individuo_a_testear.parametros = misEstrs;
-    individuo_a_testear.win_rate = 0;
-    individuo_a_testear.rapidez = 0;
+    // individuo individuo_a_testear;
+    // individuo_a_testear.parametros = misEstrs;
+    // individuo_a_testear.win_rate = 0;
+    // individuo_a_testear.rapidez = 0;
 
-    individuo_a_testear.calcular_fitness_catedra();
+    // individuo_a_testear.calcular_fitness_catedra();
 
-    cout << "El win_rate es: " << individuo_a_testear.win_rate << endl;
+    // cout << "El win_rate es: " << individuo_a_testear.win_rate << endl;
 
-	// vector<individuo> poblacion0;
+	vector<individuo> poblacion0;
 
-	// vector<individuo> oponentes;
+	vector<individuo> oponentes;
 
-	// uniform_int_distribution<int> rndStrat(0, LIMITE_PARAM);
-	// int k = 1;
-	// for (int i = 0; i < TAM_POBLACION; ++i)
-	// {
-	// 	individuo ind0;
-	// 	individuo ind1;
-	// 	for (int j = 0; j < CANT_ESTR; ++j)
-	// 	{
-	// 		if(j == k) ind1.parametros.push_back(15);
-	// 		else ind1.parametros.push_back(0);
+	uniform_int_distribution<int> rndStrat(0, LIMITE_PARAM);
+	int k = 1;
+	for (int i = 0; i < TAM_POBLACION; ++i)
+	{
+		individuo ind0;
+		individuo ind1;
+		for (int j = 0; j < CANT_ESTR; ++j)
+		{
+			if(j == k) ind1.parametros.push_back(15);
+			else ind1.parametros.push_back(0);
 		
-	// 		ind0.parametros.push_back(rndStrat(gen));
-	// 	}
-	// 	k = (k+1)%11;
-	// 	oponentes.push_back(ind1);
-	// 	poblacion0.push_back(ind0);
-	// 	ind0.parametros.clear();
-	// 	ind1.parametros.clear();
-	// }
+			ind0.parametros.push_back(rndStrat(gen));
+		}
+		k = (k+1)%11;
+		oponentes.push_back(ind1);
+		poblacion0.push_back(ind0);
+		ind0.parametros.clear();
+		ind1.parametros.clear();
+	}
 
 	// individuo gen = genetico(poblacion0, oponentes);
 	// for (int i = 0; i < gen.parametros.size(); i++)
@@ -389,6 +428,12 @@ int main() {
 	// 	cout << gen.parametros[i] << " ";
 	// }
 	// cout << "   " << gen.win_rate << endl;
+
+	cout << "Comienza grid" << endl;
+
+	individuo jugador = gridSearch(oponentes);
+
+	cout << jugador.win_rate << endl;
 
 	return 0;
 }
