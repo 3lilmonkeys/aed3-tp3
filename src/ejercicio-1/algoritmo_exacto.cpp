@@ -315,5 +315,6 @@ int ultimo_jugador(tablero& tablero, int ultimo_movimiento)
   int jugador_actual = tablero.matrizFichas.at(ultimo_movimiento).at(cant_fichas_col);
   return jugador_actual;
 }
-
+int prueba;
+int prueba2;
 #endif
