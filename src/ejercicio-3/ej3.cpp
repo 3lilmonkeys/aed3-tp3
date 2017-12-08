@@ -1,54 +1,31 @@
-#include <random>
 #include "individuo.h"
-#include "../ejercicio-2/ej2.h"
 
-#define TAM_POBLACION 100
-#define PROB_MUTACION 0.05
-#define LIMITE_PARAM (11 + (4 - 2)*2)
-#define CANT_PARTIDOS 100
-#define CANT_ESTR (11 + (4 - 2)*2) //11 +(c-2)*2
-
-#define cantParams 23
-#define tamGrupos 6
-#include <algorithm>
-//std::random_device rd;
 std::mt19937 gen(rd());
-#include <set>
-/* Esto no se cual es el valor correcto */
-#define ultimoParametroCoherente 20
 
 
-void inicializarJugadorConParametrosRandom(individuo &jugador)
-{
-	vector<int> vectorParametros(cantParams);
-	jugador.parametros = vectorParametros;
-	jugador.win_rate = 0;
-	for (int indice = 0; indice < jugador.parametros.size(); indice++)
-		jugador.parametros[indice] = rand() % LIMITE_PARAM;
-}
+/*-----------------------GRID SEARCH---------------------------------------*/
 
-individuo gridSearch(vector<individuo> oponentes)
+individuo gridSearch_optimizado_v1(vector<individuo> oponentes)
 {
 	int columns = 6;
 	float fitnessAnterior = 0;
 	vector<int> paramsAnterior(cantParams);
-	
+
 	individuo jugador;
 	inicializarJugadorConParametrosRandom(jugador);
 	int cambio;
 
-
 	while (fitnessAnterior < 0.99)
 	{
 		//Selecciono grupos
-		for (int i = 0; i <= tamGrupos; i= i+6)
-		{	
+		for (int i = 0; i <= tamGrupos; i = i + 6)
+		{
 			cambio = 0;
 			while (cambio < 2)
 			{
 				// cout << "Nueva iteración" << endl;
 				// Seteo todos los parametros del grupo.
-				for(int j = i; j < max(i + 6, cantParams); j++)
+				for (int j = i; j < max(i + 6, cantParams); j++)
 					jugador.parametros[j] = rand() % LIMITE_PARAM;
 
 				jugador.calcular_fitness(oponentes);
@@ -60,7 +37,9 @@ individuo gridSearch(vector<individuo> oponentes)
 					cambio = 0;
 					fitnessAnterior = jugador.win_rate;
 					paramsAnterior = jugador.parametros;
-				}else{
+				}
+				else
+				{
 					// cout << "else" << endl;
 					cambio++;
 					jugador.parametros = paramsAnterior;
@@ -75,38 +54,165 @@ individuo gridSearch(vector<individuo> oponentes)
 	return jugador;
 }
 
-// void calcularParametrosRecursivo(int indiceEnParametros, vector<int>& parametros,
-// 	set<vector<int> >& conjuntoParametros)
-// {
-// 	if( indiceEnParametros == parametros.size() )
-// 		return;
-	
-// 	for(int indice = 0; indice < ultimoParametroCoherente; indice++)
-// 	{
-// 		parametros.at(indiceEnParametros) = indice;
-// 		if(indiceEnParametros == parametros.size() - 1)
-// 			conjuntoParametros.insert(parametros);
-// 		calcularParametrosRecursivo(indiceEnParametros+1, parametros, conjuntoParametros);
-// 	}
-// 	return;
-// }
+void inicializarJugadorConParametrosRandom(individuo &jugador)
+{
+	vector<int> vectorParametros(cantParams);
+	jugador.parametros = vectorParametros;
+	jugador.win_rate = 0;
+	for (int indice = 0; indice < jugador.parametros.size(); indice++)
+		jugador.parametros[indice] = rand() % LIMITE_PARAM;
+}
 
-// individuo gridSearch_v2(vector<individuo> oponentes)
+/* Es demasiado grande el espacio de busqueda del exaustivo */
+
+// individuo gridSearch_Exaustivo(vector<individuo> oponentes)
 // {
 // 	int columns = 6;
 // 	float fitnessAnterior = 0;
-// 	vector<int> mejoresParametros(cantParams);
+
+// 	set<vector<int> > parametrosExaustivosSinRepetidos;
 
 // 	individuo jugador;
 // 	inicializarJugadorConParametrosRandom(jugador);
 	
-// 	/* COMPLETAR */
-	
+// 	cout<< "Comienzo parametros recursivo"<<endl;
 
-	
+// 	vector<int> parametros = jugador.parametros;
+// 	calcularParametrosRecursivo(0, parametrosExaustivosSinRepetidos, parametros);
+
+// 	float maximoFitness = 0;
+// 	individuo jugadorTemporal;
+
+// 	cout << "Comienzo a tomar tiempos" << endl;
+
+// 	float fitnessTemporal = 0;
+// 	for (set<vector<int> >::iterator iter = parametrosExaustivosSinRepetidos.begin();
+// 		iter != parametrosExaustivosSinRepetidos.end(); ++iter)
+// 	{
+// 		jugadorTemporal.parametros = (*iter);
+// 		jugador.calcular_fitness(oponentes);
+// 		fitnessTemporal = jugador.win_rate;
+
+// 		cout << "Fitness actual : " << fitnessTemporal << endl;
+
+// 		if( maximoFitness < fitnessTemporal )
+// 			jugador.parametros = jugadorTemporal.parametros;
+// 	}
+
 // 	return jugador;
 // }
 
+
+// void calcularParametrosRecursivo(int indiceEnParametros, set<vector<int> > &conjunto,
+// 	vector<int> jugador)
+// {
+// 	if (indiceEnParametros == jugador.size())
+// 		return;
+
+// 	for (int indice = 0; indice < ultimoParametroCoherente; indice++)
+// 	{
+// 		jugador.at(indiceEnParametros) = indice;
+// 		if (indiceEnParametros == jugador.size() - 1)
+// 			conjunto.insert(jugador);
+
+// 		cout << "Cantidad de vectores : " <<  conjunto.size() << endl;
+
+// 		calcularParametrosRecursivo(indiceEnParametros + 1, conjunto, jugador);
+// 	}
+// 	return;
+// }
+
+individuo gridSearch_optimizado_v2(vector<individuo> oponentes)
+{	
+	int fitnessTemporal = 0;
+	vector<int> parametros;
+	individuo jugador;
+	
+	float mejorFitness = 0;
+	vector<int> mejoresParametros(cantParams);
+
+	int noMejorePorXIntentos;
+	int valorOriginal;
+	int valorMenor;
+	float fitnessMenor;
+	int valorMayor;
+	float fitnessMayor;
+	
+	for(int cantPuntosAleatorios = 0; cantPuntosAleatorios < 10; cantPuntosAleatorios ++)
+	{	
+		cout << "Estoy en el punto : " << cantPuntosAleatorios << endl;
+		inicializarJugadorConParametrosRandom(jugador);
+		for(int indiceEnParametros = 0; indiceEnParametros < jugador.parametros.size(); indiceEnParametros++)
+		{
+			cout<< "Cambio de indice por : " << indiceEnParametros << endl;
+			noMejorePorXIntentos = 0;
+			while( noMejorePorXIntentos < 3 )
+			{
+				cout << "no mejore por cantidad de intentos : " << noMejorePorXIntentos << endl;
+				valorOriginal = jugador.parametros.at(indiceEnParametros);
+
+				valorMayor = valorOriginal+1;
+				jugador.parametros.at(indiceEnParametros) = valorMenor;
+				jugador.calcular_fitness(oponentes);
+				fitnessMenor = jugador.win_rate;
+				cout << "El fitness menor es : " << fitnessMenor << endl;
+				if (mejorFitness < fitnessMenor)
+				{
+					mejorFitness = fitnessMenor;
+					parametros = jugador.parametros;
+					noMejorePorXIntentos = 0;
+					continue;
+				}
+
+				valorMenor = valorOriginal-1;
+				jugador.parametros.at(indiceEnParametros) = valorMayor;
+				jugador.calcular_fitness(oponentes);
+				fitnessMayor = jugador.win_rate;
+				cout << "El fitness menor es : " << fitnessMayor << endl;
+				if(mejorFitness < fitnessMayor){
+					mejorFitness = fitnessMayor;
+					parametros = jugador.parametros;
+					noMejorePorXIntentos = 0;
+					continue;
+				}
+
+				jugador.parametros.at(indiceEnParametros) = valorOriginal;
+				noMejorePorXIntentos++;
+				
+			}
+		}
+	}
+	jugador.parametros = parametros;
+	return jugador;
+}
+
+/*-------------------------------------------FIN GRID SEARCH----------------*/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*--------------------------------------GENETICO-----------------------------*/
 individuo genetico(vector<individuo> poblacion0, vector<individuo> oponentesFijos) {
 
 	int generacion = 0;
@@ -373,6 +479,46 @@ void poblacion_sort(vector<individuo>& poblacion) {
 	}
 }
 
+int jugadaCasiRandom(tablero tab, int col)
+{
+	int moveParaGanar = unoParaGanar(tab, 4);
+	if (moveParaGanar >= 0)
+	{
+		return moveParaGanar;
+	}
+
+	int moveParaPerder = unoParaPerder(tab, 4);
+	if (moveParaPerder >= 0)
+	{
+		return moveParaPerder;
+	}
+
+	int jugada;
+	uniform_int_distribution<int> do_move(0, col - 1);
+	do
+	{
+		jugada = do_move(gen);
+	} while (hayFicha(tab, jugada, tab.m));
+	return jugada;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*-------------------------------------------MAIN------------------------------*/
 
 int main() {
 
@@ -431,30 +577,11 @@ int main() {
 
 	cout << "Comienza grid" << endl;
 
-	individuo jugador = gridSearch(oponentes);
-
+	// individuo jugador = gridSearch_optimizado_v1(oponentes);
+	individuo jugador = gridSearch_optimizado_v2(oponentes);
 	cout << jugador.win_rate << endl;
 
 	return 0;
 }
 
 
-
-int jugadaCasiRandom(tablero tab, int col) {
-	int moveParaGanar = unoParaGanar(tab, 4);
-    if(moveParaGanar >= 0){
-        return moveParaGanar;
-    }
-
-    int moveParaPerder = unoParaPerder(tab, 4);
-    if (moveParaPerder >= 0) {
-        return moveParaPerder;
-    }
-
-	int jugada;
-	uniform_int_distribution<int> do_move(0, col - 1);
-	do {
-    	jugada = do_move(gen);
-	} while(hayFicha(tab, jugada, tab.m));
-	return jugada;
-}
