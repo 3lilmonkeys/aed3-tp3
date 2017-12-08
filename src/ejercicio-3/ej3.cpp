@@ -61,7 +61,7 @@ void inicializarJugadorConParametrosRandom(individuo &jugador)
 	jugador.parametros = vectorParametros;
 	jugador.win_rate = 0;
 	for (int indice = 0; indice < jugador.parametros.size(); indice++)
-		jugador.parametros[indice] = rand() % LIMITE_PARAM;
+		jugador.parametros.at(indice) = rand() % ultimoParametroCoherente;
 }
 
 /* Es demasiado grande el espacio de busqueda del exaustivo */
@@ -129,7 +129,7 @@ individuo gridSearch_optimizado_v2(vector<individuo> oponentes)
 	vector<int> parametros;
 	individuo jugador;
 	
-	float mejorFitness = 0;
+	float fitnessMasAlto = 0;
 	vector<int> mejoresParametros(cantParams);
 
 	int noMejorePorXIntentos;
@@ -141,46 +141,75 @@ individuo gridSearch_optimizado_v2(vector<individuo> oponentes)
 	
 	for(int cantPuntosAleatorios = 0; cantPuntosAleatorios < 10; cantPuntosAleatorios ++)
 	{	
-		cout << "Estoy en el punto : " << cantPuntosAleatorios << endl;
+
+        cout << "Estoy en el punto: " << cantPuntosAleatorios << endl;
+        
 		inicializarJugadorConParametrosRandom(jugador);
 		for(int indiceEnParametros = 0; indiceEnParametros < jugador.parametros.size(); indiceEnParametros++)
 		{
-			cout<< "Cambio de indice por : " << indiceEnParametros << endl;
+            cout<< "Cambio de indice por : " << indiceEnParametros << endl;
+            
 			noMejorePorXIntentos = 0;
-			while( noMejorePorXIntentos < 3 )
+			while( noMejorePorXIntentos < 5 )
 			{
-				cout << "no mejore por cantidad de intentos : " << noMejorePorXIntentos << endl;
+                cout << "INICIO WHILE---No mejore por cantidad de intentos: " << noMejorePorXIntentos << endl;
+                
 				valorOriginal = jugador.parametros.at(indiceEnParametros);
 
+                cout << "El valor original: " << valorOriginal << endl;
+
 				valorMayor = valorOriginal+1;
-				jugador.parametros.at(indiceEnParametros) = valorMenor;
-				jugador.calcular_fitness(oponentes);
-				fitnessMenor = jugador.win_rate;
-				cout << "El fitness menor es : " << fitnessMenor << endl;
-				if (mejorFitness < fitnessMenor)
+				jugador.parametros.at(indiceEnParametros) = valorMayor;
+
+                cout << "Valor aumentado es: " << jugador.parametros.at(indiceEnParametros)<<endl;
+                
+                jugador.calcular_fitness(oponentes);
+                fitnessMayor = jugador.win_rate;
+
+                cout << "El fitness mayor es: " << fitnessMayor << endl;
+                
+				if (fitnessMasAlto < fitnessMayor)
 				{
-					mejorFitness = fitnessMenor;
-					parametros = jugador.parametros;
+
+                    cout << "ENTRE AL IF MAYOR" << endl;
+
+                    fitnessMasAlto = fitnessMayor;
+                    
+                    cout << "El fitness MEJOR es: " << fitnessMasAlto<<endl;
+                    
+                    parametros = jugador.parametros;
 					noMejorePorXIntentos = 0;
 					continue;
 				}
 
 				valorMenor = valorOriginal-1;
-				jugador.parametros.at(indiceEnParametros) = valorMayor;
-				jugador.calcular_fitness(oponentes);
-				fitnessMayor = jugador.win_rate;
-				cout << "El fitness menor es : " << fitnessMayor << endl;
-				if(mejorFitness < fitnessMayor){
-					mejorFitness = fitnessMayor;
-					parametros = jugador.parametros;
-					noMejorePorXIntentos = 0;
+                jugador.parametros.at(indiceEnParametros) = valorMenor;
+
+                cout << "Valor reducido es: " << jugador.parametros.at(indiceEnParametros) << endl;
+
+                jugador.calcular_fitness(oponentes);
+                fitnessMenor = jugador.win_rate;
+
+                cout << "El fitness menor es: " << fitnessMenor << endl;
+                
+				if(fitnessMasAlto < fitnessMenor){
+
+                    cout << "ENTRE AL IF MENOR" <<endl;
+                    
+                    fitnessMasAlto = fitnessMenor;
+                    parametros = jugador.parametros;
+
+                    cout << "El fitness MEJOR es: " << fitnessMasAlto << endl;
+
+                    noMejorePorXIntentos = 0;
 					continue;
 				}
 
 				jugador.parametros.at(indiceEnParametros) = valorOriginal;
-				noMejorePorXIntentos++;
-				
-			}
+                noMejorePorXIntentos++;
+
+                cout << "El fitness MEJOR es: " << fitnessMasAlto << endl;
+            }
 		}
 	}
 	jugador.parametros = parametros;
@@ -553,9 +582,9 @@ list<estr> cargarIndividuo()
 
 int main() {
 
-	std::ifstream in("../individuo.txt");
-    std::streambuf *cinbuf = std::cin.rdbuf(); //save old buf
-    std::cin.rdbuf(in.rdbuf()); //redirect std::cin to in.txt!
+	// std::ifstream in("../individuo.txt");
+    // std::streambuf *cinbuf = std::cin.rdbuf(); //save old buf
+    // std::cin.rdbuf(in.rdbuf()); //redirect std::cin to in.txt!
 
     int columns = 7;
     int rows = 6;
@@ -563,26 +592,26 @@ int main() {
     
     // list<estr> estrategias = inicializarEstrategias(11, 15, columns);
 
-    list<estr> estrategias = cargarIndividuo();
+    // list<estr> estrategias = cargarIndividuo();
 
-    vector<int> misEstrs(16);
-    int k = 0;
-    for (auto it = estrategias.begin(); it != estrategias.end(); it++)
-    {
-    	misEstrs[k] = it->peso;
-    	k++;
-    }
+    // vector<int> misEstrs(16);
+    // int k = 0;
+    // for (auto it = estrategias.begin(); it != estrategias.end(); it++)
+    // {
+    // 	misEstrs[k] = it->peso;
+    // 	k++;
+    // }
 
-    individuo individuo_a_testear;
-    individuo_a_testear.parametros = misEstrs;
-    individuo_a_testear.win_rate = 0;
-    individuo_a_testear.rapidez = 0;
+    // individuo individuo_a_testear;
+    // individuo_a_testear.parametros = misEstrs;
+    // individuo_a_testear.win_rate = 0;
+    // individuo_a_testear.rapidez = 0;
 
-    individuo_a_testear.calcular_fitness_catedra();
+    // individuo_a_testear.calcular_fitness_catedra();
 
-    cout << "El win_rate es: " << individuo_a_testear.win_rate << endl;
+    // cout << "El win_rate es: " << individuo_a_testear.win_rate << endl;
 
-    std::cin.rdbuf(cinbuf);   //reset to standard input again
+    // std::cin.rdbuf(cinbuf);   //reset to standard input again
 
     // vector<individuo> poblacion0;
 
@@ -622,7 +651,7 @@ int main() {
 	vector<individuo> oponentes;
 
 	uniform_int_distribution<int> rndStrat(0, LIMITE_PARAM);
-	 k = 1;
+	int k = 1;
 	for (int i = 0; i < TAM_POBLACION; ++i)
 	{
 		individuo ind0;

@@ -19,10 +19,8 @@
 
 #define cantParams 23
 #define tamGrupos 6
-//std::random_device rd;
 
-/* Esto no se cual es el valor correcto */
-#define ultimoParametroCoherente 20
+#define ultimoParametroCoherente 15
 
 using namespace std;
 
