@@ -236,14 +236,19 @@ individuo genetico(vector<individuo> poblacion0, vector<individuo> oponentesFijo
     poblacion_sort(poblacion0);
     vector<individuo> poblacionAux;
 
+
+    std::ofstream out("/home/reivaj/aed3-tp3/src/paraExperimentos/jugandoContraAnterior.txt");
+    std::streambuf *coutbuf = std::cout.rdbuf(); //save old buf
+    std::cout.rdbuf(out.rdbuf()); //redirect std::cout to out.txt!
+
     while (poblacion0[0].win_rate < 0.99 && generacion <= 50) {
 
-        cout << "Esta es la generacion " << generacion << endl;
-        for (int i = 0; i < poblacion0[0].parametros.size(); i++)
-        {
-            cout << poblacion0[0].parametros[i] << " ";
-        }
-        cout << "   " << poblacion0[0].win_rate << " " << poblacion0[0].rapidez << endl;
+        // cout << "Esta es la generacion " << generacion << endl;
+        // for (int i = 0; i < poblacion0[0].parametros.size(); i++)
+        // {
+        //     cout << poblacion0[0].parametros[i] << " ";
+        // }
+        // cout << "   " << poblacion0[0].win_rate << " " << poblacion0[0].rapidez << endl;
 
         poblacionAux.clear(); //Para cuando los hacemos jugar con sus anteriores generaciones...??
 
@@ -269,8 +274,6 @@ individuo genetico(vector<individuo> poblacion0, vector<individuo> oponentesFijo
             poblacionAux.push_back(indB);
         }
 
-
-
         generacion++;
 
         poblacion_sort(poblacionAux);
@@ -279,10 +282,6 @@ individuo genetico(vector<individuo> poblacion0, vector<individuo> oponentesFijo
 
         poblacionAnterior = poblacionAux;
 
-        std::ofstream out("/home/reivaj/aed3-tp3/src/paraExperimentos/jugandoContraAnterior.txt");
-        std::streambuf *coutbuf = std::cout.rdbuf(); //save old buf
-        std::cout.rdbuf(out.rdbuf()); //redirect std::cout to out.txt!
-
         float promedio_WR = 0;
 
         for (int j = 0; j < poblacion0.size(); j++)
@@ -290,23 +289,27 @@ individuo genetico(vector<individuo> poblacion0, vector<individuo> oponentesFijo
             promedio_WR += poblacion0[j].win_rate;
         }
     
-        cout << generacion << ", " << promedio_WR/100 << ", " << poblacion0[0].win_rate << endl;;
+        cout << generacion << ", " << promedio_WR/100 << ", " << poblacion0[0].win_rate << endl;
 
-        std::cout.rdbuf(coutbuf);
     }
 
-    std::ofstream out("/home/reivaj/aed3-tp3/src/paraExperimentos/pesosParamsGenAnterior.txt");
-    std::streambuf *coutbuf = std::cout.rdbuf(); //save old buf
-    std::cout.rdbuf(out.rdbuf()); //redirect std::cout to out.txt!
-
-    for (int i = 0; i < 10; j++)
-    {
-        for (int j = 0; j < poblacion0[i].parametros.size(); j++)
-        {
-            cout << poblacion0[i].parametros[j] << endl;
-        }
-    }
     std::cout.rdbuf(coutbuf);
+    
+    // std::ofstream out("/home/reivaj/aed3-tp3/src/paraExperimentos/pesosParamsGenAnterior.txt");
+    // std::streambuf *coutbuf = std::cout.rdbuf(); //save old buf
+    // std::cout.rdbuf(out.rdbuf()); //redirect std::cout to out.txt!
+    
+    // cout << "Jugando contra generacion anterior" << endl;
+    
+    // for (int i = 0; i < 10; i++)
+    // {
+    //     for (int j = 0; j < poblacion0[i].parametros.size(); j++)
+    //     {
+    //         cout << poblacion0[i].parametros[j] << " ";
+    //     }
+    //     cout << endl;
+    // }
+    // std::cout.rdbuf(coutbuf);
 
     return poblacion0[0];
 }
@@ -574,59 +577,24 @@ list<estr> cargarIndividuo()
 
 int main() {
 
-    std::ifstream in("../individuo.txt");
-    std::streambuf *cinbuf = std::cin.rdbuf(); //save old buf
-    std::cin.rdbuf(in.rdbuf()); //redirect std::cin to in.txt!
+    // std::ifstream in("../individuo.txt");
+    // std::streambuf *cinbuf = std::cin.rdbuf(); //save old buf
+    // std::cin.rdbuf(in.rdbuf()); //redirect std::cin to in.txt!
 
-    int columns = 7;
-    int rows = 6;
-    tablero tab = crearTablero(columns, rows);
+    // int columns = 7;
+    // int rows = 6;
+    // tablero tab = crearTablero(columns, rows);
     
-    // list<estr> estrategias = inicializarEstrategias(11, 15, columns);
+    // // list<estr> estrategias = inicializarEstrategias(11, 15, columns);
 
-    list<estr> estrategias = cargarIndividuo();
+    // list<estr> estrategias = cargarIndividuo();
 
-    vector<int> misEstrs(16);
-    int k = 0;
-    for (auto it = estrategias.begin(); it != estrategias.end(); it++)
-    {
-        misEstrs[k] = it->peso;
-        k++;
-    }
-
-    individuo individuo_a_testear;
-    individuo_a_testear.parametros = misEstrs;
-    individuo_a_testear.win_rate = 0;
-    individuo_a_testear.rapidez = 0;
-
-    individuo_a_testear.calcular_fitness_catedra();
-
-    cout << "El win_rate es: " << individuo_a_testear.win_rate << endl;
-
-    std::cin.rdbuf(cinbuf);   //reset to standard input again
-
-    // vector<individuo> poblacion0;
-
-    // vector<individuo> oponentes;
-
-    // uniform_int_distribution<int> rndStrat(0, LIMITE_PARAM);
-    // int k = 1;
-    // for (int i = 0; i < TAM_POBLACION; ++i)
+    // vector<int> misEstrs(16);
+    // int k = 0;
+    // for (auto it = estrategias.begin(); it != estrategias.end(); it++)
     // {
-    //     individuo ind0;
-    //     individuo ind1;
-    //     for (int j = 0; j < CANT_ESTR; ++j)
-    //     {
-    //         if(j == k) ind1.parametros.push_back(15);
-    //         else ind1.parametros.push_back(0);
-
-    //         ind0.parametros.push_back(rndStrat(gen));
-    //     }
-    //     k = (k+1)%11;
-    //     oponentes.push_back(ind1);
-    //     poblacion0.push_back(ind0);
-    //     ind0.parametros.clear();
-    //     ind1.parametros.clear();
+    //     misEstrs[k] = it->peso;
+    //     k++;
     // }
 
     // individuo individuo_a_testear;
@@ -638,12 +606,14 @@ int main() {
 
     // cout << "El win_rate es: " << individuo_a_testear.win_rate << endl;
 
+    // std::cin.rdbuf(cinbuf);   //reset to standard input again
+
     vector<individuo> poblacion0;
 
     vector<individuo> oponentes;
 
     uniform_int_distribution<int> rndStrat(0, LIMITE_PARAM);
-     k = 1;
+    int k = 1;
     for (int i = 0; i < TAM_POBLACION; ++i)
     {
         individuo ind0;
@@ -652,7 +622,7 @@ int main() {
         {
             if(j == k) ind1.parametros.push_back(15);
             else ind1.parametros.push_back(0);
-        
+
             ind0.parametros.push_back(rndStrat(gen));
         }
         k = (k+1)%11;
@@ -662,6 +632,39 @@ int main() {
         ind1.parametros.clear();
     }
 
+    // individuo individuo_a_testear;
+    // individuo_a_testear.parametros = misEstrs;
+    // individuo_a_testear.win_rate = 0;
+    // individuo_a_testear.rapidez = 0;
+
+    genetico(poblacion0, oponentes);
+
+    // cout << "El win_rate es: " << individuo_a_testear.win_rate << endl;
+
+    // vector<individuo> poblacion0;
+
+    // vector<individuo> oponentes;
+
+    // uniform_int_distribution<int> rndStrat(0, LIMITE_PARAM);
+    //  k = 1;
+    // for (int i = 0; i < TAM_POBLACION; ++i)
+    // {
+    //     individuo ind0;
+    //     individuo ind1;
+    //     for (int j = 0; j < CANT_ESTR; ++j)
+    //     {
+    //         if(j == k) ind1.parametros.push_back(15);
+    //         else ind1.parametros.push_back(0);
+        
+    //         ind0.parametros.push_back(rndStrat(gen));
+    //     }
+    //     k = (k+1)%11;
+    //     oponentes.push_back(ind1);
+    //     poblacion0.push_back(ind0);
+    //     ind0.parametros.clear();
+    //     ind1.parametros.clear();
+    // }
+
     // individuo gen = genetico(poblacion0, oponentes);
     // for (int i = 0; i < gen.parametros.size(); i++)
     // {
@@ -669,11 +672,11 @@ int main() {
     // }
     // cout << "   " << gen.win_rate << endl;
 
-    cout << "Comienza grid" << endl;
+    // cout << "Comienza grid" << endl;
 
-    // individuo jugador = gridSearch_optimizado_v1(oponentes);
-    individuo jugador = gridSearch_optimizado_v2(oponentes);
-    cout << jugador.win_rate << endl;
+    // // individuo jugador = gridSearch_optimizado_v1(oponentes);
+    // individuo jugador = gridSearch_optimizado_v2(oponentes);
+    // cout << jugador.win_rate << endl;
 
     return 0;
 }
