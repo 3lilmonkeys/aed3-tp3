@@ -249,7 +249,7 @@ individuo genetico(vector<individuo> poblacion0, vector<individuo> oponentesFijo
     for (int i = 0; i < TAM_POBLACION; i++)
     {
         cout << "calculando fitness " << i << endl;
-        poblacion0[i].calcular_fitness(oponentesFijos);
+        poblacion0[i].calcular_fitness(poblacion0);
 
         for (int j = 0; j < poblacion0[i].parametros.size(); j++)
         {
@@ -258,11 +258,14 @@ individuo genetico(vector<individuo> poblacion0, vector<individuo> oponentesFijo
         cout << "   " << poblacion0[i].win_rate << " " << poblacion0[i].rapidez << endl;
 
     }
+
+    vector<individuo> poblacionAnterior = poblacion0;
+
     generacion++;
     poblacion_sort(poblacion0);
     vector<individuo> poblacionAux;
 
-    while (poblacion0[0].win_rate < 0.99 && generacion <= 75) {
+    while (poblacion0[0].win_rate < 0.99 && generacion <= 50) {
 
         cout << "Esta es la generacion " << generacion << endl;
         for (int i = 0; i < poblacion0[0].parametros.size(); i++)
@@ -288,18 +291,21 @@ individuo genetico(vector<individuo> poblacion0, vector<individuo> oponentesFijo
             indA.mutar();
             indB.mutar();
 
-            indA.calcular_fitness(poblacion0);
-            indB.calcular_fitness(poblacion0);
+            indA.calcular_fitness(poblacionAux);
+            indB.calcular_fitness(poblacionAux);
 
             poblacionAux.push_back(indA);
             poblacionAux.push_back(indB);
         }
+
+
 
         generacion++;
 
         poblacion_sort(poblacionAux);
 
         poblacion0 = poblacionAux;
+
     }
 
     return poblacion0[0];
