@@ -16,7 +16,13 @@ individuo gridSearch_optimizado_v1(vector<individuo> oponentes)
 	inicializarJugadorConParametrosRandom(jugador);
 	int cambio;
 
-	while (fitnessAnterior < 0.99)
+    ofstream file_object;
+    string file_name = "datos_gridsearch.csv";
+    file_object.open(file_name);
+    file_object << "Numero iteracion" << "," << "win_rate" << std::endl;
+
+    //while (fitnessAnterior < 0.99)
+    for(int indice = 1; indice <= 50; indice ++)
 	{
 		//Selecciono grupos
 		for (int i = 0; i <= tamGrupos; i = i + 6)
@@ -30,7 +36,7 @@ individuo gridSearch_optimizado_v1(vector<individuo> oponentes)
 					jugador.parametros[j] = rand() % LIMITE_PARAM;
 
 				jugador.calcular_fitness(oponentes);
-				cout << "fitness actual : " << jugador.win_rate << endl;
+				//cout << "fitness actual : " << jugador.win_rate << endl;
 				// Pregunto si mejoré en las ultimas iteraciones.
 				if (fitnessAnterior < jugador.win_rate)
 				{
@@ -48,7 +54,7 @@ individuo gridSearch_optimizado_v1(vector<individuo> oponentes)
 			}
 			// cout << "Otra iteración" << endl;
 		}
-		cout << "winrate actual : " << jugador.win_rate << endl;
+		file_object << indice << "," <<jugador.win_rate << endl;
 	}
 	jugador.win_rate = fitnessAnterior;
 	jugador.parametros = paramsAnterior;
@@ -685,8 +691,8 @@ int main() {
 
 	cout << "Comienza grid" << endl;
 
-	// individuo jugador = gridSearch_optimizado_v1(oponentes);
-	individuo jugador = gridSearch_optimizado_v2(oponentes);
+	individuo jugador = gridSearch_optimizado_v1(oponentes);
+	// individuo jugador = gridSearch_optimizado_v2(oponentes);
 	cout << jugador.win_rate << endl;
 
 	return 0;
