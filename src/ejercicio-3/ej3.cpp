@@ -293,7 +293,7 @@ individuo seleccionarPonderado(vector<individuo> poblacion) {
 
 individuo seleccionarRandom(vector<individuo> poblacion) {
     std::mt19937 gen(rd());
-    std::uniform_int_distribution<> dis(1, TAM_POBLACION/2);
+/*  std::uniform_int_distribution<> dis(1, TAM_POBLACION/2);
     while (true) {
         for (int i = 0; i < 100; i++)
         {
@@ -302,6 +302,10 @@ individuo seleccionarRandom(vector<individuo> poblacion) {
             }
         }
     }
+
+    */
+    std::uniform_int_distribution<> dis(1, TAM_POBLACION-1);
+    return poblacion[dis(gen)];
 }
 
 void individuo::crossover(individuo B) {
@@ -549,7 +553,7 @@ list<estr> cargarIndividuo()
 
 int main() {
 
-	std::ifstream in("/home/reivaj/CLionProjects/tp3-Heuristicas/individuo.txt");
+	std::ifstream in("../individuo.txt");
     std::streambuf *cinbuf = std::cin.rdbuf(); //save old buf
     std::cin.rdbuf(in.rdbuf()); //redirect std::cin to in.txt!
 
