@@ -9,7 +9,7 @@ ejercicio-1/algoritmo_exacto.h
 TARGET_EJERCICIO_1 = ej1
 SOURCE_EJERCICIO_2_GOLOSO = ejercicio-2/ej2Jugador.cpp
 TARGET_EJERCICIO_2_GOLOSO = ej2
-SOURCE_EJERCICIO_3 = ejercicio-3/ej3.cpp
+SOURCE_EJERCICIO_3 = ejercicio-3/ej3.cpp ejercicio-3/individuo.h
 TARGET_EJERCICIO_3 = ej3
 SOURCE_RANDOM = random_player.cpp
 TARGET_RANDOM = random

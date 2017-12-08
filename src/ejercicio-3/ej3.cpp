@@ -262,8 +262,8 @@ individuo genetico(vector<individuo> poblacion0, vector<individuo> oponentesFijo
             indA.mutar();
             indB.mutar();
 
-            indA.calcular_fitness(poblacionAnterior);
-            indB.calcular_fitness(poblacionAnterior);
+            indA.calcular_fitness(poblacionAux);
+            indB.calcular_fitness(poblacionAux);
 
             poblacionAux.push_back(indA);
             poblacionAux.push_back(indB);
@@ -277,33 +277,7 @@ individuo genetico(vector<individuo> poblacion0, vector<individuo> oponentesFijo
 
         poblacion0 = poblacionAux;
 
-        poblacionAnterior = poblacionAux;
-
-        std::ofstream out("out.txt");
-    	std::streambuf *coutbuf = std::cout.rdbuf(); //save old buf
-    	std::cout.rdbuf(out.rdbuf()); //redirect std::cout to out.txt!
-
-    	float promedio_WR = 0;
-
-    	for (int j = 0; j < poblacion0[i].parametros.size(); j++)
-		{
-			promedio_WR += poblacion0[i].win_rate;
-		}
-	
-		cout << promedio_WR/100;
-
-		std::cout.rdbuf(coutbuf);
     }
-
-    std::ofstream out("out.txt");
-    std::streambuf *coutbuf = std::cout.rdbuf(); //save old buf
-    std::cout.rdbuf(out.rdbuf()); //redirect std::cout to out.txt!
-
-    for (int j = 0; j < 10; j++)
-	{
-        cout << poblacion0[i].parametros[j] << endl;
-    }
-    std::cout.rdbuf(coutbuf);
 
     return poblacion0[0];
 }

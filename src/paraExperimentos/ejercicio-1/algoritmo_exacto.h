@@ -1,3 +1,6 @@
+#ifndef EJ1
+#define EJ1
+
 #include <iostream>
 #include <fstream>
 #include <cassert>
@@ -57,3 +60,5 @@ bool test_validar_columna();
 bool test_validar_fila();
 bool test_validar_diagonal_45();
 bool test_validar_diagonal_135();
+
+#endif
