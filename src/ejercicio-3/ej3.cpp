@@ -54,7 +54,7 @@ individuo gridSearch_optimizado_v1(vector<individuo> oponentes)
 			}
 			// cout << "Otra iteración" << endl;
 		}
-		file_object << indice << "," <<jugador.win_rate << endl;
+		file_object << indice << "," << fitnessAnterior << endl;
 	}
 	jugador.win_rate = fitnessAnterior;
 	jugador.parametros = paramsAnterior;

@@ -9,25 +9,32 @@ int calcularJugada(tablero& tab, int c_linea, int cant_fichas){
   /* Comienzo la recursión por todas las "ramas". En este caso son una por
   columna. Me guardo un tablero para cada rama. La raiz MAXIMIZA, por lo
   que el de imediatamente abajo MINIMIZA. */
+  
+  // me tengo que fijar si el contrincante me puede ganar en esta iteración
+  // y jugar en consecuencia.
+
   for(int i = 0; i < tab.n; i++){
     posibles_tableros[i] = tab;
+    // Si la columna esta llena no juego en acá.
+    if( columna_llena( tab, i) ){
+      posibles_jugadas[i] = -2;
+      continue;
+    }
     actualizarTablero(posibles_tableros[i], i, MAXIMIZAR);
-    if(posibles_tableros[i].matrizFichas[i].size() > tab.m){
-      posibles_jugadas[i] = -10;
-    }
-    else
-    {
-      posibles_jugadas[i] = jugar_recursivo(posibles_tableros[i],c_linea,
-        (cant_fichas - 1), i, MINIMIZAR);
-    }
+    bool jugada_ganadora = validar_jugada(posibles_tableros[i], c_linea, i);
+    if (jugada_ganadora)
+      return i;
+    posibles_jugadas[i] = jugar_recursivo(posibles_tableros[i],c_linea,
+      (cant_fichas - 1), i, MINIMIZAR);
+  
   }
   // Devuelvo la columna donde quiero jugar.
   return mejor_jugada(posibles_jugadas);
 }
 
 /* Si quiero maximizar => TRUE, sino => FALSE */
-int jugar_recursivo(tablero& tab, int c_linea, int cant_fichas, int ultimo_movimiento,
-  bool maximizar)
+int jugar_recursivo(tablero& tab, int c_linea, int cant_fichas,
+  int ultimo_movimiento, bool maximizar)
 {
   if(maximizar and (cant_fichas == 0)) return 0;
   vector<tablero> opcionesTablero(tab.n);
@@ -39,25 +46,23 @@ int jugar_recursivo(tablero& tab, int c_linea, int cant_fichas, int ultimo_movim
     if( columna_llena(tab, i) )
     {
       posiblesResultados[i] = -2;
-    // Si la columna no está llena.
-    }else
-    {
-      opcionesTablero[i] = tab;
-      actualizarTablero(opcionesTablero[i], i, maximizar);
-      bool jugada_ganadora = validar_jugada(opcionesTablero[i], c_linea, i);
-      // Si el tablero se lleno con la ultima jugada.
-      if( tableroLleno(opcionesTablero[i]) )
-        return 0;
-      // Si al maximizar hago una jugada que gana la partida corto la recursión.
-      if(maximizar and jugada_ganadora)
-        return 1;
-      // Idem pero si estoy minimizando
-      else if ((!maximizar) and jugada_ganadora)
-        return -1;
-
-      posiblesResultados[i] = jugar_recursivo( opcionesTablero[i], c_linea,
-        (cant_fichas-1), i, (!maximizar));
+      continue;
     }
+    opcionesTablero[i] = tab;
+    actualizarTablero(opcionesTablero[i], i, maximizar);
+    bool jugada_ganadora = validar_jugada(opcionesTablero[i], c_linea, i);
+    // Si el tablero se lleno con la ultima jugada.
+    if( tableroLleno(opcionesTablero[i]) )
+      return 0;
+    // Si al maximizar hago una jugada que gana la partida corto la recursión.
+    if(maximizar and jugada_ganadora)
+      return 1;
+    // Idem pero si estoy minimizando
+    else if ((!maximizar) and jugada_ganadora)
+      return -1;
+
+    posiblesResultados[i] = jugar_recursivo( opcionesTablero[i], c_linea,
+      (cant_fichas-1), i, (!maximizar));
   }
 
   // Devolver el maximo de cada posibilidad.
@@ -213,7 +218,7 @@ tablero crearTablero(int n, int m){
 /* Consulto si la columna se lleno. */
 bool columna_llena(tablero& tab, int columna)
 {
-  return tab.matrizFichas[columna].size() > tab.m;
+  return tab.matrizFichas.at(columna).size() > tab.m;
 }
 
 /* Consulto si queda lugar en el tablero. */
