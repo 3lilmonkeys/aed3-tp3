@@ -227,27 +227,6 @@ individuo gridSearch_optimizado_v2(vector<individuo> oponentes)
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 /*--------------------------------------GENETICO-----------------------------*/
 individuo genetico(vector<individuo> poblacion0, vector<individuo> oponentesFijos) {
 
@@ -334,17 +313,6 @@ individuo seleccionarPonderado(vector<individuo> poblacion) {
 
 individuo seleccionarRandom(vector<individuo> poblacion) {
     std::mt19937 gen(rd());
-/*  std::uniform_int_distribution<> dis(1, TAM_POBLACION/2);
-    while (true) {
-        for (int i = 0; i < 100; i++)
-        {
-            if (dis(gen) == 1) {
-                return poblacion[i];
-            }
-        }
-    }
-
-    */
     std::uniform_int_distribution<> dis(1, TAM_POBLACION-1);
     return poblacion[dis(gen)];
 }
@@ -489,7 +457,6 @@ void individuo::calcular_fitness_catedra() {
                 jugadas++;
             }
             actualizarTablero(tab, jugadaCasiRandom(tab, 7), false);
-            //actualizarTablero(tab, jugadaGolosa(tab, estrategiasOponente, 11, (c - 2) * 2, CANT_ESTR, columnas, c), false);
             actualizarTablero(tab, jugadaGolosa(tab, estrategias, 11, (c-2)*2, CANT_ESTR, columnas, c), true);
 
             jugadas++;
@@ -548,20 +515,6 @@ int jugadaCasiRandom(tablero tab, int col)
 	return jugada;
 }
 
-void paraEscribirUnArchivo()
-{
-	fstream archivo;
-
-	archivo.open("/home/reivaj/aed3-tp3/src/archivoOut.txt");
-	archivo << "NODOS,   +Ejes,   ALEAT, -EJES "
-			<< "\n";
-
-	cout << 1 << "\n";
-	archivo << 1 << ", "
-			<< "\n";
-
-	archivo.close();
-}
 
 list<estr> cargarIndividuo()
 {
@@ -594,13 +547,34 @@ list<estr> cargarIndividuo()
 
 int main() {
 
-	// std::ifstream in("../individuo.txt");
-    // std::streambuf *cinbuf = std::cin.rdbuf(); //save old buf
-    // std::cin.rdbuf(in.rdbuf()); //redirect std::cin to in.txt!
-
     int columns = 7;
     int rows = 6;
     tablero tab = crearTablero(columns, rows);
+
+    vector<individuo> oponentes;
+    vector<individuo> poblacion0;
+
+    uniform_int_distribution<int> rndStrat(0, LIMITE_PARAM);
+    for (int i = 0; i < TAM_POBLACION; ++i)
+    {
+        individuo ind0;
+        individuo ind1;
+        for (int j = 0; j < CANT_ESTR; ++j)
+        {	
+        	ind1.parametros.push_back(rndStrat(gen));
+            ind0.parametros.push_back(rndStrat(gen));
+        }
+        oponentes.push_back(ind0);
+        poblacion0.push_back(ind1);
+        ind0.parametros.clear();
+        ind1.parametros.clear();
+    }
+
+//=============================INICIO TESTEAR INDIVIDUO CON JUG DE LA CATEDRA==================
+
+	// std::ifstream in("../individuo.txt");
+    // std::streambuf *cinbuf = std::cin.rdbuf(); //save old buf
+    // std::cin.rdbuf(in.rdbuf()); //redirect std::cin to in.txt!
     
     // list<estr> estrategias = inicializarEstrategias(11, 15, columns);
 
@@ -625,75 +599,31 @@ int main() {
 
     // std::cin.rdbuf(cinbuf);   //reset to standard input again
 
-    // vector<individuo> poblacion0;
+//=============================FIN TESTEAR INDIVIDUO CON JUG DE LA CATEDRA==================    
 
-    // vector<individuo> oponentes;
+//========================INICIO CORRER GENETICO============================================
 
-    // uniform_int_distribution<int> rndStrat(0, LIMITE_PARAM);
-    // int k = 1;
-    // for (int i = 0; i < TAM_POBLACION; ++i)
-    // {
-    //     individuo ind0;
-    //     individuo ind1;
-    //     for (int j = 0; j < CANT_ESTR; ++j)
-    //     {
-    //         if(j == k) ind1.parametros.push_back(15);
-    //         else ind1.parametros.push_back(0);
+    // El Genetico puede correr con una poblacion de OPONENTES o no, en el caso de que no se le pase una poblacion validad como OPONENTES,
+    // el Genetico se entrenara con la poblacion de su generacion anterior.
 
-    //         ind0.parametros.push_back(rndStrat(gen));
-    //     }
-    //     k = (k+1)%11;
-    //     oponentes.push_back(ind1);
-    //     poblacion0.push_back(ind0);
-    //     ind0.parametros.clear();
-    //     ind1.parametros.clear();
-    // }
-
-    // individuo individuo_a_testear;
-    // individuo_a_testear.parametros = misEstrs;
-    // individuo_a_testear.win_rate = 0;
-    // individuo_a_testear.rapidez = 0;
-
-    // individuo_a_testear.calcular_fitness_catedra();
-
-    // cout << "El win_rate es: " << individuo_a_testear.win_rate << endl;
-
-	vector<individuo> poblacion0;
-
-	vector<individuo> oponentes;
-
-	uniform_int_distribution<int> rndStrat(0, LIMITE_PARAM);
-	int k = 1;
-	for (int i = 0; i < TAM_POBLACION; ++i)
+	individuo gen = genetico(poblacion0, oponentes);
+	for (int i = 0; i < gen.parametros.size(); i++)
 	{
-		individuo ind0;
-		individuo ind1;
-		for (int j = 0; j < CANT_ESTR; ++j)
-		{
-			if(j == k) ind1.parametros.push_back(15);
-			else ind1.parametros.push_back(0);
-		
-			ind0.parametros.push_back(rndStrat(gen));
-		}
-		k = (k+1)%11;
-		oponentes.push_back(ind1);
-		poblacion0.push_back(ind0);
-		ind0.parametros.clear();
-		ind1.parametros.clear();
+		cout << gen.parametros[i] << " ";
 	}
+	cout << "   " << gen.win_rate << endl;
 
-	// individuo gen = genetico(poblacion0, oponentes);
-	// for (int i = 0; i < gen.parametros.size(); i++)
-	// {
-	// 	cout << gen.parametros[i] << " ";
-	// }
-	// cout << "   " << gen.win_rate << endl;
+//==============================FIN CORRER GENETICO========================
 
-	cout << "Comienza grid" << endl;
+//===============================INICIO GRID SEARCH=========================
 
-	individuo jugador = gridSearch_optimizado_v1(oponentes);
-	// individuo jugador = gridSearch_optimizado_v2(oponentes);
-	cout << jugador.win_rate << endl;
+	// cout << "Comienza grid" << endl;
+
+	// individuo jugador = gridSearch_optimizado_v1(oponentes);
+	// // individuo jugador = gridSearch_optimizado_v2(oponentes);
+	// cout << jugador.win_rate << endl;
+
+//===============================FIN GRID SEARCH==========================	
 
 	return 0;
 }
