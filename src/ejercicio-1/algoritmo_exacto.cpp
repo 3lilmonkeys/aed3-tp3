@@ -31,22 +31,10 @@ int calcularJugada(tablero& tab, int c_linea, int cant_fichas){
   // return mejor_jugada(posibles_jugadas);
 }
 
-int devolverRespuesta(int resultadoDeLaJugada, int columnaDondeSeGeneroLaRespuesta, bool esRaiz)
-{
-  int resultado;
-  if( esRaiz )
-    resultado = columnaDondeSeGeneroLaRespuesta;
-  else
-    resultado = resultadoDeLaJugada;
-  return resultado;
-}
-
 /* Si quiero maximizar => TRUE, sino => FALSE */
 int jugar_recursivo(tablero& tab, int c_linea, int cant_fichas, bool maximizar, 
   bool esRaiz)
 {
-  // Pruebo si el problema es por la cantidad de fichas.
-  cant_fichas = 100;
   if(maximizar and (cant_fichas == 0)) return 0;
   vector<tablero> opcionesTablero(tab.n);
   vector<int> posiblesResultados(tab.n);
@@ -62,9 +50,6 @@ int jugar_recursivo(tablero& tab, int c_linea, int cant_fichas, bool maximizar,
     opcionesTablero[columna] = tab;
     actualizarTablero(opcionesTablero[columna], columna, maximizar);
     bool jugada_ganadora = validar_jugada(opcionesTablero[columna], c_linea, columna);
-    // // Si el tablero se lleno con la ultima jugada.
-    // if( tableroLleno(opcionesTablero[columna]) )
-    //   return 0;
     // Si al maximizar hago una jugada que gana la partida corto la recursión.
     if( maximizar and jugada_ganadora )
       return devolverRespuesta( 1, columna, esRaiz);
@@ -90,6 +75,17 @@ int jugar_recursivo(tablero& tab, int c_linea, int cant_fichas, bool maximizar,
     respuesta = minRes(posiblesResultados);
 
   return respuesta;
+}
+
+/* Si estoy en la raiz de la recursión devuelvo el indice de la columna, sino devuelvo la jugada. */
+int devolverRespuesta(int resultadoDeLaJugada, int columnaDondeSeGeneroLaRespuesta, bool esRaiz)
+{
+  int resultado;
+  if (esRaiz)
+    resultado = columnaDondeSeGeneroLaRespuesta;
+  else
+    resultado = resultadoDeLaJugada;
+  return resultado;
 }
 
 /* Como parametros le paso, el tablero, la cantidad necesaria para ganar y la
