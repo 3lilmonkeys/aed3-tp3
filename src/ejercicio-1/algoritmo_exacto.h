@@ -28,8 +28,8 @@ struct tablero{
     int m;//filas
 };
 
-
-int mejor_jugada(vector<int>& jugadas);
+int devolverRespuesta(int resultadoDeLaJugada, int columnaDondeSeGeneroLaRespuesta, bool esRaiz);
+int mejor_jugada(vector<int> &jugadas);
 int fichas_en_columna(tablero& tablero, int ultimo_movimiento);
 bool validar_jugada(tablero& tablero, int c_linea, int ultima_ficha);
 bool complete_fila(tablero& tablero, int c_linea, int ultima_ficha);
@@ -38,8 +38,7 @@ bool complete_diagonal_45(tablero& tablero, int c_linea, int ultima_ficha);
 bool complete_diagonal_135(tablero& tablero, int c_linea, int ultima_ficha);
 
 int ultimo_jugador(tablero& tablero, int ultimo_movimiento);
-int jugar_recursivo(tablero& tab, int c_linea, int cant_fichas, int ultimo_movimiento,
-    bool maximizo_o_minimizo);
+int jugar_recursivo(tablero& tab, int c_linea, int cant_fichas,bool maximizo_o_minimizo, bool esRaiz);
 bool columna_llena(tablero&, int);
 tablero crearTablero(int n, int m);
 int calcularJugada(tablero& tab, int c, int p);

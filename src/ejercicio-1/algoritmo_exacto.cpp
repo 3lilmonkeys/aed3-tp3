@@ -4,70 +4,87 @@
 #define header_algoritmo_exacto
 
 int calcularJugada(tablero& tab, int c_linea, int cant_fichas){
-  vector<int> posibles_jugadas(tab.n);
-  vector<tablero> posibles_tableros(tab.n);
-  /* Comienzo la recursión por todas las "ramas". En este caso son una por
-  columna. Me guardo un tablero para cada rama. La raiz MAXIMIZA, por lo
-  que el de imediatamente abajo MINIMIZA. */
-  
-  // me tengo que fijar si el contrincante me puede ganar en esta iteración
-  // y jugar en consecuencia.
+  int respuesta = jugar_recursivo(tab,c_linea,cant_fichas, MAXIMIZAR, true);
+  return respuesta;
 
-  for(int i = 0; i < tab.n; i++){
-    posibles_tableros[i] = tab;
-    // Si la columna esta llena no juego en acá.
-    if( columna_llena( tab, i) ){
-      posibles_jugadas[i] = -2;
-      continue;
-    }
-    actualizarTablero(posibles_tableros[i], i, MAXIMIZAR);
-    bool jugada_ganadora = validar_jugada(posibles_tableros[i], c_linea, i);
-    if (jugada_ganadora)
-      return i;
-    posibles_jugadas[i] = jugar_recursivo(posibles_tableros[i],c_linea,
-      (cant_fichas - 1), i, MINIMIZAR);
+  // vector<int> posibles_jugadas(tab.n);
+  // vector<tablero> posibles_tableros(tab.n);
+  // /* Comienzo la recursión por todas las "ramas". En este caso son una por
+  // columna. Me guardo un tablero para cada rama. La raiz MAXIMIZA, por lo
+  // que el de imediatamente abajo MINIMIZA. */
+  // for(int i = 0; i < tab.n; i++){
+  //   posibles_tableros[i] = tab;
+  //   // Si la columna esta llena no juego en acá.
+  //   if( columna_llena( tab, i) ){
+  //     posibles_jugadas[i] = -2;
+  //     continue;
+  //   }
+  //   actualizarTablero(posibles_tableros[i], i, MAXIMIZAR);
+  //   bool jugada_ganadora = validar_jugada(posibles_tableros[i], c_linea, i);
+  //   if (jugada_ganadora)
+  //     return i;
+  //   posibles_jugadas[i] = jugar_recursivo(posibles_tableros[i],c_linea,
+  //     (cant_fichas - 1), MINIMIZAR);
   
-  }
-  // Devuelvo la columna donde quiero jugar.
-  return mejor_jugada(posibles_jugadas);
+  // }
+  // // Devuelvo la columna donde quiero jugar.
+  // return mejor_jugada(posibles_jugadas);
+}
+
+int devolverRespuesta(int resultadoDeLaJugada, int columnaDondeSeGeneroLaRespuesta, bool esRaiz)
+{
+  int resultado;
+  if( esRaiz )
+    resultado = columnaDondeSeGeneroLaRespuesta;
+  else
+    resultado = resultadoDeLaJugada;
+  return resultado;
 }
 
 /* Si quiero maximizar => TRUE, sino => FALSE */
-int jugar_recursivo(tablero& tab, int c_linea, int cant_fichas,
-  int ultimo_movimiento, bool maximizar)
+int jugar_recursivo(tablero& tab, int c_linea, int cant_fichas, bool maximizar, 
+  bool esRaiz)
 {
+  // Pruebo si el problema es por la cantidad de fichas.
+  cant_fichas = 100;
   if(maximizar and (cant_fichas == 0)) return 0;
   vector<tablero> opcionesTablero(tab.n);
   vector<int> posiblesResultados(tab.n);
 
-  for(int i = 0; i < tab.n; i++)
+  for(int columna = 0; columna < tab.n; columna++)
   {
     // Si la columna está llena omito esta iteración.
-    if( columna_llena(tab, i) )
+    if( columna_llena(tab, columna) )
     {
-      posiblesResultados[i] = -2;
+      posiblesResultados[columna] = -2;
       continue;
     }
-    opcionesTablero[i] = tab;
-    actualizarTablero(opcionesTablero[i], i, maximizar);
-    bool jugada_ganadora = validar_jugada(opcionesTablero[i], c_linea, i);
-    // Si el tablero se lleno con la ultima jugada.
-    if( tableroLleno(opcionesTablero[i]) )
-      return 0;
+    opcionesTablero[columna] = tab;
+    actualizarTablero(opcionesTablero[columna], columna, maximizar);
+    bool jugada_ganadora = validar_jugada(opcionesTablero[columna], c_linea, columna);
+    // // Si el tablero se lleno con la ultima jugada.
+    // if( tableroLleno(opcionesTablero[columna]) )
+    //   return 0;
     // Si al maximizar hago una jugada que gana la partida corto la recursión.
-    if(maximizar and jugada_ganadora)
-      return 1;
-    // Idem pero si estoy minimizando
-    else if ((!maximizar) and jugada_ganadora)
-      return -1;
-
-    posiblesResultados[i] = jugar_recursivo( opcionesTablero[i], c_linea,
-      (cant_fichas-1), i, (!maximizar));
+    if( maximizar and jugada_ganadora )
+      return devolverRespuesta( 1, columna, esRaiz);
+    else if ( (!maximizar) and jugada_ganadora )
+      return devolverRespuesta( -1,columna, esRaiz);
+    // Si juega el jugador tengo restar fichas, si juega el contrincante no.
+    if(maximizar){
+      posiblesResultados[columna] = jugar_recursivo( opcionesTablero[columna], c_linea,
+        (cant_fichas-1), (!maximizar), false);
+    }else{
+      posiblesResultados[columna] = jugar_recursivo(opcionesTablero[columna], c_linea,
+        cant_fichas, (!maximizar), false);
+    }
   }
 
   // Devolver el maximo de cada posibilidad.
   int respuesta;
-  if(maximizar)
+  if( esRaiz )
+    respuesta = mejor_jugada(posiblesResultados);
+  else if(maximizar)
     respuesta = maxRes(posiblesResultados);
   else
     respuesta = minRes(posiblesResultados);
@@ -218,7 +235,7 @@ tablero crearTablero(int n, int m){
 /* Consulto si la columna se lleno. */
 bool columna_llena(tablero& tab, int columna)
 {
-  return tab.matrizFichas.at(columna).size() > tab.m;
+  return tab.matrizFichas.at(columna).size() == tab.m;
 }
 
 /* Consulto si queda lugar en el tablero. */
