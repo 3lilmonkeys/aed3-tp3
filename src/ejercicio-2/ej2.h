@@ -159,7 +159,7 @@ int jugadaGolosa(tablero &tab, list<estr> estrs, int estrUnicas, int formarYBloq
     for(auto it = estrs.begin(); it != estrs.end(); it++){
         int size = (int) posiblesJugadas.size();
         if(it->estrategia <= estrUnicas){                       // las estr arrancan de 1. Por eso el <=
-            it->susMovs = calcularMoves(it->estrategia, tab,  p);    // calcularMoves falta
+            it->susMovs = calcularMoves(it->estrategia, tab,  p);    
             if(estrategiaEsValida(it->susMovs.resultados)){            // miro que realmente me haya dado al menos una jugada valida.
                 estr estr1;
                 estr1.susMovs = it->susMovs;
