@@ -16,10 +16,10 @@ individuo gridSearch_optimizado_v1(vector<individuo> oponentes)
 	inicializarJugadorConParametrosRandom(jugador);
 	int cambio;
 
-    // ofstream file_object;
-    // string file_name = "datos_gridsearch.csv";
-    // file_object.open(file_name);
-    // file_object << "Numero iteracion" << "," << "win_rate" << std::endl;
+    ofstream file_object;
+    string file_name = "jugador-gridsearch-v1.txt";
+    file_object.open(file_name);
+    
 
     //while (fitnessAnterior < 0.99)
     for(int indice = 1; /*fitnessAnterior < 0.99 and*/ indice <= 50; indice ++)
@@ -52,7 +52,13 @@ individuo gridSearch_optimizado_v1(vector<individuo> oponentes)
 		// file_object << indice << "," << fitnessAnterior << endl;
 	}
 	jugador.win_rate = fitnessAnterior;
-	jugador.parametros = paramsAnterior;
+    jugador.parametros = paramsAnterior;
+
+    for(int indice = 0; indice < jugador.parametros.size(); indice++)
+        file_object << jugador.parametros.at(indice) << " ";
+
+    file_object.close();
+
 	return jugador;
 }
 
@@ -81,9 +87,9 @@ individuo gridSearch_optimizado_v2(vector<individuo> oponentes)
     float fitnessReducido;
 	
     ofstream file_object;
-    string file_name = "datos_gridsearch_v2.csv";
+    string file_name = "jugador-gridsearch-v2.txt";
     file_object.open(file_name);
-    file_object << "Numero iteracion" << "," << "win_rate" << std::endl;
+    // file_object << "Numero iteracion" << "," << "win_rate" << std::endl;
     
     for(int cantPuntosAleatorios = 0; cantPuntosAleatorios < 50; cantPuntosAleatorios++)
 	{
@@ -108,10 +114,15 @@ individuo gridSearch_optimizado_v2(vector<individuo> oponentes)
             jugador.win_rate = max(fitnessAumentado, fitnessReducido);
             
         }
-        file_object << cantPuntosAleatorios << "," << fitnessMasAlto << endl;
+        // file_object << cantPuntosAleatorios << "," << fitnessMasAlto << endl;
     }
     jugador.parametros = mejoresParametros;
     jugador.win_rate = fitnessMasAlto;
+
+    for(int indice = 0; indice < jugador.parametros.size(); indice++)
+        file_object << jugador.parametros.at(indice) << " ";
+
+    file_object.close();
     return jugador;
 }
             
@@ -626,27 +637,23 @@ int main() {
     // El Genetico puede correr con una poblacion de OPONENTES o no, en el caso de que no se le pase una poblacion validad como OPONENTES,
     // el Genetico se entrenara con la poblacion de su generacion anterior.
 
-	individuo gen = genetico(poblacion0, oponentes);
-	for (int i = 0; i < gen.parametros.size(); i++)
-	{
-		cout << gen.parametros[i] << " ";
-	}
-	cout << "   " << gen.win_rate << endl;
+	// individuo gen = genetico(poblacion0, oponentes);
+	// for (int i = 0; i < gen.parametros.size(); i++)
+	// {
+	// 	cout << gen.parametros[i] << " ";
+	// }
+	// cout << "   " << gen.win_rate << endl;
 
 //==============================FIN CORRER GENETICO========================
 
 //===============================INICIO GRID SEARCH=========================
 
-	// cout << "Comienza grid" << endl;
+	cout << "Comienza grid" << endl;
 
-	// individuo jugador = gridSearch_optimizado_v1(oponentes);
-	// // individuo jugador = gridSearch_optimizado_v2(oponentes);
-	// cout << jugador.win_rate << endl;
-
- //    individuo jugador = gridSearch_optimizado_v1(oponentes);
- //    cout << jugador.win_rate << endl;
-	// jugador = gridSearch_optimizado_v2(oponentes);
-	// cout << jugador.win_rate << endl;
+    individuo jugador = gridSearch_optimizado_v1(oponentes);
+    cout << jugador.win_rate << endl;
+	jugador = gridSearch_optimizado_v2(oponentes);
+	cout << jugador.win_rate << endl;
 
 	return 0;
 }
