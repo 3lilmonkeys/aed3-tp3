@@ -50,13 +50,16 @@ int jugar_recursivo(tablero& tab, int c_linea, int cant_fichas, bool maximizar,
     opcionesTablero[columna] = tab;
     actualizarTablero(opcionesTablero[columna], columna, maximizar);
     bool jugada_ganadora = validar_jugada(opcionesTablero[columna], c_linea, columna);
+
     // Si al maximizar hago una jugada que gana la partida corto la recursión.
     if( maximizar and jugada_ganadora )
       return devolverRespuesta( 1, columna, esRaiz);
     else if ( (!maximizar) and jugada_ganadora )
       return devolverRespuesta( -1,columna, esRaiz);
+
     // Si juega el jugador tengo restar fichas, si juega el contrincante no.
-    if(maximizar){
+    if(maximizar)
+    {
       posiblesResultados[columna] = jugar_recursivo( opcionesTablero[columna], c_linea,
         (cant_fichas-1), (!maximizar), false);
     }else{

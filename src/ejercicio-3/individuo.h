@@ -53,6 +53,8 @@ int jugadaCasiRandom(tablero tab, int col);
 
 
 /* gridSearch */
+void mostrarVector(vector<int> vec);
+void inicializarJugadorConParametrosRandomDeNuevoPunto(individuo &jugador, int punto);
 individuo gridSearch_optimizado_v1(vector<individuo> oponentes);
 individuo gridSearch_optimizado_v2(vector<individuo> oponentes);
 
@@ -62,3 +64,12 @@ void calcularParametrosRecursivo(int indiceEnParametros,
 	set<vector<int> > &conjuntoParametros, vector<int> vectorParametros);
 
 void inicializarJugadorConParametrosRandom(individuo &jugador);
+
+int aumentarParametroHastaQueNoMejoreMas(individuo &jugador,
+	int indiceEnParametros, vector<individuo> &oponentes, float &fitnessMasAlto,
+	vector<int> &mejoresParametros, float &fitnessAumentado);
+int disminuirParametroHastaQueNoMejoreMas(individuo &jugador,
+	int indiceEnParametros, vector<individuo> &oponentes, float &fitnessMasAlto,
+	vector<int> &mejoresParametros, float &fitnessReducido);
+int mejorParametroDeEstaIteracion(int parametroAumentado, int parametroReducido,
+	float fitnessAumentado, float fitnessReducido);

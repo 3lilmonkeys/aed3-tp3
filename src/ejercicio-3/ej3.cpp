@@ -16,13 +16,13 @@ individuo gridSearch_optimizado_v1(vector<individuo> oponentes)
 	inicializarJugadorConParametrosRandom(jugador);
 	int cambio;
 
-    ofstream file_object;
-    string file_name = "datos_gridsearch.csv";
-    file_object.open(file_name);
-    file_object << "Numero iteracion" << "," << "win_rate" << std::endl;
+    // ofstream file_object;
+    // string file_name = "datos_gridsearch.csv";
+    // file_object.open(file_name);
+    // file_object << "Numero iteracion" << "," << "win_rate" << std::endl;
 
     //while (fitnessAnterior < 0.99)
-    for(int indice = 1; indice <= 50; indice ++)
+    for(int indice = 1; /*fitnessAnterior < 0.99 and*/ indice <= 50; indice ++)
 	{
 		//Selecciono grupos
 		for (int i = 0; i <= tamGrupos; i = i + 6)
@@ -30,31 +30,26 @@ individuo gridSearch_optimizado_v1(vector<individuo> oponentes)
 			cambio = 0;
 			while (cambio < 2)
 			{
-				// cout << "Nueva iteración" << endl;
 				// Seteo todos los parametros del grupo.
 				for (int j = i; j < max(i + 6, cantParams); j++)
 					jugador.parametros[j] = rand() % LIMITE_PARAM;
 
 				jugador.calcular_fitness(oponentes);
-				//cout << "fitness actual : " << jugador.win_rate << endl;
 				// Pregunto si mejoré en las ultimas iteraciones.
 				if (fitnessAnterior < jugador.win_rate)
 				{
-					// cout << "if"<<endl;
 					cambio = 0;
 					fitnessAnterior = jugador.win_rate;
 					paramsAnterior = jugador.parametros;
 				}
 				else
 				{
-					// cout << "else" << endl;
 					cambio++;
 					jugador.parametros = paramsAnterior;
 				}
 			}
-			// cout << "Otra iteración" << endl;
 		}
-		file_object << indice << "," << fitnessAnterior << endl;
+		// file_object << indice << "," << fitnessAnterior << endl;
 	}
 	jugador.win_rate = fitnessAnterior;
 	jugador.parametros = paramsAnterior;
@@ -70,6 +65,123 @@ void inicializarJugadorConParametrosRandom(individuo &jugador)
 		jugador.parametros.at(indice) = rand() % ultimoParametroCoherente;
 }
 
+
+individuo gridSearch_optimizado_v2(vector<individuo> oponentes)
+{	
+    individuo jugador;
+	
+	float fitnessMasAlto = 0;
+	vector<int> mejoresParametros(cantParams);
+    
+    int valorOriginal;
+    
+    int parametroAumentado;
+    int parametroReducido;
+    float fitnessAumentado;
+    float fitnessReducido;
+	
+    ofstream file_object;
+    string file_name = "datos_gridsearch_v2.csv";
+    file_object.open(file_name);
+    file_object << "Numero iteracion" << "," << "win_rate" << std::endl;
+    
+    for(int cantPuntosAleatorios = 0; cantPuntosAleatorios < 50; cantPuntosAleatorios++)
+	{
+        inicializarJugadorConParametrosRandom(jugador);
+        mostrarVector(jugador.parametros);
+		for(int indiceEnParametros = 0; indiceEnParametros < jugador.parametros.size(); indiceEnParametros++)
+		{
+            valorOriginal = jugador.parametros.at(indiceEnParametros);
+            
+            parametroAumentado = aumentarParametroHastaQueNoMejoreMas(jugador,indiceEnParametros,
+                oponentes,fitnessMasAlto,mejoresParametros, fitnessAumentado);
+                
+            jugador.parametros.at(indiceEnParametros) = valorOriginal;
+            
+            parametroReducido = disminuirParametroHastaQueNoMejoreMas(jugador, indiceEnParametros,
+                oponentes, fitnessMasAlto, mejoresParametros, fitnessReducido);
+                
+            jugador.parametros.at(indiceEnParametros) = 
+            mejorParametroDeEstaIteracion(parametroAumentado, 
+                parametroReducido, fitnessAumentado, fitnessReducido);
+                
+            jugador.win_rate = max(fitnessAumentado, fitnessReducido);
+            
+        }
+        file_object << cantPuntosAleatorios << "," << fitnessMasAlto << endl;
+    }
+    jugador.parametros = mejoresParametros;
+    jugador.win_rate = fitnessMasAlto;
+    return jugador;
+}
+            
+int aumentarParametroHastaQueNoMejoreMas(individuo &jugador, 
+int indiceEnParametros,vector<individuo> &oponentes, float &fitnessMasAlto,
+vector<int> &mejoresParametros, float &fitnessAumentado)
+{
+int mejorParametroTemporal = 0;
+
+while( jugador.parametros.at(indiceEnParametros) < 15 )
+{
+jugador.parametros.at(indiceEnParametros)++;
+jugador.calcular_fitness(oponentes);
+if (fitnessMasAlto < jugador.win_rate)
+{
+    fitnessMasAlto = jugador.win_rate;
+    mejoresParametros = jugador.parametros;
+}
+if( fitnessAumentado < jugador.win_rate )
+{
+    mejorParametroTemporal = jugador.parametros.at(indiceEnParametros);
+    fitnessAumentado = jugador.win_rate;
+}
+}
+return mejorParametroTemporal;
+}
+
+int disminuirParametroHastaQueNoMejoreMas(individuo &jugador,
+int indiceEnParametros, vector<individuo> &oponentes, float &fitnessMasAlto,
+vector<int> &mejoresParametros, float &fitnessReducido)
+{
+int mejorParametroTemporal = 0;
+
+while ( 0 <= jugador.parametros.at(indiceEnParametros))
+{
+    jugador.parametros.at(indiceEnParametros)--;
+    jugador.calcular_fitness(oponentes);
+    if (fitnessMasAlto < jugador.win_rate)
+    {
+        fitnessMasAlto = jugador.win_rate;
+        mejoresParametros = jugador.parametros;
+    }
+    if (fitnessReducido < jugador.win_rate)
+    {
+        mejorParametroTemporal = jugador.parametros.at(indiceEnParametros);
+        fitnessReducido = jugador.win_rate;
+    }
+}
+return mejorParametroTemporal;
+}
+
+int mejorParametroDeEstaIteracion(int parametroAumentado,int parametroReducido,
+float fitnessAumentado,float fitnessReducido)
+{
+    int parametro;
+    if(fitnessAumentado < fitnessReducido)
+    parametro = parametroReducido;
+    else
+    parametro = parametroAumentado;
+    return parametro;
+}
+
+void mostrarVector(vector<int> vec)
+{
+    cout << "[ ";
+    for(int indice = 0; indice < vec.size(); indice++)
+    cout << vec.at(indice) << " ";
+    cout << "]" <<endl;
+}
+
 /* Es demasiado grande el espacio de busqueda del exaustivo */
 
 // individuo gridSearch_Exaustivo(vector<individuo> oponentes)
@@ -81,7 +193,7 @@ void inicializarJugadorConParametrosRandom(individuo &jugador)
 
 // 	individuo jugador;
 // 	inicializarJugadorConParametrosRandom(jugador);
-	
+    
 // 	cout<< "Comienzo parametros recursivo"<<endl;
 
 // 	vector<int> parametros = jugador.parametros;
@@ -128,134 +240,40 @@ void inicializarJugadorConParametrosRandom(individuo &jugador)
 // 	}
 // 	return;
 // }
-
-individuo gridSearch_optimizado_v2(vector<individuo> oponentes)
-{	
-	int fitnessTemporal = 0;
-	vector<int> parametros;
-	individuo jugador;
-	
-	float fitnessMasAlto = 0;
-	vector<int> mejoresParametros(cantParams);
-
-	int noMejorePorXIntentos;
-	int valorOriginal;
-	int valorMenor;
-	float fitnessMenor;
-	int valorMayor;
-	float fitnessMayor;
-	
-	for(int cantPuntosAleatorios = 0; cantPuntosAleatorios < 10; cantPuntosAleatorios ++)
-	{	
-
-        cout << "Estoy en el punto: " << cantPuntosAleatorios << endl;
-        
-		inicializarJugadorConParametrosRandom(jugador);
-		for(int indiceEnParametros = 0; indiceEnParametros < jugador.parametros.size(); indiceEnParametros++)
-		{
-            cout<< "Cambio de indice por : " << indiceEnParametros << endl;
-            
-			noMejorePorXIntentos = 0;
-			while( noMejorePorXIntentos < 5 )
-			{
-                cout << "INICIO WHILE---No mejore por cantidad de intentos: " << noMejorePorXIntentos << endl;
-                
-				valorOriginal = jugador.parametros.at(indiceEnParametros);
-
-                cout << "El valor original: " << valorOriginal << endl;
-
-				valorMayor = valorOriginal+1;
-				jugador.parametros.at(indiceEnParametros) = valorMayor;
-
-                cout << "Valor aumentado es: " << jugador.parametros.at(indiceEnParametros)<<endl;
-                
-                jugador.calcular_fitness(oponentes);
-                fitnessMayor = jugador.win_rate;
-
-                cout << "El fitness mayor es: " << fitnessMayor << endl;
-                
-				if (fitnessMasAlto < fitnessMayor)
-				{
-
-                    cout << "ENTRE AL IF MAYOR" << endl;
-
-                    fitnessMasAlto = fitnessMayor;
-                    
-                    cout << "El fitness MEJOR es: " << fitnessMasAlto<<endl;
-                    
-                    parametros = jugador.parametros;
-					noMejorePorXIntentos = 0;
-					continue;
-				}
-
-				valorMenor = valorOriginal-1;
-                jugador.parametros.at(indiceEnParametros) = valorMenor;
-
-                cout << "Valor reducido es: " << jugador.parametros.at(indiceEnParametros) << endl;
-
-                jugador.calcular_fitness(oponentes);
-                fitnessMenor = jugador.win_rate;
-
-                cout << "El fitness menor es: " << fitnessMenor << endl;
-                
-				if(fitnessMasAlto < fitnessMenor){
-
-                    cout << "ENTRE AL IF MENOR" <<endl;
-                    
-                    fitnessMasAlto = fitnessMenor;
-                    parametros = jugador.parametros;
-
-                    cout << "El fitness MEJOR es: " << fitnessMasAlto << endl;
-
-                    noMejorePorXIntentos = 0;
-					continue;
-				}
-
-				jugador.parametros.at(indiceEnParametros) = valorOriginal;
-                noMejorePorXIntentos++;
-
-                cout << "El fitness MEJOR es: " << fitnessMasAlto << endl;
-            }
-		}
-	}
-	jugador.parametros = parametros;
-	return jugador;
-}
-
 /*-------------------------------------------FIN GRID SEARCH----------------*/
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/*--------------------------------------GENETICO-----------------------------*/
-individuo genetico(vector<individuo> poblacion0, vector<individuo> oponentesFijos) {
-
-    int generacion = 0;
-    for (int i = 0; i < TAM_POBLACION; i++)
-    {
-        cout << "calculando fitness " << i << endl;
-        poblacion0[i].calcular_fitness(poblacion0);
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        
+                        /*--------------------------------------GENETICO-----------------------------*/
+                        individuo genetico(vector<individuo> poblacion0, vector<individuo> oponentesFijos) {
+                            
+                            int generacion = 0;
+                            for (int i = 0; i < TAM_POBLACION; i++)
+                            {
+                                cout << "calculando fitness " << i << endl;
+                                poblacion0[i].calcular_fitness(poblacion0);
 
         for (int j = 0; j < poblacion0[i].parametros.size(); j++)
         {
@@ -691,8 +709,8 @@ int main() {
 
 	cout << "Comienza grid" << endl;
 
-	individuo jugador = gridSearch_optimizado_v1(oponentes);
-	// individuo jugador = gridSearch_optimizado_v2(oponentes);
+	// individuo jugador = gridSearch_optimizado_v1(oponentes);
+	individuo jugador = gridSearch_optimizado_v2(oponentes);
 	cout << jugador.win_rate << endl;
 
 	return 0;
