@@ -268,7 +268,7 @@ individuo genetico(vector<individuo> poblacion0, vector<individuo> oponentesFijo
     poblacion_sort(poblacion0);
     vector<individuo> poblacionAux;
 
-    while (poblacion0[0].win_rate < 0.99 && generacion <= 50) {
+    while (poblacion0[0].win_rate < 0.99 && generacion <= 100) {
 
         cout << "Esta es la generacion " << generacion << endl;
         for (int i = 0; i < poblacion0[0].parametros.size(); i++)
@@ -281,7 +281,7 @@ individuo genetico(vector<individuo> poblacion0, vector<individuo> oponentesFijo
 
         for (int i = 0; i < (TAM_POBLACION / 2); i++)
         {
-            individuo indA = seleccionarRandom(poblacion0);
+            individuo indA = seleccionarPonderado(poblacion0);
             individuo indB = seleccionarPonderado(poblacion0);
 
             individuo indAux = indA;
@@ -294,8 +294,8 @@ individuo genetico(vector<individuo> poblacion0, vector<individuo> oponentesFijo
             indA.mutar();
             indB.mutar();
 
-            indA.calcular_fitness(poblacionAux);
-            indB.calcular_fitness(poblacionAux);
+            indA.calcular_fitness(poblacionAnterior);
+            indB.calcular_fitness(poblacionAnterior);
 
             poblacionAux.push_back(indA);
             poblacionAux.push_back(indB);
@@ -308,6 +308,8 @@ individuo genetico(vector<individuo> poblacion0, vector<individuo> oponentesFijo
         poblacion_sort(poblacionAux);
 
         poblacion0 = poblacionAux;
+
+        poblacionAnterior = poblacion0;
 
     }
 
@@ -641,10 +643,10 @@ int main() {
 	// // individuo jugador = gridSearch_optimizado_v2(oponentes);
 	// cout << jugador.win_rate << endl;
 
-    individuo jugador = gridSearch_optimizado_v1(oponentes);
-    cout << jugador.win_rate << endl;
-	jugador = gridSearch_optimizado_v2(oponentes);
-	cout << jugador.win_rate << endl;
+ //    individuo jugador = gridSearch_optimizado_v1(oponentes);
+ //    cout << jugador.win_rate << endl;
+	// jugador = gridSearch_optimizado_v2(oponentes);
+	// cout << jugador.win_rate << endl;
 
 	return 0;
 }
