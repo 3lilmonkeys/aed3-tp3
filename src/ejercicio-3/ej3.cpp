@@ -116,51 +116,51 @@ individuo gridSearch_optimizado_v2(vector<individuo> oponentes)
 }
             
 int aumentarParametroHastaQueNoMejoreMas(individuo &jugador, 
-int indiceEnParametros,vector<individuo> &oponentes, float &fitnessMasAlto,
-vector<int> &mejoresParametros, float &fitnessAumentado)
+    int indiceEnParametros,vector<individuo> &oponentes, float &fitnessMasAlto,
+    vector<int> &mejoresParametros, float &fitnessAumentado)
 {
-int mejorParametroTemporal = 0;
+    int mejorParametroTemporal = 0;
 
-while( jugador.parametros.at(indiceEnParametros) < 15 )
-{
-jugador.parametros.at(indiceEnParametros)++;
-jugador.calcular_fitness(oponentes);
-if (fitnessMasAlto < jugador.win_rate)
-{
-    fitnessMasAlto = jugador.win_rate;
-    mejoresParametros = jugador.parametros;
-}
-if( fitnessAumentado < jugador.win_rate )
-{
-    mejorParametroTemporal = jugador.parametros.at(indiceEnParametros);
-    fitnessAumentado = jugador.win_rate;
-}
-}
-return mejorParametroTemporal;
-}
-
-int disminuirParametroHastaQueNoMejoreMas(individuo &jugador,
-int indiceEnParametros, vector<individuo> &oponentes, float &fitnessMasAlto,
-vector<int> &mejoresParametros, float &fitnessReducido)
-{
-int mejorParametroTemporal = 0;
-
-while ( 0 <= jugador.parametros.at(indiceEnParametros))
-{
-    jugador.parametros.at(indiceEnParametros)--;
+    while( jugador.parametros.at(indiceEnParametros) < 15 )
+    {
+    jugador.parametros.at(indiceEnParametros)++;
     jugador.calcular_fitness(oponentes);
     if (fitnessMasAlto < jugador.win_rate)
     {
         fitnessMasAlto = jugador.win_rate;
         mejoresParametros = jugador.parametros;
     }
-    if (fitnessReducido < jugador.win_rate)
+    if( fitnessAumentado < jugador.win_rate )
     {
         mejorParametroTemporal = jugador.parametros.at(indiceEnParametros);
-        fitnessReducido = jugador.win_rate;
+        fitnessAumentado = jugador.win_rate;
     }
+    }
+    return mejorParametroTemporal;
 }
-return mejorParametroTemporal;
+
+int disminuirParametroHastaQueNoMejoreMas(individuo &jugador,
+    int indiceEnParametros, vector<individuo> &oponentes, float &fitnessMasAlto,
+    vector<int> &mejoresParametros, float &fitnessReducido)
+{
+    int mejorParametroTemporal = 0;
+
+    while ( 0 <= jugador.parametros.at(indiceEnParametros))
+    {
+        jugador.parametros.at(indiceEnParametros)--;
+        jugador.calcular_fitness(oponentes);
+        if (fitnessMasAlto < jugador.win_rate)
+        {
+            fitnessMasAlto = jugador.win_rate;
+            mejoresParametros = jugador.parametros;
+        }
+        if (fitnessReducido < jugador.win_rate)
+        {
+            mejorParametroTemporal = jugador.parametros.at(indiceEnParametros);
+            fitnessReducido = jugador.win_rate;
+        }
+    }
+    return mejorParametroTemporal;
 }
 
 int mejorParametroDeEstaIteracion(int parametroAumentado,int parametroReducido,
@@ -643,7 +643,7 @@ int main() {
 
     individuo jugador = gridSearch_optimizado_v1(oponentes);
     cout << jugador.win_rate << endl;
-	individuo jugador = gridSearch_optimizado_v2(oponentes);
+	jugador = gridSearch_optimizado_v2(oponentes);
 	cout << jugador.win_rate << endl;
 
 	return 0;
